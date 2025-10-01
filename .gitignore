@@ -1,0 +1,1 @@
+-e "target/\n.idea/\n*.iml\n.vscode/\n*.log\n.DS_Store\nThumbs.db" 
