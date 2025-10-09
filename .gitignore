@@ -1,1 +1,16 @@
--e "target/\n.idea/\n*.iml\n.vscode/\n*.log\n.DS_Store\nThumbs.db" 
+# Maven build
+target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# Logs
+*.log
+
+# OS hệ thống
+.DS_Store
+Thumbs.db
