@@ -5,43 +5,45 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.RadialGradient?>
+<?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="game.arkanoid.MenuControll"
-            prefWidth="800" prefHeight="600"
-            style="-fx-background-color: black;">
+<AnchorPane prefHeight="600" prefWidth="800" style="-fx-background-color: black;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/25" fx:controller="game.arkanoid.MenuControll">
 
-    <Canvas fx:id="starCanvas" width="800" height="600" />
+    <Canvas fx:id="starCanvas" height="600" width="800" />
 
-    <Button text="START GAME"
-            layoutX="330" layoutY="230"
-            prefWidth="140" prefHeight="40"
-            style="-fx-background-color: #2ecc71; -fx-text-fill: white;"
-            onAction="#onStartGame">
+    <Button layoutX="330" layoutY="230" onAction="#onStartGame" prefHeight="40" prefWidth="140" style="-fx-background-color: #2ecc71; -fx-text-fill: white;" text="START GAME">
         <font><Font size="18" /></font>
+      <textFill>
+         <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
+            <stops>
+               <Stop>
+                  <color>
+                     <Color red="0.9232138395309448" green="0.9300000071525574" blue="0.8834999799728394" />
+                  </color>
+               </Stop>
+               <Stop offset="1.0">
+                  <color>
+                     <Color red="1.0" green="1.0" blue="1.0" />
+                  </color>
+               </Stop>
+            </stops>
+         </RadialGradient>
+      </textFill>
     </Button>
 
-    <Button text="EXIT"
-            layoutX="330" layoutY="280"
-            prefWidth="140" prefHeight="40"
-            style="-fx-background-color: #e74c3c; -fx-text-fill: white;"
-            onAction="#onExit">
+    <Button layoutX="330" layoutY="280" onAction="#onExit" prefHeight="40" prefWidth="140" style="-fx-background-color: #e74c3c; -fx-text-fill: white;" text="EXIT">
         <font><Font size="18" /></font>
     </Button>
 
     <!-- BALL SKIN -->
-    <ComboBox fx:id="ballSkinBox"
-              layoutX="280" layoutY="350"
-              prefWidth="240" promptText="🎾 Chọn Ball Skin"/>
-    <ImageView fx:id="ballPreview" layoutX="530" layoutY="340"
-               fitWidth="50" fitHeight="50"/>
+    <ComboBox fx:id="ballSkinBox" layoutX="280" layoutY="350" prefWidth="240" promptText="🎾 Chọn Ball Skin" />
+    <ImageView fx:id="ballPreview" fitHeight="50" fitWidth="50" layoutX="530" layoutY="340" />
 
     <!-- PADDLE SKIN -->
-    <ComboBox fx:id="paddleSkinBox"
-              layoutX="280" layoutY="420"
-              prefWidth="240" promptText="🛶 Chọn Paddle Skin"/>
-    <ImageView fx:id="paddlePreview" layoutX="530" layoutY="410"
-               fitWidth="100" fitHeight="20"/>
+    <ComboBox fx:id="paddleSkinBox" layoutX="280" layoutY="420" prefWidth="240" promptText="🛶 Chọn Paddle Skin" />
+    <ImageView fx:id="paddlePreview" fitHeight="20" fitWidth="100" layoutX="530" layoutY="410" />
 
 </AnchorPane>
