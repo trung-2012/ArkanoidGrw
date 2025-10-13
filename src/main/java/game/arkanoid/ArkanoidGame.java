@@ -3,8 +3,10 @@ package game.arkanoid;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image; // 👈 QUAN TRỌNG
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -23,6 +25,14 @@ public class ArkanoidGame extends Application {
     boolean[][] bricks;
     int brickRows = 5, brickCols = 10;
     double brickW = 60, brickH = 20;
+
+    // --- Thêm ở đầu class ---
+    private Image ballImage;
+    private Image paddleImage;
+
+    public void setBallImage(Image img) { this.ballImage = img; }
+    public void setPaddleImage(Image img) { this.paddleImage = img; }
+
 
     @Override
     public void start(Stage stage) {
@@ -109,12 +119,21 @@ public class ArkanoidGame extends Application {
         gc.fillRect(0, 0, 800, 600);
 
         // Draw paddle
-        gc.setFill(Color.BLUE);
-        gc.fillRect(paddleX, paddleY, paddleW, paddleH);
+        if (paddleImage != null)
+            gc.drawImage(paddleImage, paddleX, paddleY, paddleW, paddleH);
+        else {
+            gc.setFill(Color.BLUE);
+            gc.fillRect(paddleX, paddleY, paddleW, paddleH);
+        }
 
-        // Draw ball
-        gc.setFill(Color.RED);
-        gc.fillOval(ballX, ballY, ballR, ballR);
+// Draw ball
+        if (ballImage != null)
+            gc.drawImage(ballImage, ballX, ballY, ballR * 2, ballR * 2);
+        else {
+            gc.setFill(Color.RED);
+            gc.fillOval(ballX, ballY, ballR, ballR);
+        }
+
 
         // Draw bricks
         gc.setFill(Color.GREEN);
