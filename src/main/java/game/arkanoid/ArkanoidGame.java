@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 public class ArkanoidGame extends Application {
     // Paddle
     double paddleX = 300, paddleY = 550, paddleW = 100, paddleH = 15;
-    double paddleSpeed = 6;
+    double paddleSpeed = 6.5;
     boolean moveLeft = false, moveRight = false;
 
     // Ball
