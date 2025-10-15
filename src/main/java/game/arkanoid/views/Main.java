@@ -1,4 +1,4 @@
-package game.arkanoid;
+package game.arkanoid.views;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -11,10 +11,12 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Load giao diện từ file FXML
-        Parent root = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+        System.out.println(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource(
+                "/game/arkanoid/fxml/StartMenu.fxml"));
 
-        Scene scene = new Scene(root, 400, 300);
-        primaryStage.setTitle("Demo JavaFX with Scene Builder");
+        Scene scene = new Scene(root, 800, 600);
+        primaryStage.setTitle("Arkanoid Game");
         primaryStage.setScene(scene);
         primaryStage.show();
     }

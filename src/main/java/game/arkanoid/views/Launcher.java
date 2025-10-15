@@ -1,4 +1,4 @@
-package game.arkanoid;
+package game.arkanoid.views;
 
 public class Launcher {
     public static void main(String[] args) {

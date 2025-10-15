@@ -1,4 +1,4 @@
-package game.arkanoid;
+package game.arkanoid.fxml;
 
 import static org.junit.Assert.assertEquals;
 
