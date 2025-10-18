@@ -25,7 +25,7 @@ public class GameEngine extends AnimationTimer {
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
-    private int currentLevel = 1; // level hiện tại
+    private int currentLevel = 1;
     private boolean gameRunning;
 
     private Canvas canvas;
@@ -41,6 +41,7 @@ public class GameEngine extends AnimationTimer {
     private boolean rightPressed = false;
 
     @Override
+    // Vòng lặp game chính
     public void handle(long now) {
         if (!gameRunning)
             return;
@@ -49,6 +50,7 @@ public class GameEngine extends AnimationTimer {
         render();
     }
 
+    // Khởi tạo game engine với canvas để vẽ
     public void initializeGame(Canvas canvas) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
@@ -70,66 +72,69 @@ public class GameEngine extends AnimationTimer {
         } catch (Exception e) {
             this.paddleImage = null;
         }
-        // ensure canvas has focus for key events
+        // Đảm bảo canvas có tiêu điểm để nhận sự kiện bàn phím
         try {
             this.canvas.requestFocus();
         } catch (Exception ignored) {
+            System.out.println("Canvas not ready for focus request :((");
         }
         startNewGame();
     }
 
+    // Bắt đầu game mới
     public void startNewGame() {
-        // create paddle centered at bottom using canvas dimensions when available
+        // Tạo paddle ở chính giữa phía dưới màn hình
         double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
         double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
         double px = canvasW / 2.0;
-        double py = canvasH - (GameConstants.PADDLE_HEIGHT / 2.0) - 10; // 10px margin from bottom
+        double py = canvasH - (GameConstants.PADDLE_HEIGHT / 2.0) - 10;
 
         this.paddle = new Paddle(new Vector2D(px, py));
 
-        // create ball above paddle
+        // Tạo bóng ngay phía trên paddle
         double bx = px;
         double by = py - GameConstants.PADDLE_HEIGHT / 2.0 - GameConstants.BALL_SIZE;
         this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
 
-        // create bricks grid
+        // Tạo level đầu tiên
         loadLevelNumber(currentLevel);
         this.gameRunning = true;
-        this.start(); // start AnimationTimer
+        this.start(); // Khởi động AnimationTimer
     }
 
+    // Kiểm tra va chạm
     public void checkCollisions() {
         if (ball == null)
             return;
 
-        // Wall collisions (use canvas size when available)
+        // Kiểm tra va chạm với tường
         double w = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
         double h = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
         boolean out = ball.collideWithWall(w, h);
         if (out) {
-            // for now, restart ball above paddle
-            // reduce lives behavior could be added here; currently reset ball to paddle
+            // Bóng rơi xuống đáy thì bay màu 1 mạng
+            // Đặt lại vị trí bóng trên paddle
             ball.setPosition(new Vector2D(paddle.getPosition().getX(), paddle.getPosition().getY() - 30));
             ball.setVelocity(new Vector2D(GameConstants.BALL_SPEED, -GameConstants.BALL_SPEED));
         }
 
-        // Paddle collision
+        // Kiểm tra va chạm với paddle
         ball.collideWith(paddle);
 
-        // Brick collisions
+        // Kiểm tra va chạm với bricks
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
                 if (ball.collideWith(brick)) {
-                    // After hit, check if all destroyed
+                    // Sau khi va chạm, gạch chịu sát thương
                     boolean anyLeft = false;
                     for (Brick b : bricks) {
                         if (!b.getDestroyed()) { anyLeft = true; break; }
                     }
                     if (!anyLeft) {
-                        // Level cleared
+                        // Hoàn thành level
                         currentLevel++;
                         if (currentLevel > GameConstants.totalLevels) {
-                            // completed all levels -> show win screen (simple fallback here)
+                            // End game
                             this.setGameRunning(false);
                             Platform.runLater(() -> {
                                 try {
@@ -141,28 +146,29 @@ public class GameEngine extends AnimationTimer {
                                 }
                             });
                         } else {
-                            // load next level: reset ball/paddle and bricks
+                            // Load level tiếp theo
                             loadLevelNumber(currentLevel);
-                            // put ball above paddle
+                            // Đặt lại vị trí bóng trên paddle
                             ball.setPosition(new Vector2D(paddle.getPosition().getX(), paddle.getPosition().getY() - 30));
                             ball.setVelocity(new Vector2D(GameConstants.BALL_SPEED, -GameConstants.BALL_SPEED));
                         }
                     }
-                    break; // handle one collision per frame
+                    break; // Chỉ xử lý một va chạm mỗi frame
                 }
             }
         }
 
     }
 
+    // Cập nhật trạng thái game
     public void updateGameState() {
-        // move paddle if input flags are set
+        // Cập nhật vị trí paddle dựa trên trạng thái bấm phím
         if (paddle != null) {
             if (leftPressed && !rightPressed)
                 paddle.moveLeft();
             if (rightPressed && !leftPressed)
                 paddle.moveRight();
-            // clamp paddle inside canvas
+            // Đảm bảo paddle không đi ra ngoài màn hình
             double half = paddle.getWidth() / 2.0;
             double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
             if (paddle.getPosition().getX() - half < 0)
@@ -174,21 +180,24 @@ public class GameEngine extends AnimationTimer {
             ball.update();
     }
 
+    // Xử lý sự kiện phím bấm
     public void setLeftPressed(boolean pressed) {
         this.leftPressed = pressed;
     }
 
+    // Xử lý sự kiện phím bấm
     public void setRightPressed(boolean pressed) {
         this.rightPressed = pressed;
     }
 
+    // Vẽ lại khung cảnh game
     public void render() {
         if (gc == null)
             return;
-        // clear canvas (leave transparent so underlying ImageView background can show through)
+        // clear canvas 
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        // draw bricks (image if available)
+        // vẽ bricks
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
                 double bx = brick.getPosition().getX();
@@ -221,7 +230,7 @@ public class GameEngine extends AnimationTimer {
             }
         }
 
-        // draw paddle
+        // vẽ paddle
         double pw = paddle.getWidth();
         double ph = paddle.getHeight();
         double px = paddle.getPosition().getX() - pw / 2.0;
@@ -233,7 +242,7 @@ public class GameEngine extends AnimationTimer {
             gc.fillRect(px, py, pw, ph);
         }
 
-        // draw ball (image if available)
+        // vẽ ball
         double bx = ball.getPosition().getX() - ball.getRadius();
         double by = ball.getPosition().getY() - ball.getRadius();
         double size = ball.getRadius() * 2;
@@ -245,12 +254,18 @@ public class GameEngine extends AnimationTimer {
         }
     }
 
+    // Load level
     public void loadLevelNumber(int level) {
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
     }
+    
+    // Kiểm tra trạng thái game
+    public boolean isGameRunning() {
+        return gameRunning;
+    }
 
-    // Getters và Setters
+    // Getters & Setters
 
     public Ball getBall() {
         return ball;
@@ -262,10 +277,6 @@ public class GameEngine extends AnimationTimer {
 
     public List<Brick> getBricks() {
         return bricks;
-    }
-
-    public boolean isGameRunning() {
-        return gameRunning;
     }
 
     public void setGameRunning(boolean gameRunning) {

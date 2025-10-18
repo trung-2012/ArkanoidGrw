@@ -13,10 +13,7 @@ import java.util.List;
 
 public class LevelLoader {
 
-    /**
-     * Load level from resources/levels/levelFile
-     * Returns list of Brick (model-only). Does NOT create any Node/UI.
-     */
+    // Load level từ file txt.
     public static List<Brick> loadLevel(String levelFile) {
         List<Brick> bricks = new ArrayList<>();
 
@@ -26,7 +23,7 @@ public class LevelLoader {
             String line;
             int row = 0;
 
-            // layout parameters
+            // Thông số gạch
             int bw = GameConstants.BRICK_WIDTH;
             int bh = GameConstants.BRICK_HEIGHT;
             int pad = GameConstants.BRICK_PADDING;
@@ -57,7 +54,7 @@ public class LevelLoader {
 
         return bricks;
     }
-    // phan loai gach
+    // Phân loại gạch dựa trên các ký tự trong file txt
     private static BrickType charToBrickType(char c) {
         switch (c) {
             case '1': return BrickType.NORMAL;

@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import java.io.IOException;
 
 public class StartMenuController {
+    // Bắt đầu trò chơi
     @FXML
     private void startGame(ActionEvent event) {
         try {
@@ -23,11 +24,13 @@ public class StartMenuController {
         }
     }
 
+    // Mở cửa sổ cài đặt (update...)
     @FXML
     private void openSettings() {
         System.out.println("Open settings");
     }
 
+    // Thoát khỏi ứng dụng hoàn toàn.
     @FXML
     private void exitGame() {
         System.out.println("Exit game");

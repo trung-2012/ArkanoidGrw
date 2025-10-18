@@ -37,14 +37,15 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Khởi tạo engine, cấu hình canvas và ràng buộc kích thước/ sự kiện bàn phím
         engine = new GameEngine();
         engine.initializeGame(gameCanvas);
-        // hien thi level hien tai
+        // Hiển thị level hiện tại
         levelLabel.setText("Level: " + engine.getCurrentLevel());
-        // attach key listeners when scene is ready
+        // Gắn sự kiện bàn phím khi scene sẵn sàng
         gameCanvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                    // bind background image size to scene size
+                    // Ràng buộc kích thước ảnh nền theo kích thước scene
                     backgroundImageView.fitWidthProperty().bind(newScene.widthProperty());
                     backgroundImageView.fitHeightProperty().bind(newScene.heightProperty());
                 newScene.setOnKeyPressed(e -> {
@@ -73,14 +74,14 @@ public class MainController implements Initializable {
                         default:
                     }
                 });
-                // bind background image size to scene size
+                // Ràng buộc kích thước ảnh nền theo kích thước scene
                 backgroundImageView.fitWidthProperty().bind(newScene.widthProperty());
                 backgroundImageView.fitHeightProperty().bind(newScene.heightProperty());
 
-                // bind canvas size to available center area
+                // Ràng buộc kích thước canvas theo khu vực trung tâm có sẵn
                 gameCanvas.widthProperty().bind(newScene.widthProperty());
                 gameCanvas.heightProperty().bind(newScene.heightProperty().subtract(topBar.heightProperty()).subtract(bottomBar.heightProperty()));
-                // initialize game after layout pass so canvas has actual size
+                // Khởi tạo game sau khi layout hoàn tất để canvas có kích thước thực
                 javafx.application.Platform.runLater(() -> {
                     engine.startNewGame();
                     gameCanvas.requestFocus();
@@ -89,27 +90,34 @@ public class MainController implements Initializable {
         });
     }
 
+    // Bắt đầu
     @FXML
     private void startGame(ActionEvent event) {
+        // Bắt đầu/bật lại vòng lặp game
         engine.setGameRunning(true);
-        gameCanvas.requestFocus(); // tra lai Focus ban phim
+        gameCanvas.requestFocus(); // trả lại focus cho canvas
     }
 
+    // Tạm dừng
     @FXML
     private void pauseGame(ActionEvent event) {
+        // Chuyển trạng thái tạm dừng/tiếp tục
         engine.setGameRunning(!engine.isGameRunning());
-        gameCanvas.requestFocus(); // tra lai Focus ban phim
+        gameCanvas.requestFocus(); // trả lại focus cho canvas
     }
 
+    // Reset game
     @FXML
     private void resetGame(ActionEvent event) {
+        // Đặt lại trò chơi về trạng thái bắt đầu
         engine.startNewGame();
-        gameCanvas.requestFocus(); //  tra lai Focus ban phim
+        gameCanvas.requestFocus(); // trả lại focus cho canvas
     }
 
+    // Trở về menu chính
     @FXML
     private void returnToMenu(ActionEvent event) {
-        // stop the game engine
+        // Dừng game engine
         engine.setGameRunning(false);
         try {
             javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));

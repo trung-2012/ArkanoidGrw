@@ -14,17 +14,17 @@ public class Ball {
     public Ball(Vector2D position, double radius) {
         this.position = position;
         this.radius = radius;
-        // Default initial velocity: roughly at BALL_SPEED at a 45deg up-right direction
+        // Vận tốc mặc định: xấp xỉ BALL_SPEED theo hướng 45 độ lên trên-phải
         double diag = BALL_SPEED / Math.sqrt(2.0);
         this.velocity = new Vector2D(diag, -diag);
     }
 
-    // Update ball position based on its velocity
+    // Cập nhật vị trí bóng dựa trên vận tốc
     public void update() {
         position.add(velocity);
     }
 
-    // Reverse velocity components
+    // Đảo chiều các thành phần vận tốc
     public void reverseVelocityX() {
         this.velocity.setX(-this.velocity.getX());
     }
@@ -33,29 +33,29 @@ public class Ball {
         this.velocity.setY(-this.velocity.getY());
     }
 
-    // Collision detection with walls (returns true when ball falls below bottom)
+    // Phát hiện va chạm với tường (trả về true khi bóng rơi xuống dưới đáy)
     public boolean collideWithWall(double screenWidth, double screenHeight) {
         boolean bottomHit = false;
 
-        // Left wall
+        // Tường bên trái
         if (position.getX() - radius <= 0) {
             position.setX(radius);
             reverseVelocityX();
         }
 
-        // Right wall
+        // Tường bên phải
         if (position.getX() + radius >= screenWidth) {
             position.setX(screenWidth - radius);
             reverseVelocityX();
         }
 
-        // Top wall
+        // Tường trên
         if (position.getY() - radius <= 0) {
             position.setY(radius);
             reverseVelocityY();
         }
 
-        // Bottom (missed by paddle) -> signal life lost / ball out
+        // Đáy (paddle bỏ lỡ) -> báo hiệu mất mạng / bóng rơi
         if (position.getY() - radius > screenHeight) {
             bottomHit = true;
         }
@@ -63,8 +63,8 @@ public class Ball {
         return bottomHit;
     }
 
-    // Circle-rectangle collision against paddle. Assumes paddle.position is center
-    // of paddle.
+    // Va chạm hình tròn-chữ nhật với paddle. Giả định paddle.position là tâm
+    // của paddle.
     public boolean collideWith(Paddle paddle) {
         if (paddle == null)
             return false;
@@ -82,16 +82,15 @@ public class Ball {
 
         double distanceSq = dx * dx + dy * dy;
         if (distanceSq <= radius * radius) {
-            // Nudge ball out of paddle and reflect Y velocity
+            // Đẩy bóng ra khỏi paddle và phản xạ vận tốc Y
             position.setY(closestY - radius - 1);
             reverseVelocityY();
 
-            // Tweak X velocity based on hit position along paddle
+            // Điều chỉnh vận tốc X dựa trên vị trí va chạm dọc paddle
             double hitPos = (position.getX() - rx) / hw; // -1 .. 1
             double speed = Math.max(velocity.magnitude(), BALL_SPEED);
-            double newVx = speed * hitPos * 0.8; // tune factor
+            double newVx = speed * hitPos * 0.8;
             this.velocity.setX(newVx);
-            // Recalculate vy so total speed stays similar and directed upwards
             double vy = -Math.abs(Math.sqrt(Math.max(0, speed * speed - newVx * newVx)));
             this.velocity.setY(vy);
 
@@ -101,8 +100,7 @@ public class Ball {
         return false;
     }
 
-    // Circle-rectangle collision against a brick. Assumes brick.position is
-    // top-left corner.
+    // Va chạm hình tròn-chữ nhật với gạch. Giả định brick.position là góc trên-trái.
     public boolean collideWith(Brick brick) {
         if (brick == null || brick.getDestroyed())
             return false;
@@ -120,7 +118,7 @@ public class Ball {
 
         double distanceSq = dx * dx + dy * dy;
         if (distanceSq <= radius * radius) {
-            // Decide whether to reflect X or Y based on penetration
+            // Quyết định phản xạ X hay Y dựa trên độ xuyên vào
             double overlapLeft = Math.abs(position.getX() - bx);
             double overlapRight = Math.abs(position.getX() - (bx + bw));
             double overlapTop = Math.abs(position.getY() - by);
@@ -133,7 +131,7 @@ public class Ball {
                 reverseVelocityY();
             }
 
-            // Damage the brick
+            // Gây sát thương cho gạch
             brick.takeDamage();
             return true;
         }
@@ -141,6 +139,7 @@ public class Ball {
         return false;
     }
 
+    // Giúp hàm va chạm hình tròn-chữ nhật
     private double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
     }
