@@ -25,7 +25,7 @@ public class GameEngine extends AnimationTimer {
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
-    private int currentLevel = 2; // level hiện tại
+    private int currentLevel = 1; // level hiện tại
     private boolean gameRunning;
 
     private Canvas canvas;
