@@ -39,6 +39,8 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         engine = new GameEngine();
         engine.initializeGame(gameCanvas);
+        // hien thi level hien tai
+        levelLabel.setText("Level: " + engine.getCurrentLevel());
         // attach key listeners when scene is ready
         gameCanvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -90,16 +92,19 @@ public class MainController implements Initializable {
     @FXML
     private void startGame(ActionEvent event) {
         engine.setGameRunning(true);
+        gameCanvas.requestFocus(); // tra lai Focus ban phim
     }
 
     @FXML
     private void pauseGame(ActionEvent event) {
         engine.setGameRunning(!engine.isGameRunning());
+        gameCanvas.requestFocus(); // tra lai Focus ban phim
     }
 
     @FXML
     private void resetGame(ActionEvent event) {
         engine.startNewGame();
+        gameCanvas.requestFocus(); //  tra lai Focus ban phim
     }
 
     @FXML

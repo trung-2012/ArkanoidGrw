@@ -6,11 +6,17 @@ import game.arkanoid.models.Brick;
 import game.arkanoid.models.BrickType;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
+import game.arkanoid.utils.LevelLoader;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
+import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -19,6 +25,7 @@ public class GameEngine extends AnimationTimer {
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
+    private int currentLevel = 2; // level hiện tại
     private boolean gameRunning;
 
     private Canvas canvas;
@@ -86,23 +93,7 @@ public class GameEngine extends AnimationTimer {
         this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
 
         // create bricks grid
-        bricks.clear();
-        int rows = GameConstants.BRICK_ROWS;
-        int cols = GameConstants.BRICK_COLUMNS;
-        int bw = GameConstants.BRICK_WIDTH;
-        int bh = GameConstants.BRICK_HEIGHT;
-        int pad = GameConstants.BRICK_PADDING;
-        int startX = 50;
-        int startY = 50;
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                BrickType type = (r % 2 == 0) ? BrickType.NORMAL : BrickType.WOOD;
-                double x = startX + c * (bw + pad);
-                double y = startY + r * (bh + pad);
-                bricks.add(new Brick(type, new Vector2D(x, y)));
-            }
-        }
-
+        loadLevelNumber(currentLevel);
         this.gameRunning = true;
         this.start(); // start AnimationTimer
     }
@@ -129,10 +120,39 @@ public class GameEngine extends AnimationTimer {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
                 if (ball.collideWith(brick)) {
-                    break; // handle one collision per frame for simplicity
+                    // After hit, check if all destroyed
+                    boolean anyLeft = false;
+                    for (Brick b : bricks) {
+                        if (!b.getDestroyed()) { anyLeft = true; break; }
+                    }
+                    if (!anyLeft) {
+                        // Level cleared
+                        currentLevel++;
+                        if (currentLevel > GameConstants.totalLevels) {
+                            // completed all levels -> show win screen (simple fallback here)
+                            this.setGameRunning(false);
+                            Platform.runLater(() -> {
+                                try {
+                                    Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                                    Stage stage = (Stage) canvas.getScene().getWindow();
+                                    stage.setScene(new Scene(root, 800, 600));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        } else {
+                            // load next level: reset ball/paddle and bricks
+                            loadLevelNumber(currentLevel);
+                            // put ball above paddle
+                            ball.setPosition(new Vector2D(paddle.getPosition().getX(), paddle.getPosition().getY() - 30));
+                            ball.setVelocity(new Vector2D(GameConstants.BALL_SPEED, -GameConstants.BALL_SPEED));
+                        }
+                    }
+                    break; // handle one collision per frame
                 }
             }
         }
+
     }
 
     public void updateGameState() {
@@ -225,6 +245,11 @@ public class GameEngine extends AnimationTimer {
         }
     }
 
+    public void loadLevelNumber(int level) {
+        String file = "level" + level + ".txt";
+        this.bricks = LevelLoader.loadLevel(file);
+    }
+
     // Getters và Setters
 
     public Ball getBall() {
@@ -245,5 +270,9 @@ public class GameEngine extends AnimationTimer {
 
     public void setGameRunning(boolean gameRunning) {
         this.gameRunning = gameRunning;
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
     }
 }
