@@ -26,4 +26,7 @@ public class GameConstants {
 
     // Frame rate
     public static final int FRAME_RATE = 60;
+
+    //so luong man choi
+    public static final int totalLevels = 3;
 }
