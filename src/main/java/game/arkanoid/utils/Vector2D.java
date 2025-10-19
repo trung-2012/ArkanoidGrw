@@ -10,26 +10,25 @@ public class Vector2D {
         this.y = y;
     }
 
-    // Vector operations
+    // Cộng hai vector
     public void add(Vector2D other) {
-        // Add another vector to this one
         this.x += other.x;
         this.y += other.y;
     }
 
+    // Nhân vector với một hằng số
     public void multiply(double scalar) {
-        // Multiply vector by a scalar
         this.x *= scalar;
         this.y *= scalar;
     }
 
+    // Tính độ dài của vector
     public double magnitude() {
-        // Calculate the magnitude of the vector
         return Math.sqrt(x * x + y * y);
     }
 
+    // Chuẩn hóa vector về vector đơn vị.
     public void normalize() {
-        // Normalize the vector to unit length
         double mag = Math.sqrt(x * x + y * y);
         if (mag != 0) {
             this.x /= mag;

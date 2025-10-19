@@ -1,32 +1,32 @@
 package game.arkanoid.utils;
 
 public class GameConstants {
-    // Game window dimensions
+    // Kích thước cửa sổ trò chơi
     public static final int WINDOW_WIDTH = 800;
     public static final int WINDOW_HEIGHT = 600;
 
-    // Paddle dimensions and speed
+    // Thông số Paddle
     public static final int PADDLE_WIDTH = 100;
     public static final int PADDLE_HEIGHT = 20;
     public static final double PADDLE_SPEED = 10.0;
 
-    // Ball properties
+    // Thông số Ball
     public static final int BALL_SIZE = 15;
     public static final double BALL_SPEED = 5.0;
 
-    // Brick properties
+    // Thông số Brick
     public static final int BRICK_ROWS = 5;
     public static final int BRICK_COLUMNS = 10;
     public static final int BRICK_WIDTH = 60;
     public static final int BRICK_HEIGHT = 20;
     public static final int BRICK_PADDING = 5;
     
-    // Initial player lives
+    // Số mạng ban đầu
     public static final int INITIAL_LIVES = 3;
 
-    // Frame rate
+    // Tốc độ khung hình
     public static final int FRAME_RATE = 60;
 
-    //so luong man choi
+    // Tổng số level trong trò chơi
     public static final int totalLevels = 3;
 }

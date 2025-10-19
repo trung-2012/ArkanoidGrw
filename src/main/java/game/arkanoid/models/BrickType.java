@@ -5,9 +5,9 @@ public enum BrickType {
     WOOD(2),
     IRON(3),
     GOLD(4),
-    INSANE(100); // can't be destroyed
+    INSANE(100); // Hầu như không thể phá hủy
 
-    // Health points for each brick type
+    // Số máu của loại gạch
     private final int health;
 
     // Constructor

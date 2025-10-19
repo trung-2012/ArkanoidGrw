@@ -16,7 +16,7 @@ public class Brick {
         this.destroyed = false;
     }
 
-    // Handle damage and destruction
+    // Xử lý sát thương và phá hủy
     public void takeDamage() {
         if (destroyed)
             return;
@@ -26,7 +26,7 @@ public class Brick {
         }
     }
 
-    // Check if brick is destroyed
+    // Kiểm tra xem gạch đã bị phá hủy chưa
     public boolean isDestroyed() {
         return destroyed;
     }

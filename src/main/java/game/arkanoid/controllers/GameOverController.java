@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import java.io.IOException;
 
 public class GameOverController {
+    // Chơi lại
     @FXML
     private void restartGame(ActionEvent event) {
         try {
@@ -23,6 +24,7 @@ public class GameOverController {
         }
     }
 
+    // Trở về menu chính
     @FXML
     private void returnToMenu(ActionEvent event) {
         try {

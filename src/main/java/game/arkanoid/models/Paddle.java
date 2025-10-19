@@ -19,24 +19,23 @@ public class Paddle {
         this.moveSpeed = PADDLE_SPEED;
     }
 
-    // Movement methods
+    // Di chuyển paddle trái/phải với tốc độ cố định
     public void moveLeft() {
-        // Move paddle left by moveSpeed
+        // Di chuyển paddle trái
         this.position.setX(this.position.getX() - this.moveSpeed);
-        // Clamp to left edge (position is center)
+        // Đảm bảo paddle không đi ra ngoài màn hình
         double half = this.width / 2.0;
         if (this.position.getX() - half < 0)
             this.position.setX(half);
     }
 
     public void moveRight() {
-        // Move paddle right by moveSpeed
+        // Di chuyển paddle phải
         this.position.setX(this.position.getX() + this.moveSpeed);
     }
 
-    // Update could include friction/animations; keep placeholder to match API
+    // Cập nhật vị trí paddle (hiện tại không làm gì vì di chuyển trực tiếp trong moveLeft/moveRight)
     public void update() {
-        // currently no-op; movement is applied directly in moveLeft/moveRight
     }
 
     // Getters & Setters
