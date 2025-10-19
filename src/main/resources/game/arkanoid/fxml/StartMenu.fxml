@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -6,25 +7,63 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 
-<StackPane xmlns="http://javafx.com/javafx/11.0.1" 
+<StackPane xmlns="http://javafx.com/javafx/11.0.1"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="game.arkanoid.controllers.StartMenuController"
            prefWidth="800" prefHeight="600">
 
+    <!-- Ảnh nền chính -->
     <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
-        <Image url="@../images/BackGround.png"/>
+        <image>
+            <Image url="@../images/StartMenu.png" />
+        </image>
     </ImageView>
-    
+
+    <!-- Khối nội dung trung tâm -->
     <VBox alignment="CENTER" spacing="30">
-        <Label text="ARKANOID" style="-fx-font-size: 48; -fx-font-weight: bold; -fx-text-fill: red;"/>
-        
-        <VBox alignment="CENTER" spacing="15">
-            <Button fx:id="startButton" text="START GAME" onAction="#startGame" 
-                    style="-fx-font-size: 18; -fx-pref-width: 200;"/>
-            <Button fx:id="settingsButton" text="SETTINGS" onAction="#openSettings"
-                    style="-fx-font-size: 18; -fx-pref-width: 200;"/>
-            <Button fx:id="exitButton" text="EXIT" onAction="#exitGame"
-                    style="-fx-font-size: 18; -fx-pref-width: 200;"/>
+
+        <VBox alignment="CENTER" spacing="15" translateY = "80">
+
+            <!-- Nút START -->
+            <Button fx:id="startButton" text="" onAction="#startGame" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+                    prefWidth="210" prefHeight="70"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
+                <graphic>
+                    <ImageView fx:id="startImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
+                        <image>
+                            <Image url="@../images/start.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <!-- Nút SETTINGS -->
+            <Button fx:id="settingsButton" text="" onAction="#openSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+                    prefWidth="210" prefHeight="70"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
+                <graphic>
+                    <ImageView fx:id="settingsImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
+                        <image>
+                            <Image url="@../images/settings.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <!-- Nút EXIT -->
+            <Button fx:id="exitButton" text="" onAction="#exitGame" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+                    prefWidth="210" prefHeight="70"
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
+                <graphic>
+                    <ImageView fx:id="exitImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
+                        <image>
+                            <Image url="@../images/exit.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
         </VBox>
     </VBox>
+
 </StackPane>
