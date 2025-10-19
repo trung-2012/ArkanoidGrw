@@ -3,6 +3,7 @@ package game.arkanoid.views;
 import game.arkanoid.models.Ball;
 import game.arkanoid.models.Paddle;
 import game.arkanoid.models.Brick;
+import javafx.scene.control.Label;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.LevelLoader;
@@ -26,6 +27,12 @@ public class GameEngine extends AnimationTimer {
     private List<Brick> bricks = new ArrayList<>();
     private int currentLevel = 1;
     private boolean gameRunning;
+    private int lives = GameConstants.INITIAL_LIVES;
+    private int score = 0;
+    private Label scoreLabelRef;
+    private Label livesLabelRef;
+    private Label levelLabelRef;
+    private game.arkanoid.controllers.MainController mainController;
 
     private Canvas canvas;
     private GraphicsContext gc;
@@ -49,8 +56,8 @@ public class GameEngine extends AnimationTimer {
         render();
     }
 
-    // Khởi tạo game engine với canvas để vẽ
-    public void initializeGame(Canvas canvas) {
+    // Khởi tạo game engine với canvas để vẽ và label hiển thị
+    public void initializeGame(Canvas canvas, Label scoreLabel, Label livesLabel, Label levelLabel) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
         try {
@@ -77,6 +84,14 @@ public class GameEngine extends AnimationTimer {
         } catch (Exception ignored) {
             System.out.println("Canvas not ready for focus request :((");
         }
+        // lưu tham chiếu tới label để cập nhật sau này
+        this.scoreLabelRef = scoreLabel;
+        this.livesLabelRef = livesLabel;
+        this.levelLabelRef = levelLabel;
+        // cập nhật labels ban đầu
+        if (this.scoreLabelRef != null) this.scoreLabelRef.setText("Score: " + score);
+        if (this.livesLabelRef != null) this.livesLabelRef.setText("Lives: " + lives);
+        if (this.levelLabelRef != null) this.levelLabelRef.setText("Level: " + currentLevel);
         startNewGame();
     }
 
@@ -90,10 +105,12 @@ public class GameEngine extends AnimationTimer {
 
         this.paddle = new Paddle(new Vector2D(px, py));
 
-        // Tạo bóng ngay phía trên paddle
+        // Tạo bóng ngay phía trên paddle, cách paddle một khoảng nhỏ
         double bx = px;
-        double by = py - GameConstants.PADDLE_HEIGHT / 2.0 - GameConstants.BALL_SIZE;
+        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0) - 150.0;
         this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
+        // Khi mới bắt đầu, bóng sẽ tự rơi thẳng xuống
+        this.ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
 
         // Tạo level đầu tiên
         loadLevelNumber(currentLevel);
@@ -113,8 +130,31 @@ public class GameEngine extends AnimationTimer {
         if (out) {
             // Bóng rơi xuống đáy thì bay màu 1 mạng
             // Đặt lại vị trí bóng trên paddle
-            ball.setPosition(new Vector2D(paddle.getPosition().getX(), paddle.getPosition().getY() - 30));
-            ball.setVelocity(new Vector2D(GameConstants.BALL_SPEED, -GameConstants.BALL_SPEED));
+            double resetX = paddle.getPosition().getX();
+            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius() - 150.0;
+            ball.setPosition(new Vector2D(resetX, resetY));
+            // Bóng sẽ rơi thẳng xuống paddle (vận tốc chỉ có thành phần Y dương)
+            ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+            // giảm mạng và cập nhật label
+            lives = Math.max(0, lives - 1);
+            if (this.livesLabelRef != null) this.livesLabelRef.setText("Lives: " + lives);
+            if (lives <= 0) {
+                // Game over
+                this.setGameRunning(false);
+                Platform.runLater(() -> {
+                    try {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                        Parent root = loader.load();
+                        // truyền điểm vào controller
+                        game.arkanoid.controllers.GameOverController controller = loader.getController();
+                        controller.setFinalScore(score);
+                        Stage stage = (Stage) canvas.getScene().getWindow();
+                        stage.setScene(new Scene(root, 800, 600));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
         }
 
         // Kiểm tra va chạm với paddle
@@ -124,10 +164,35 @@ public class GameEngine extends AnimationTimer {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
                 if (ball.collideWith(brick)) {
-                    // Sau khi va chạm, gạch chịu sát thương
+                    // Sau khi va chạm, gạch chịu sát thương (takeDamage được gọi trong collideWith)
+                    // Nếu gạch thực sự bị phá hủy sau lần này thì mới cộng điểm
+                    if (brick.isDestroyed()) {
+                        switch (brick.getType()) {
+                            case WOOD:
+                                score += 20;
+                                break;
+                            case IRON:
+                                score += 40;
+                                break;
+                            case GOLD:
+                                score += 50;
+                                break;
+                            case INSANE:
+                                score += 1000;
+                                break;
+                            case NORMAL:
+                            default:
+                                score += 10;
+                                break;
+                        }
+                        if (this.scoreLabelRef != null) this.scoreLabelRef.setText("Score: " + score);
+                    }
                     boolean anyLeft = false;
                     for (Brick b : bricks) {
-                        if (!b.getDestroyed()) { anyLeft = true; break; }
+                        if (!b.getDestroyed()) {
+                            anyLeft = true;
+                            break;
+                        }
                     }
                     if (!anyLeft) {
                         // Hoàn thành level
@@ -137,7 +202,10 @@ public class GameEngine extends AnimationTimer {
                             this.setGameRunning(false);
                             Platform.runLater(() -> {
                                 try {
-                                    Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                                    Parent root = loader.load();
+                                    game.arkanoid.controllers.GameOverController controller = loader.getController();
+                                    controller.setFinalScore(score);
                                     Stage stage = (Stage) canvas.getScene().getWindow();
                                     stage.setScene(new Scene(root, 800, 600));
                                 } catch (Exception e) {
@@ -147,9 +215,12 @@ public class GameEngine extends AnimationTimer {
                         } else {
                             // Load level tiếp theo
                             loadLevelNumber(currentLevel);
-                            // Đặt lại vị trí bóng trên paddle
-                            ball.setPosition(new Vector2D(paddle.getPosition().getX(), paddle.getPosition().getY() - 30));
-                            ball.setVelocity(new Vector2D(GameConstants.BALL_SPEED, -GameConstants.BALL_SPEED));
+                            // Đặt lại vị trí bóng trên paddle và cho bóng tự rơi
+                            double resetX2 = paddle.getPosition().getX();
+                            double resetY2 = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius()
+                                    - 5.0;
+                            ball.setPosition(new Vector2D(resetX2, resetY2));
+                            ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
                         }
                     }
                     break; // Chỉ xử lý một va chạm mỗi frame
@@ -193,7 +264,7 @@ public class GameEngine extends AnimationTimer {
     public void render() {
         if (gc == null)
             return;
-        // clear canvas 
+        // clear canvas
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         // vẽ bricks
@@ -257,8 +328,16 @@ public class GameEngine extends AnimationTimer {
     public void loadLevelNumber(int level) {
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
+        // Cập nhật ảnh nền khi chuyển level
+        if (mainController != null) {
+            Platform.runLater(() -> mainController.updateBackgroundForLevel(level));
+        }
     }
-    
+
+    public void setMainController(game.arkanoid.controllers.MainController controller) {
+        this.mainController = controller;
+    }
+
     // Kiểm tra trạng thái game
     public boolean isGameRunning() {
         return gameRunning;

@@ -25,11 +25,11 @@
         <VBox alignment="CENTER" spacing="15" translateY = "80">
 
             <!-- Nút START -->
-            <Button fx:id="startButton" text="" onAction="#startGame"
+            <Button fx:id="startButton" text="" onAction="#startGame" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
                 <graphic>
-                    <ImageView fitWidth="210" fitHeight="70" preserveRatio="false">
+                    <ImageView fx:id="startImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
                         <image>
                             <Image url="@../images/start.png" />
                         </image>
@@ -38,11 +38,11 @@
             </Button>
 
             <!-- Nút SETTINGS -->
-            <Button fx:id="settingsButton" text="" onAction="#openSettings"
+            <Button fx:id="settingsButton" text="" onAction="#openSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
                 <graphic>
-                    <ImageView fitWidth="210" fitHeight="70" preserveRatio="false">
+                    <ImageView fx:id="settingsImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
                         <image>
                             <Image url="@../images/settings.png" />
                         </image>
@@ -51,11 +51,11 @@
             </Button>
 
             <!-- Nút EXIT -->
-            <Button fx:id="exitButton" text="" onAction="#exitGame"
+            <Button fx:id="exitButton" text="" onAction="#exitGame" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
                 <graphic>
-                    <ImageView fitWidth="210" fitHeight="70" preserveRatio="false">
+                    <ImageView fx:id="exitImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
                         <image>
                             <Image url="@../images/exit.png" />
                         </image>

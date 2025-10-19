@@ -11,6 +11,59 @@ import javafx.event.ActionEvent;
 import java.io.IOException;
 
 public class StartMenuController {
+    @FXML
+    private javafx.scene.image.ImageView startImageView;
+    @FXML
+    private javafx.scene.image.ImageView settingsImageView;
+    @FXML
+    private javafx.scene.image.ImageView exitImageView;
+
+    // Xử lý sự kiện khi di chuột vào button
+    @FXML
+    private void onButtonMouseEntered(javafx.scene.input.MouseEvent event) {
+        javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
+        String buttonId = sourceButton.getId();
+        javafx.scene.image.Image hoverImage = null;
+        
+        switch (buttonId) {
+            case "startButton":
+                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
+                startImageView.setImage(hoverImage);
+                break;
+            case "settingsButton":
+                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/settings c.png").toExternalForm());
+                settingsImageView.setImage(hoverImage);
+                break;
+            case "exitButton":
+                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/exit c.png").toExternalForm());
+                exitImageView.setImage(hoverImage);
+                break;
+        }
+    }
+
+    // Xử lý sự kiện khi di chuột ra khỏi button
+    @FXML
+    private void onButtonMouseExited(javafx.scene.input.MouseEvent event) {
+        javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
+        String buttonId = sourceButton.getId();
+        javafx.scene.image.Image normalImage = null;
+        
+        switch (buttonId) {
+            case "startButton":
+                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
+                startImageView.setImage(normalImage);
+                break;
+            case "settingsButton":
+                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/settings.png").toExternalForm());
+                settingsImageView.setImage(normalImage);
+                break;
+            case "exitButton":
+                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/exit.png").toExternalForm());
+                exitImageView.setImage(normalImage);
+                break;
+        }
+    }
+
     // Bắt đầu trò chơi
     @FXML
     private void startGame(ActionEvent event) {

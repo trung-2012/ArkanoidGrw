@@ -20,9 +20,9 @@
         
         <VBox alignment="CENTER" prefHeight="162.0" prefWidth="800.0" spacing="10">
 
-            <Button fx:id="restartButton" onAction="#restartGame" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
+            <Button fx:id="restartButton" onAction="#restartGame" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
                 <graphic>
-                    <ImageView fitHeight="70" fitWidth="210" preserveRatio="false">
+                    <ImageView fx:id="restartImageView" fitHeight="70" fitWidth="210" preserveRatio="false">
                         <image>
                             <Image url="@../images/PlayAgain.png" />
                         </image>
@@ -30,9 +30,9 @@
                 </graphic>
             </Button>
 
-            <Button fx:id="menuButton" onAction="#returnToMenu" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
+            <Button fx:id="menuButton" onAction="#returnToMenu" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
                 <graphic>
-                    <ImageView fitHeight="70" fitWidth="210" preserveRatio="false">
+                    <ImageView fx:id="menuImageView" fitHeight="70" fitWidth="210" preserveRatio="false">
                         <image>
                             <Image url="@../images/MainMenu.png" />
                         </image>

@@ -19,6 +19,16 @@ public class MainController implements Initializable {
     @FXML
     private Button resetButton;
     @FXML
+    private Button menuButton;
+    @FXML
+    private javafx.scene.image.ImageView startImageView;
+    @FXML
+    private javafx.scene.image.ImageView pauseImageView;
+    @FXML
+    private javafx.scene.image.ImageView resetImageView;
+    @FXML
+    private javafx.scene.image.ImageView menuImageView;
+    @FXML
     private Label scoreLabel;
     @FXML
     private Label livesLabel;
@@ -35,11 +45,74 @@ public class MainController implements Initializable {
 
     private GameEngine engine;
 
+    // Xử lý sự kiện khi di chuột vào button
+    @FXML
+    private void onButtonMouseEntered(javafx.scene.input.MouseEvent event) {
+        Button sourceButton = (Button) event.getSource();
+        String buttonId = sourceButton.getId();
+        javafx.scene.image.Image hoverImage = null;
+        
+        switch (buttonId) {
+            case "startButton":
+                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
+                startImageView.setImage(hoverImage);
+                break;
+            case "pauseButton":
+                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
+                pauseImageView.setImage(hoverImage);
+                break;
+            case "resetButton":
+                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/reset c.png").toExternalForm());
+                resetImageView.setImage(hoverImage);
+                break;
+            case "menuButton":
+                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
+                menuImageView.setImage(hoverImage);
+                break;
+        }
+    }
+
+    // Xử lý sự kiện khi di chuột ra khỏi button
+    @FXML
+    private void onButtonMouseExited(javafx.scene.input.MouseEvent event) {
+        Button sourceButton = (Button) event.getSource();
+        String buttonId = sourceButton.getId();
+        javafx.scene.image.Image normalImage = null;
+        
+        switch (buttonId) {
+            case "startButton":
+                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
+                startImageView.setImage(normalImage);
+                break;
+            case "pauseButton":
+                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
+                pauseImageView.setImage(normalImage);
+                break;
+            case "resetButton":
+                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/reset.png").toExternalForm());
+                resetImageView.setImage(normalImage);
+                break;
+            case "menuButton":
+                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
+                menuImageView.setImage(normalImage);
+                break;
+        }
+    }
+
+    // Thay đổi ảnh nền theo level
+    public void updateBackgroundForLevel(int level) {
+        String imagePath = String.format("/game/arkanoid/images/MapLevel%d.png", level);
+        backgroundImageView.setImage(new javafx.scene.image.Image(getClass().getResource(imagePath).toExternalForm()));
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Khởi tạo engine, cấu hình canvas và ràng buộc kích thước/ sự kiện bàn phím
         engine = new GameEngine();
-        engine.initializeGame(gameCanvas);
+        engine.setMainController(this);
+        engine.initializeGame(gameCanvas, scoreLabel, livesLabel, levelLabel);
+        // Set ảnh nền cho level 1
+        updateBackgroundForLevel(1);
         // Hiển thị level hiện tại
         levelLabel.setText("Level: " + engine.getCurrentLevel());
         // Gắn sự kiện bàn phím khi scene sẵn sàng
