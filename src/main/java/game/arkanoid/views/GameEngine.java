@@ -3,7 +3,6 @@ package game.arkanoid.views;
 import game.arkanoid.models.Ball;
 import game.arkanoid.models.Paddle;
 import game.arkanoid.models.Brick;
-import game.arkanoid.models.BrickType;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.LevelLoader;

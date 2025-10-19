@@ -2,8 +2,6 @@ package game.arkanoid.utils;
 
 import game.arkanoid.models.Brick;
 import game.arkanoid.models.BrickType;
-import game.arkanoid.utils.Vector2D;
-import game.arkanoid.utils.GameConstants;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
