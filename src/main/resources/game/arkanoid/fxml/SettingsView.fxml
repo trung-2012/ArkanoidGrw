@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+
+<AnchorPane prefWidth="800" prefHeight="600"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="game.arkanoid.controllers.SettingsController">
+
+    <!-- 🌌 Background -->
+    <ImageView fx:id="backgroundImageView"
+               fitWidth="800" fitHeight="600" preserveRatio="false">
+        <image>
+            <Image url="@/game/arkanoid/images/GameSettings.png" />
+        </image>
+    </ImageView>
+
+    <!-- 🏓 Paddle Section -->
+    <Button fx:id="leftPaddleButton" layoutX="90" layoutY="200" prefWidth="40" prefHeight="40"
+            style="-fx-background-color: transparent;"
+            onAction="#prevPaddle"
+            onMouseEntered="#onButtonMouseEntered"
+            onMouseExited="#onButtonMouseExited">
+        <graphic>
+            <ImageView fx:id="leftPaddleImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
+                <image>
+                    <Image url="@/game/arkanoid/images/left c.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <ImageView fx:id="paddleImageView" layoutX="150" layoutY="180"
+               fitWidth="180" fitHeight="70" preserveRatio="true">
+        <image>
+            <Image url="@/game/arkanoid/images/Paddle.png" />
+        </image>
+    </ImageView>
+
+    <Button fx:id="rightPaddleButton" layoutX="340" layoutY="200" prefWidth="40" prefHeight="40"
+            style="-fx-background-color: transparent;"
+            onAction="#nextPaddle"
+            onMouseEntered="#onButtonMouseEntered"
+            onMouseExited="#onButtonMouseExited">
+        <graphic>
+            <ImageView fx:id="rightPaddleImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
+                <image>
+                    <Image url="@/game/arkanoid/images/right c.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <Button fx:id="confirmPaddleButton" layoutX="190" layoutY="270"
+            prefWidth="120" prefHeight="40"
+            style="-fx-background-color: transparent;"
+            onAction="#confirmPaddle"
+            onMouseEntered="#onButtonMouseEntered"
+            onMouseExited="#onButtonMouseExited">
+        <graphic>
+            <ImageView fx:id="confirmPaddleImageView" fitWidth="120" fitHeight="40" preserveRatio="true">
+                <image>
+                    <Image url="@/game/arkanoid/images/change c.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <!-- 🔵 Ball Section -->
+    <Button fx:id="leftBallButton" layoutX="460" layoutY="200" prefWidth="40" prefHeight="40"
+            style="-fx-background-color: transparent;"
+            onAction="#prevBall"
+            onMouseEntered="#onButtonMouseEntered"
+            onMouseExited="#onButtonMouseExited">
+        <graphic>
+            <ImageView fx:id="leftBallImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
+                <image>
+                    <Image url="@/game/arkanoid/images/left c.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <ImageView fx:id="ballImageView" layoutX="520" layoutY="180"
+               fitWidth="70" fitHeight="70" preserveRatio="true">
+        <image>
+            <Image url="@/game/arkanoid/images/Ball.png" />
+        </image>
+    </ImageView>
+
+    <Button fx:id="rightBallButton" layoutX="600" layoutY="200" prefWidth="40" prefHeight="40"
+            style="-fx-background-color: transparent;"
+            onAction="#nextBall"
+            onMouseEntered="#onButtonMouseEntered"
+            onMouseExited="#onButtonMouseExited">
+        <graphic>
+            <ImageView fx:id="rightBallImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
+                <image>
+                    <Image url="@/game/arkanoid/images/right c.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <Button fx:id="confirmBallButton" layoutX="510" layoutY="270"
+            prefWidth="120" prefHeight="40"
+            style="-fx-background-color: transparent;"
+            onAction="#confirmBall"
+            onMouseEntered="#onButtonMouseEntered"
+            onMouseExited="#onButtonMouseExited">
+        <graphic>
+            <ImageView fx:id="confirmBallImageView" fitWidth="120" fitHeight="40" preserveRatio="true">
+                <image>
+                    <Image url="@/game/arkanoid/images/change c.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <!-- 💾 Nút Save -->
+    <Button fx:id="saveButton" layoutX="340" layoutY="500"
+            prefWidth="120" prefHeight="50"
+            style="-fx-background-color: transparent;"
+            onAction="#saveSettings"
+            onMouseEntered="#onButtonMouseEntered"
+            onMouseExited="#onButtonMouseExited">
+        <graphic>
+            <ImageView fx:id="saveImageView" fitWidth="120" fitHeight="50" preserveRatio="true">
+                <image>
+                    <Image url="@/game/arkanoid/images/save c.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+</AnchorPane>
