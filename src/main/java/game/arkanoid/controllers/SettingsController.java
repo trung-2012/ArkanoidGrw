@@ -43,7 +43,7 @@ public class SettingsController {
     private int ballIndex = 0;
     private int paddleIndex = 0;
 
-    // === Hover Event ===
+    //Hover Event
     @FXML
     private void onButtonMouseEntered(MouseEvent event) {
         Button btn = (Button) event.getSource();
@@ -104,7 +104,7 @@ public class SettingsController {
         }
     }
 
-    // === Thay đổi Skin ===
+    // Thay đổi Skin
     @FXML private void prevBall() {
         ballIndex = (ballIndex - 1 + ballSkins.length) % ballSkins.length;
         updateBallImage();
@@ -154,7 +154,7 @@ public class SettingsController {
         }
     }
 
-    // === Update Images ===
+    // Update Images
     private void updateBallImage() {
         ballImageView.setImage(new Image(getClass().getResource(ballSkins[ballIndex]).toExternalForm()));
     }
