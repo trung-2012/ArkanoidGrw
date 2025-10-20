@@ -43,7 +43,7 @@ public class SettingsController {
     private int ballIndex = 0;
     private int paddleIndex = 0;
 
-    // === Hover Event ===
+    //Hover Event
     @FXML
     private void onButtonMouseEntered(MouseEvent event) {
         Button btn = (Button) event.getSource();
@@ -104,7 +104,7 @@ public class SettingsController {
         }
     }
 
-    // === Thay đổi Skin ===
+    //  Thay đổi Skin
     @FXML private void prevBall() {
         ballIndex = (ballIndex - 1 + ballSkins.length) % ballSkins.length;
         updateBallImage();
@@ -127,18 +127,18 @@ public class SettingsController {
 
     @FXML
     private void confirmBall() {
-        System.out.println("✅ Ball đã chọn: " + ballSkins[ballIndex]);
+        System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
         GameSettings.setSelectedBall(ballSkins[ballIndex]); // 🟢 Lưu lại skin
     }
 
     @FXML
     private void confirmPaddle() {
-        System.out.println("✅ Paddle đã chọn: " + paddleSkins[paddleIndex]);
+        System.out.println("Paddle đã chọn: " + paddleSkins[paddleIndex]);
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]); // 🟣 Lưu lại skin
     }
 
     @FXML private void saveSettings(ActionEvent event) {
-        System.out.println("💾 Đã lưu:");
+        System.out.println("Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
         System.out.println("- Paddle: " + paddleSkins[paddleIndex]);
         goBackToMenu(event);
@@ -154,7 +154,7 @@ public class SettingsController {
         }
     }
 
-    // === Update Images ===
+    // Update Images
     private void updateBallImage() {
         ballImageView.setImage(new Image(getClass().getResource(ballSkins[ballIndex]).toExternalForm()));
     }
