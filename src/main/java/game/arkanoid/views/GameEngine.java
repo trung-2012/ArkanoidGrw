@@ -3,10 +3,10 @@ package game.arkanoid.views;
 import game.arkanoid.models.Ball;
 import game.arkanoid.models.Paddle;
 import game.arkanoid.models.Brick;
-import javafx.scene.control.Label;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.LevelLoader;
+import game.arkanoid.utils.GameSettings; // 🟢 thêm import này
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +16,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -46,58 +47,69 @@ public class GameEngine extends AnimationTimer {
     private boolean leftPressed = false;
     private boolean rightPressed = false;
 
+    // 🟡 skin path lấy từ Settings (có giá trị mặc định)
+    private String ballSkinPath = "/game/arkanoid/images/Ball.png";
+    private String paddleSkinPath = "/game/arkanoid/images/Paddle.png";
+
     @Override
-    // Vòng lặp game chính
     public void handle(long now) {
-        if (!gameRunning)
-            return;
+        if (!gameRunning) return;
         updateGameState();
         checkCollisions();
         render();
     }
 
-    // Khởi tạo game engine với canvas để vẽ và label hiển thị
+    // 🟢 Hàm này cho phép MainController truyền skin đã chọn
+    public void setBallSkin(String path) {
+        this.ballSkinPath = path;
+    }
+
+    public void setPaddleSkin(String path) {
+        this.paddleSkinPath = path;
+    }
+
     public void initializeGame(Canvas canvas, Label scoreLabel, Label livesLabel, Label levelLabel) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
+
+        // ✅ Load ảnh Ball & Paddle từ GameSettings (do người chơi chọn)
         try {
-            this.paddleImage = new Image(getClass().getResourceAsStream(
-                    "/game/arkanoid/images/Paddle.png"));
-            this.ballImage = new Image(getClass().getResourceAsStream(
-                    "/game/arkanoid/images/Ball.png"));
-            this.brickNormalImage = new Image(getClass().getResourceAsStream(
-                    "/game/arkanoid/images/BrickNormal.png"));
-            this.brickWoodImage = new Image(getClass().getResourceAsStream(
-                    "/game/arkanoid/images/BrickWood.png"));
-            this.brickIronImage = new Image(getClass().getResourceAsStream(
-                    "/game/arkanoid/images/BrickIron.png"));
-            this.brickGoldImage = new Image(getClass().getResourceAsStream(
-                    "/game/arkanoid/images/BrickGold.png"));
-            this.brickInsaneImage = new Image(getClass().getResourceAsStream(
-                    "/game/arkanoid/images/BrickInsane.png"));
+            this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
+            this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
         } catch (Exception e) {
-            this.paddleImage = null;
+            System.out.println("⚠ Không thể load skin người chơi chọn, dùng mặc định.");
+            this.ballImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Ball.png"));
+            this.paddleImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Paddle.png"));
         }
-        // Đảm bảo canvas có tiêu điểm để nhận sự kiện bàn phím
+
+        // Các hình ảnh Brick vẫn giữ nguyên
+        try {
+            this.brickNormalImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickNormal.png"));
+            this.brickWoodImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickWood.png"));
+            this.brickIronImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickIron.png"));
+            this.brickGoldImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickGold.png"));
+            this.brickInsaneImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickInsane.png"));
+        } catch (Exception e) {
+            System.out.println("⚠ Không thể load ảnh gạch.");
+        }
+
+        // canvas focus để nhận phím
         try {
             this.canvas.requestFocus();
-        } catch (Exception ignored) {
-            System.out.println("Canvas not ready for focus request :((");
-        }
-        // lưu tham chiếu tới label để cập nhật sau này
+        } catch (Exception ignored) {}
+
         this.scoreLabelRef = scoreLabel;
         this.livesLabelRef = livesLabel;
         this.levelLabelRef = levelLabel;
-        // cập nhật labels ban đầu
-        if (this.scoreLabelRef != null) this.scoreLabelRef.setText("Score: " + score);
-        if (this.livesLabelRef != null) this.livesLabelRef.setText("Lives: " + lives);
-        if (this.levelLabelRef != null) this.levelLabelRef.setText("Level: " + currentLevel);
+
+        if (scoreLabelRef != null) scoreLabelRef.setText("Score: " + score);
+        if (livesLabelRef != null) livesLabelRef.setText("Lives: " + lives);
+        if (levelLabelRef != null) levelLabelRef.setText("Level: " + currentLevel);
+
         startNewGame();
     }
 
-    // Bắt đầu game mới
     public void startNewGame() {
-        // Tạo paddle ở chính giữa phía dưới màn hình
         double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
         double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
         double px = canvasW / 2.0;
@@ -105,17 +117,14 @@ public class GameEngine extends AnimationTimer {
 
         this.paddle = new Paddle(new Vector2D(px, py));
 
-        // Tạo bóng ngay phía trên paddle, cách paddle một khoảng nhỏ
         double bx = px;
         double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0) - 150.0;
         this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
-        // Khi mới bắt đầu, bóng sẽ tự rơi thẳng xuống
         this.ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
 
-        // Tạo level đầu tiên
         loadLevelNumber(currentLevel);
         this.gameRunning = true;
-        this.start(); // Khởi động AnimationTimer
+        this.start();
     }
 
     // Kiểm tra va chạm

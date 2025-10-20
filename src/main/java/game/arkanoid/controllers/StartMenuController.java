@@ -24,7 +24,7 @@ public class StartMenuController {
         javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
         String buttonId = sourceButton.getId();
         javafx.scene.image.Image hoverImage = null;
-        
+
         switch (buttonId) {
             case "startButton":
                 hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
@@ -47,7 +47,7 @@ public class StartMenuController {
         javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
         String buttonId = sourceButton.getId();
         javafx.scene.image.Image normalImage = null;
-        
+
         switch (buttonId) {
             case "startButton":
                 normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
@@ -77,11 +77,18 @@ public class StartMenuController {
         }
     }
 
-    // Mở cửa sổ cài đặt (update...)
+    // Mở cửa sổ Cài đặt (Settings)
     @FXML
-    private void openSettings() {
-        System.out.println("Open settings");
+    private void openSettings(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 
     // Thoát khỏi ứng dụng hoàn toàn.
     @FXML
