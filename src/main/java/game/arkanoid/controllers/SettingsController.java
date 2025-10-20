@@ -127,18 +127,18 @@ public class SettingsController {
 
     @FXML
     private void confirmBall() {
-        System.out.println("✅ Ball đã chọn: " + ballSkins[ballIndex]);
+        System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
         GameSettings.setSelectedBall(ballSkins[ballIndex]); // 🟢 Lưu lại skin
     }
 
     @FXML
     private void confirmPaddle() {
-        System.out.println("✅ Paddle đã chọn: " + paddleSkins[paddleIndex]);
+        System.out.println("Paddle đã chọn: " + paddleSkins[paddleIndex]);
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]); // 🟣 Lưu lại skin
     }
 
     @FXML private void saveSettings(ActionEvent event) {
-        System.out.println("💾 Đã lưu:");
+        System.out.println(" Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
         System.out.println("- Paddle: " + paddleSkins[paddleIndex]);
         goBackToMenu(event);

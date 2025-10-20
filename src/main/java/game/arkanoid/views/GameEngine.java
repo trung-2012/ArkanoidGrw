@@ -72,7 +72,7 @@ public class GameEngine extends AnimationTimer {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
 
-        // ✅ Load ảnh Ball & Paddle từ GameSettings (do người chơi chọn)
+        // Load ảnh Ball & Paddle từ GameSettings (do người chơi chọn)
         try {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));

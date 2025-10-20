@@ -10,7 +10,7 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="game.arkanoid.controllers.SettingsController">
 
-    <!-- 🌌 Background -->
+    <!-- Background -->
     <ImageView fx:id="backgroundImageView"
                fitWidth="800" fitHeight="600" preserveRatio="false">
         <image>
@@ -18,7 +18,7 @@
         </image>
     </ImageView>
 
-    <!-- 🏓 Paddle Section -->
+    <!-- Paddle Section -->
     <Button fx:id="leftPaddleButton" layoutX="90" layoutY="200" prefWidth="40" prefHeight="40"
             style="-fx-background-color: transparent;"
             onAction="#prevPaddle"
@@ -69,7 +69,7 @@
         </graphic>
     </Button>
 
-    <!-- 🔵 Ball Section -->
+    <!-- Ball Section -->
     <Button fx:id="leftBallButton" layoutX="460" layoutY="200" prefWidth="40" prefHeight="40"
             style="-fx-background-color: transparent;"
             onAction="#prevBall"
@@ -120,7 +120,7 @@
         </graphic>
     </Button>
 
-    <!-- 💾 Nút Save -->
+    <!-- Nút Save -->
     <Button fx:id="saveButton" layoutX="340" layoutY="500"
             prefWidth="120" prefHeight="50"
             style="-fx-background-color: transparent;"

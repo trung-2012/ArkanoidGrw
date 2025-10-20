@@ -112,7 +112,7 @@ public class MainController implements Initializable {
         engine.setMainController(this);
         engine.initializeGame(gameCanvas, scoreLabel, livesLabel, levelLabel);
 
-// 🔥 Truyền skin đã chọn cho GameEngine
+        //Truyền skin đã chọn cho GameEngine
         engine.setBallSkin(game.arkanoid.utils.GameSettings.getSelectedBall());
         engine.setPaddleSkin(game.arkanoid.utils.GameSettings.getSelectedPaddle());
 
