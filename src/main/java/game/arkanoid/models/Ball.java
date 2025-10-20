@@ -1,5 +1,6 @@
 package game.arkanoid.models;
 
+import game.arkanoid.sound.SoundManager;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.GameConstants;
 
@@ -55,16 +56,17 @@ public class Ball {
             reverseVelocityY();
         }
 
-        // Đáy (paddle bỏ lỡ) -> báo hiệu mất mạng / bóng rơi
+        // Đáy (paddle bỏ lỡ) -> bóng rơi = mất mạng
         if (position.getY() - radius > screenHeight) {
             bottomHit = true;
+            // 🔊 Phát âm thanh mất mạng
+            SoundManager.playLoseLife();
         }
 
         return bottomHit;
     }
 
-    // Va chạm hình tròn-chữ nhật với paddle. Giả định paddle.position là tâm
-    // của paddle.
+    // Va chạm hình tròn-chữ nhật với paddle
     public boolean collideWith(Paddle paddle) {
         if (paddle == null)
             return false;
@@ -86,6 +88,9 @@ public class Ball {
             position.setY(closestY - radius - 1);
             reverseVelocityY();
 
+            // 🔊 Âm thanh khi chạm paddle
+            SoundManager.playHitPaddle();
+
             // Điều chỉnh vận tốc X dựa trên vị trí va chạm dọc paddle
             double hitPos = (position.getX() - rx) / hw; // -1 .. 1
             double speed = Math.max(velocity.magnitude(), BALL_SPEED);
@@ -93,14 +98,12 @@ public class Ball {
             this.velocity.setX(newVx);
             double vy = -Math.abs(Math.sqrt(Math.max(0, speed * speed - newVx * newVx)));
             this.velocity.setY(vy);
-
             return true;
         }
-
         return false;
     }
 
-    // Va chạm hình tròn-chữ nhật với gạch. Giả định brick.position là góc trên-trái.
+    // Va chạm hình tròn-chữ nhật với gạch
     public boolean collideWith(Brick brick) {
         if (brick == null || brick.getDestroyed())
             return false;
@@ -131,6 +134,9 @@ public class Ball {
                 reverseVelocityY();
             }
 
+            // 🔊 Âm thanh khi đập trúng gạch
+            SoundManager.playBrickBreak();
+
             // Gây sát thương cho gạch
             brick.takeDamage();
             return true;
@@ -145,7 +151,6 @@ public class Ball {
     }
 
     // Getters & Setters
-
     public Vector2D getPosition() {
         return position;
     }

@@ -1,4 +1,5 @@
 package game.arkanoid.controllers;
+import game.arkanoid.sound.SoundManager;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
