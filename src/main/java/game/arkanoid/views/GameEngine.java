@@ -6,7 +6,7 @@ import game.arkanoid.models.Brick;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.LevelLoader;
-import game.arkanoid.utils.GameSettings; // 🟢 thêm import này
+import game.arkanoid.utils.GameSettings;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;

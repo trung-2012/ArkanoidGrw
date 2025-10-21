@@ -27,7 +27,7 @@
         <graphic>
             <ImageView fx:id="leftPaddleImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/left c.png"/>
+                    <Image url="@/game/arkanoid/images/left.png"/>
                 </image>
             </ImageView>
         </graphic>
@@ -48,7 +48,7 @@
         <graphic>
             <ImageView fx:id="rightPaddleImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/right c.png"/>
+                    <Image url="@/game/arkanoid/images/right.png"/>
                 </image>
             </ImageView>
         </graphic>
@@ -63,7 +63,7 @@
         <graphic>
             <ImageView fx:id="confirmPaddleImageView" fitWidth="120" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/change c.png"/>
+                    <Image url="@/game/arkanoid/images/change.png"/>
                 </image>
             </ImageView>
         </graphic>
@@ -78,7 +78,7 @@
         <graphic>
             <ImageView fx:id="leftBallImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/left c.png"/>
+                    <Image url="@/game/arkanoid/images/left.png"/>
                 </image>
             </ImageView>
         </graphic>
@@ -99,7 +99,7 @@
         <graphic>
             <ImageView fx:id="rightBallImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/right c.png"/>
+                    <Image url="@/game/arkanoid/images/right.png"/>
                 </image>
             </ImageView>
         </graphic>
@@ -114,7 +114,7 @@
         <graphic>
             <ImageView fx:id="confirmBallImageView" fitWidth="120" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/change c.png"/>
+                    <Image url="@/game/arkanoid/images/change.png"/>
                 </image>
             </ImageView>
         </graphic>
@@ -130,7 +130,7 @@
         <graphic>
             <ImageView fx:id="saveImageView" fitWidth="120" fitHeight="50" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/save c.png"/>
+                    <Image url="@/game/arkanoid/images/save.png"/>
                 </image>
             </ImageView>
         </graphic>
