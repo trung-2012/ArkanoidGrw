@@ -44,7 +44,8 @@ public class SettingsController {
     // Skin
     private final String[] ballSkins = {
             "/game/arkanoid/images/Ball.png",
-            "/game/arkanoid/images/Paddle.png"
+            "/game/arkanoid/images/Ball1.png",
+            "/game/arkanoid/images/Ball2.png"
     };
     private final String[] paddleSkins = {
             "/game/arkanoid/images/Paddle.png",
@@ -62,7 +63,7 @@ public class SettingsController {
 
         switch (id) {
             case "saveButton":
-                saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save.png").toExternalForm()));
+                saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save c.png").toExternalForm()));
                 break;
             case "confirmBallButton":
                 confirmBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change c.png").toExternalForm()));
