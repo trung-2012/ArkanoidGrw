@@ -2,6 +2,7 @@ package game.arkanoid.models;
 
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.GameConstants;
+import game.arkanoid.sound.SoundManager; // thêm import âm thanh
 
 import static game.arkanoid.utils.GameConstants.BALL_SPEED;
 
@@ -86,6 +87,9 @@ public class Ball {
             position.setY(closestY - radius - 1);
             reverseVelocityY();
 
+            // phát âm thanh khi bóng chạm paddle
+            SoundManager.playHitPaddle();
+
             // Điều chỉnh vận tốc X dựa trên vị trí va chạm dọc paddle
             double hitPos = (position.getX() - rx) / hw; // -1 .. 1
             double speed = Math.max(velocity.magnitude(), BALL_SPEED);
@@ -130,6 +134,9 @@ public class Ball {
             } else {
                 reverseVelocityY();
             }
+
+            // phát âm thanh khi gạch bị phá
+            SoundManager.playBrickBreak();
 
             // Gây sát thương cho gạch
             brick.takeDamage();
