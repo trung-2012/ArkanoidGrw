@@ -141,7 +141,7 @@ public class SettingsController {
     @FXML
     private void confirmBall() {
         System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
-        GameSettings.setSelectedBall(ballSkins[ballIndex]); // 🟢 Lưu lại skin
+        GameSettings.setSelectedBall(ballSkins[ballIndex]); // Lưu lại skin
     }
 
     @FXML
