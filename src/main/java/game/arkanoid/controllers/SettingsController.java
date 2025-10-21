@@ -115,9 +115,6 @@ public class SettingsController {
         }
     }
 
-    //  Thay đổi Skin
-    @FXML
-    private void prevBall() {
     // Thay đổi Skin
     @FXML private void prevBall() {
         ballIndex = (ballIndex - 1 + ballSkins.length) % ballSkins.length;
@@ -145,7 +142,7 @@ public class SettingsController {
     @FXML
     private void confirmBall() {
         System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
-        GameSettings.setSelectedBall(ballSkins[ballIndex]); // 🟢 Lưu lại skin
+        GameSettings.setSelectedBall(ballSkins[ballIndex]); // Lưu lại skin
     }
 
     @FXML
@@ -153,10 +150,7 @@ public class SettingsController {
         System.out.println("Paddle đã chọn: " + paddleSkins[paddleIndex]);
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]); // 🟣 Lưu lại skin
     }
-
-    @FXML
-    private void saveSettings(ActionEvent event) {
-        System.out.println("Đã lưu:");
+    
     @FXML private void saveSettings(ActionEvent event) {
         System.out.println(" Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
