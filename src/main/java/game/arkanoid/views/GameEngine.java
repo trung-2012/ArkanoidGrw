@@ -96,7 +96,8 @@ public class GameEngine extends AnimationTimer {
         // canvas focus để nhận phím
         try {
             this.canvas.requestFocus();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         this.scoreLabelRef = scoreLabel;
         this.livesLabelRef = livesLabel;

@@ -11,24 +11,35 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
+
 import java.io.IOException;
+
 import game.arkanoid.utils.GameSettings;
 
 
 public class SettingsController {
 
     // Các ImageView trong Settings
-    @FXML private ImageView ballImageView;
-    @FXML private ImageView paddleImageView;
+    @FXML
+    private ImageView ballImageView;
+    @FXML
+    private ImageView paddleImageView;
 
-    @FXML private ImageView leftBallImageView;
-    @FXML private ImageView rightBallImageView;
-    @FXML private ImageView leftPaddleImageView;
-    @FXML private ImageView rightPaddleImageView;
+    @FXML
+    private ImageView leftBallImageView;
+    @FXML
+    private ImageView rightBallImageView;
+    @FXML
+    private ImageView leftPaddleImageView;
+    @FXML
+    private ImageView rightPaddleImageView;
 
-    @FXML private ImageView saveImageView;
-    @FXML private ImageView confirmBallImageView;
-    @FXML private ImageView confirmPaddleImageView;
+    @FXML
+    private ImageView saveImageView;
+    @FXML
+    private ImageView confirmBallImageView;
+    @FXML
+    private ImageView confirmPaddleImageView;
 
     // Skin
     private final String[] ballSkins = {
@@ -105,22 +116,26 @@ public class SettingsController {
     }
 
     //  Thay đổi Skin
-    @FXML private void prevBall() {
+    @FXML
+    private void prevBall() {
         ballIndex = (ballIndex - 1 + ballSkins.length) % ballSkins.length;
         updateBallImage();
     }
 
-    @FXML private void nextBall() {
+    @FXML
+    private void nextBall() {
         ballIndex = (ballIndex + 1) % ballSkins.length;
         updateBallImage();
     }
 
-    @FXML private void prevPaddle() {
+    @FXML
+    private void prevPaddle() {
         paddleIndex = (paddleIndex - 1 + paddleSkins.length) % paddleSkins.length;
         updatePaddleImage();
     }
 
-    @FXML private void nextPaddle() {
+    @FXML
+    private void nextPaddle() {
         paddleIndex = (paddleIndex + 1) % paddleSkins.length;
         updatePaddleImage();
     }
@@ -137,7 +152,8 @@ public class SettingsController {
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]); // 🟣 Lưu lại skin
     }
 
-    @FXML private void saveSettings(ActionEvent event) {
+    @FXML
+    private void saveSettings(ActionEvent event) {
         System.out.println("Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
         System.out.println("- Paddle: " + paddleSkins[paddleIndex]);

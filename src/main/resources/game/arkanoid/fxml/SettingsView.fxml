@@ -14,7 +14,7 @@
     <ImageView fx:id="backgroundImageView"
                fitWidth="800" fitHeight="600" preserveRatio="false">
         <image>
-            <Image url="@/game/arkanoid/images/GameSettings.png" />
+            <Image url="@/game/arkanoid/images/GameSettings.png"/>
         </image>
     </ImageView>
 
@@ -27,16 +27,16 @@
         <graphic>
             <ImageView fx:id="leftPaddleImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/left c.png" />
+                    <Image url="@/game/arkanoid/images/left c.png"/>
                 </image>
             </ImageView>
         </graphic>
     </Button>
 
-    <ImageView fx:id="paddleImageView" layoutX="150" layoutY="180"
+    <ImageView fx:id="paddleImageView" layoutX="153" layoutY="210"
                fitWidth="180" fitHeight="70" preserveRatio="true">
         <image>
-            <Image url="@/game/arkanoid/images/Paddle.png" />
+            <Image url="@/game/arkanoid/images/Paddle.png"/>
         </image>
     </ImageView>
 
@@ -48,13 +48,13 @@
         <graphic>
             <ImageView fx:id="rightPaddleImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/right c.png" />
+                    <Image url="@/game/arkanoid/images/right c.png"/>
                 </image>
             </ImageView>
         </graphic>
     </Button>
 
-    <Button fx:id="confirmPaddleButton" layoutX="190" layoutY="270"
+    <Button fx:id="confirmPaddleButton" layoutX="180" layoutY="270"
             prefWidth="120" prefHeight="40"
             style="-fx-background-color: transparent;"
             onAction="#confirmPaddle"
@@ -63,7 +63,7 @@
         <graphic>
             <ImageView fx:id="confirmPaddleImageView" fitWidth="120" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/change c.png" />
+                    <Image url="@/game/arkanoid/images/change c.png"/>
                 </image>
             </ImageView>
         </graphic>
@@ -78,16 +78,16 @@
         <graphic>
             <ImageView fx:id="leftBallImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/left c.png" />
+                    <Image url="@/game/arkanoid/images/left c.png"/>
                 </image>
             </ImageView>
         </graphic>
     </Button>
 
-    <ImageView fx:id="ballImageView" layoutX="520" layoutY="180"
+    <ImageView fx:id="ballImageView" layoutX="525" layoutY="190"
                fitWidth="70" fitHeight="70" preserveRatio="true">
         <image>
-            <Image url="@/game/arkanoid/images/Ball.png" />
+            <Image url="@/game/arkanoid/images/Ball.png"/>
         </image>
     </ImageView>
 
@@ -99,13 +99,13 @@
         <graphic>
             <ImageView fx:id="rightBallImageView" fitWidth="40" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/right c.png" />
+                    <Image url="@/game/arkanoid/images/right c.png"/>
                 </image>
             </ImageView>
         </graphic>
     </Button>
 
-    <Button fx:id="confirmBallButton" layoutX="510" layoutY="270"
+    <Button fx:id="confirmBallButton" layoutX="498" layoutY="270"
             prefWidth="120" prefHeight="40"
             style="-fx-background-color: transparent;"
             onAction="#confirmBall"
@@ -114,7 +114,7 @@
         <graphic>
             <ImageView fx:id="confirmBallImageView" fitWidth="120" fitHeight="40" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/change c.png" />
+                    <Image url="@/game/arkanoid/images/change c.png"/>
                 </image>
             </ImageView>
         </graphic>
@@ -130,7 +130,7 @@
         <graphic>
             <ImageView fx:id="saveImageView" fitWidth="120" fitHeight="50" preserveRatio="true">
                 <image>
-                    <Image url="@/game/arkanoid/images/save c.png" />
+                    <Image url="@/game/arkanoid/images/save c.png"/>
                 </image>
             </ImageView>
         </graphic>
