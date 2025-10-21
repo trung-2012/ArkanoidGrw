@@ -52,16 +52,23 @@ public class LevelLoader {
 
         return bricks;
     }
+
     // Phân loại gạch dựa trên các ký tự trong file txt
     private static BrickType charToBrickType(char c) {
         switch (c) {
-            case '1': return BrickType.NORMAL;
-            case '2': return BrickType.WOOD;
-            case '3': return BrickType.IRON;
-            case '4': return BrickType.GOLD;
-            case '9': return BrickType.INSANE;
+            case '1':
+                return BrickType.NORMAL;
+            case '2':
+                return BrickType.WOOD;
+            case '3':
+                return BrickType.IRON;
+            case '4':
+                return BrickType.GOLD;
+            case '9':
+                return BrickType.INSANE;
             case '0':
-            default: return null;
+            default:
+                return null;
         }
     }
 }

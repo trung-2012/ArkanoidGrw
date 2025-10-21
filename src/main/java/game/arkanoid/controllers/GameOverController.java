@@ -25,7 +25,7 @@ public class GameOverController {
         javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
         String buttonId = sourceButton.getId();
         javafx.scene.image.Image hoverImage = null;
-        
+
         switch (buttonId) {
             case "restartButton":
                 hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/PlayAgain c.png").toExternalForm());
@@ -44,7 +44,7 @@ public class GameOverController {
         javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
         String buttonId = sourceButton.getId();
         javafx.scene.image.Image normalImage = null;
-        
+
         switch (buttonId) {
             case "restartButton":
                 normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/PlayAgain.png").toExternalForm());
@@ -56,6 +56,7 @@ public class GameOverController {
                 break;
         }
     }
+
     // Chơi lại
     @FXML
     private void restartGame(ActionEvent event) {

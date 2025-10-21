@@ -20,7 +20,7 @@ public class GameConstants {
     public static final int BRICK_WIDTH = 60;
     public static final int BRICK_HEIGHT = 20;
     public static final int BRICK_PADDING = 5;
-    
+
     // Số mạng ban đầu
     public static final int INITIAL_LIVES = 3;
 

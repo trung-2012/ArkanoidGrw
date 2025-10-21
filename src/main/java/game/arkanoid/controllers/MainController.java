@@ -51,7 +51,7 @@ public class MainController implements Initializable {
         Button sourceButton = (Button) event.getSource();
         String buttonId = sourceButton.getId();
         javafx.scene.image.Image hoverImage = null;
-        
+
         switch (buttonId) {
             case "startButton":
                 hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
@@ -78,7 +78,7 @@ public class MainController implements Initializable {
         Button sourceButton = (Button) event.getSource();
         String buttonId = sourceButton.getId();
         javafx.scene.image.Image normalImage = null;
-        
+
         switch (buttonId) {
             case "startButton":
                 normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
@@ -112,7 +112,8 @@ public class MainController implements Initializable {
         engine.setMainController(this);
         engine.initializeGame(gameCanvas, scoreLabel, livesLabel, levelLabel);
 
-        //Truyền skin đã chọn cho GameEngine
+        // Truyền skin đã chọn cho GameEngine
+        // Truyền skin đã chọn cho GameEngine
         engine.setBallSkin(game.arkanoid.utils.GameSettings.getSelectedBall());
         engine.setPaddleSkin(game.arkanoid.utils.GameSettings.getSelectedPaddle());
 
@@ -123,9 +124,9 @@ public class MainController implements Initializable {
         // Gắn sự kiện bàn phím khi scene sẵn sàng
         gameCanvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                    // Ràng buộc kích thước ảnh nền theo kích thước scene
-                    backgroundImageView.fitWidthProperty().bind(newScene.widthProperty());
-                    backgroundImageView.fitHeightProperty().bind(newScene.heightProperty());
+                // Ràng buộc kích thước ảnh nền theo kích thước scene
+                backgroundImageView.fitWidthProperty().bind(newScene.widthProperty());
+                backgroundImageView.fitHeightProperty().bind(newScene.heightProperty());
                 newScene.setOnKeyPressed(e -> {
                     switch (e.getCode()) {
                         case LEFT:

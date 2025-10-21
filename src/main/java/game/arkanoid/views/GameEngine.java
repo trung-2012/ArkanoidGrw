@@ -47,7 +47,7 @@ public class GameEngine extends AnimationTimer {
     private boolean leftPressed = false;
     private boolean rightPressed = false;
 
-    // 🟡 skin path lấy từ Settings (có giá trị mặc định)
+    // skin path lấy từ Settings (có giá trị mặc định)
     private String ballSkinPath = "/game/arkanoid/images/Ball.png";
     private String paddleSkinPath = "/game/arkanoid/images/Paddle.png";
 
@@ -59,7 +59,7 @@ public class GameEngine extends AnimationTimer {
         render();
     }
 
-    // 🟢 Hàm này cho phép MainController truyền skin đã chọn
+    // Hàm này cho phép MainController truyền skin đã chọn
     public void setBallSkin(String path) {
         this.ballSkinPath = path;
     }
@@ -96,7 +96,8 @@ public class GameEngine extends AnimationTimer {
         // canvas focus để nhận phím
         try {
             this.canvas.requestFocus();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         this.scoreLabelRef = scoreLabel;
         this.livesLabelRef = livesLabel;
