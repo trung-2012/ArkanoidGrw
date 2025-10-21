@@ -65,36 +65,6 @@ public class SettingsController {
                 saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save.png").toExternalForm()));
                 break;
             case "confirmBallButton":
-                confirmBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change.png").toExternalForm()));
-                break;
-            case "confirmPaddleButton":
-                confirmPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change.png").toExternalForm()));
-                break;
-            case "leftBallButton":
-                leftBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/left.png").toExternalForm()));
-                break;
-            case "rightBallButton":
-                rightBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
-                break;
-            case "leftPaddleButton":
-                leftPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/left.png").toExternalForm()));
-                break;
-            case "rightPaddleButton":
-                rightPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
-                break;
-        }
-    }
-
-    @FXML
-    private void onButtonMouseExited(MouseEvent event) {
-        Button btn = (Button) event.getSource();
-        String id = btn.getId();
-
-        switch (id) {
-            case "saveButton":
-                saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save c.png").toExternalForm()));
-                break;
-            case "confirmBallButton":
                 confirmBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change c.png").toExternalForm()));
                 break;
             case "confirmPaddleButton":
@@ -115,10 +85,36 @@ public class SettingsController {
         }
     }
 
-    //  Thay đổi Skin
     @FXML
-    private void prevBall() {
-    // Thay đổi Skin
+    private void onButtonMouseExited(MouseEvent event) {
+        Button btn = (Button) event.getSource();
+        String id = btn.getId();
+
+        switch (id) {
+            case "saveButton":
+                saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save.png").toExternalForm()));
+                break;
+            case "confirmBallButton":
+                confirmBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change.png").toExternalForm()));
+                break;
+            case "confirmPaddleButton":
+                confirmPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change.png").toExternalForm()));
+                break;
+            case "leftBallButton":
+                leftBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/left.png").toExternalForm()));
+                break;
+            case "rightBallButton":
+                rightBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
+                break;
+            case "leftPaddleButton":
+                leftPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/left.png").toExternalForm()));
+                break;
+            case "rightPaddleButton":
+                rightPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
+                break;
+        }
+    }
+
     @FXML private void prevBall() {
         ballIndex = (ballIndex - 1 + ballSkins.length) % ballSkins.length;
         updateBallImage();
@@ -154,9 +150,6 @@ public class SettingsController {
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]); // 🟣 Lưu lại skin
     }
 
-    @FXML
-    private void saveSettings(ActionEvent event) {
-        System.out.println("Đã lưu:");
     @FXML private void saveSettings(ActionEvent event) {
         System.out.println(" Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
