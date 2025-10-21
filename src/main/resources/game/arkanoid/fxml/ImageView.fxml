@@ -1,0 +1,4 @@
+<ImageView fx:id="soundToggleImageView" onMouseClicked="#toggleMenuSound"
+           layoutX="750" layoutY="20" fitWidth="32" fitHeight="32"
+           pickOnBounds="true" preserveRatio="true"
+           image="@../images/sound_on.png" xmlns:fx=""/>

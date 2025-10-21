@@ -1,72 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/11.0.1"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="game.arkanoid.controllers.StartMenuController"
            prefWidth="800" prefHeight="600">
 
-    <!-- Ảnh nền chính -->
+    <!-- Ảnh nền -->
     <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
         <image>
             <Image url="@../images/StartMenu.png"/>
         </image>
     </ImageView>
 
-    <!-- Khối nội dung trung tâm -->
-    <VBox alignment="CENTER" spacing="30">
+    <!-- Icon bật/tắt âm thanh -->
+    <AnchorPane pickOnBounds="false">
+        <ImageView fx:id="menuSoundToggleImageView"
+                   onMouseClicked="#toggleMenuSound"
+                   fitHeight="32" fitWidth="32"
+                   preserveRatio="true"
+                   AnchorPane.topAnchor="10.0"
+                   AnchorPane.rightAnchor="10.0"
+                   style="-fx-cursor: hand;">
+            <image>
+                <Image url="@../images/sound_on.png"/>
+            </image>
+        </ImageView>
+    </AnchorPane>
 
-        <VBox alignment="CENTER" spacing="15" translateY="80">
+    <!-- Các nút -->
+    <VBox alignment="CENTER" spacing="30" translateY="80" pickOnBounds="false">
+        <Button fx:id="startButton"
+                text=""
+                onAction="#startGame"
+                onMouseEntered="#onButtonMouseEntered"
+                onMouseExited="#onButtonMouseExited"
+                prefWidth="210" prefHeight="70"
+                style="-fx-background-color: transparent;">
+            <graphic>
+                <ImageView fx:id="startImageView"
+                           fitWidth="210" fitHeight="70"
+                           preserveRatio="false">
+                    <image>
+                        <Image url="@../images/start.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
 
-            <!-- Nút START -->
-            <Button fx:id="startButton" text="" onAction="#startGame" onMouseEntered="#onButtonMouseEntered"
-                    onMouseExited="#onButtonMouseExited"
-                    prefWidth="210" prefHeight="70"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
-                <graphic>
-                    <ImageView fx:id="startImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
-                        <image>
-                            <Image url="@../images/start.png"/>
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
+        <Button fx:id="settingsButton"
+                text=""
+                onAction="#openSettings"
+                onMouseEntered="#onButtonMouseEntered"
+                onMouseExited="#onButtonMouseExited"
+                prefWidth="210" prefHeight="70"
+                style="-fx-background-color: transparent;">
+            <graphic>
+                <ImageView fx:id="settingsImageView"
+                           fitWidth="210" fitHeight="70"
+                           preserveRatio="false">
+                    <image>
+                        <Image url="@../images/settings.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
 
-            <!-- Nút SETTINGS -->
-            <Button fx:id="settingsButton" text="" onAction="#openSettings" onMouseEntered="#onButtonMouseEntered"
-                    onMouseExited="#onButtonMouseExited"
-                    prefWidth="210" prefHeight="70"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
-                <graphic>
-                    <ImageView fx:id="settingsImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
-                        <image>
-                            <Image url="@../images/settings.png"/>
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-
-            <!-- Nút EXIT -->
-            <Button fx:id="exitButton" text="" onAction="#exitGame" onMouseEntered="#onButtonMouseEntered"
-                    onMouseExited="#onButtonMouseExited"
-                    prefWidth="210" prefHeight="70"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
-                <graphic>
-                    <ImageView fx:id="exitImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
-                        <image>
-                            <Image url="@../images/exit.png"/>
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-
-        </VBox>
+        <Button fx:id="exitButton"
+                text=""
+                onAction="#exitGame"
+                onMouseEntered="#onButtonMouseEntered"
+                onMouseExited="#onButtonMouseExited"
+                prefWidth="210" prefHeight="70"
+                style="-fx-background-color: transparent;">
+            <graphic>
+                <ImageView fx:id="exitImageView"
+                           fitWidth="210" fitHeight="70"
+                           preserveRatio="false">
+                    <image>
+                        <Image url="@../images/exit.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
     </VBox>
-
 </StackPane>
