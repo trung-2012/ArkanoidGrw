@@ -41,7 +41,7 @@ public class SettingsController {
     @FXML
     private ImageView confirmPaddleImageView;
 
-    // Skin
+    // Dsach Skins
     private final String[] ballSkins = {
             "/game/arkanoid/images/Ball.png",
             "/game/arkanoid/images/Ball1.png",
@@ -55,7 +55,7 @@ public class SettingsController {
     private int ballIndex = 0;
     private int paddleIndex = 0;
 
-    //Hover Event
+    // Xử lý sự kiện khi di chuột vào button
     @FXML
     private void onButtonMouseEntered(MouseEvent event) {
         Button btn = (Button) event.getSource();
@@ -86,6 +86,7 @@ public class SettingsController {
         }
     }
 
+    // Xử lý sự kiện khi di chuột ra khỏi button
     @FXML
     private void onButtonMouseExited(MouseEvent event) {
         Button btn = (Button) event.getSource();
@@ -116,6 +117,7 @@ public class SettingsController {
         }
     }
 
+    // Chuyển đổi skin
     @FXML private void prevBall() {
         ballIndex = (ballIndex - 1 + ballSkins.length) % ballSkins.length;
         updateBallImage();
@@ -139,6 +141,7 @@ public class SettingsController {
         updatePaddleImage();
     }
 
+    // Xác nhận skin đã chọn
     @FXML
     private void confirmBall() {
         System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
@@ -151,6 +154,7 @@ public class SettingsController {
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]); // 🟣 Lưu lại skin
     }
 
+    // Xác nhận thay đổi
     @FXML private void saveSettings(ActionEvent event) {
         System.out.println(" Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
@@ -158,6 +162,7 @@ public class SettingsController {
         goBackToMenu(event);
     }
 
+    // Trở về Main Menu
     private void goBackToMenu(ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
@@ -168,7 +173,7 @@ public class SettingsController {
         }
     }
 
-    // Update Images
+    // Cập nhật hình ảnh theo skin đã chọn
     private void updateBallImage() {
         ballImageView.setImage(new Image(getClass().getResource(ballSkins[ballIndex]).toExternalForm()));
     }

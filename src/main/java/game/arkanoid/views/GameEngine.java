@@ -47,7 +47,7 @@ public class GameEngine extends AnimationTimer {
     private boolean leftPressed = false;
     private boolean rightPressed = false;
 
-    // skin path lấy từ Settings (có giá trị mặc định)
+    // Path skin mặc định
     private String ballSkinPath = "/game/arkanoid/images/Ball.png";
     private String paddleSkinPath = "/game/arkanoid/images/Paddle.png";
 
@@ -59,7 +59,7 @@ public class GameEngine extends AnimationTimer {
         render();
     }
 
-    // Hàm này cho phép MainController truyền skin đã chọn
+    // Set skin từ Settings
     public void setBallSkin(String path) {
         this.ballSkinPath = path;
     }
@@ -72,17 +72,17 @@ public class GameEngine extends AnimationTimer {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
 
-        // Load ảnh Ball & Paddle từ GameSettings (do người chơi chọn)
+        // Load ảnh Ball & Paddle theo skin đã chọn
         try {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
         } catch (Exception e) {
-            System.out.println("⚠ Không thể load skin người chơi chọn, dùng mặc định.");
+            System.out.println("Không thể load skin đã chọn, dùng mặc định.");
             this.ballImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Ball.png"));
             this.paddleImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Paddle.png"));
         }
 
-        // Các hình ảnh Brick vẫn giữ nguyên
+        // Load ảnh gạch
         try {
             this.brickNormalImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickNormal.png"));
             this.brickWoodImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickWood.png"));
@@ -90,7 +90,7 @@ public class GameEngine extends AnimationTimer {
             this.brickGoldImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickGold.png"));
             this.brickInsaneImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickInsane.png"));
         } catch (Exception e) {
-            System.out.println("⚠ Không thể load ảnh gạch.");
+            System.out.println("Không thể load ảnh gạch.");
         }
 
         // canvas focus để nhận phím
@@ -110,6 +110,7 @@ public class GameEngine extends AnimationTimer {
         startNewGame();
     }
 
+    // Bắt đầu game mới
     public void startNewGame() {
         double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
         double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
@@ -174,8 +175,8 @@ public class GameEngine extends AnimationTimer {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
                 if (ball.collideWith(brick)) {
-                    // Sau khi va chạm, gạch chịu sát thương (takeDamage được gọi trong collideWith)
-                    // Nếu gạch thực sự bị phá hủy sau lần này thì mới cộng điểm
+                    // Sau khi va chạm, gạch chịu sát thương
+                    // Chỉ cộng điểm khi gạch bị phá hủy
                     if (brick.isDestroyed()) {
                         switch (brick.getType()) {
                             case WOOD:
