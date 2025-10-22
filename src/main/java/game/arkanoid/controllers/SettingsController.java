@@ -16,7 +16,6 @@ import java.io.IOException;
 
 import game.arkanoid.utils.GameSettings;
 
-
 public class SettingsController {
 
     // Các ImageView trong Settings
@@ -63,25 +62,32 @@ public class SettingsController {
 
         switch (id) {
             case "saveButton":
-                saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save c.png").toExternalForm()));
+                saveImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/save c.png").toExternalForm()));
                 break;
             case "confirmBallButton":
-                confirmBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change c.png").toExternalForm()));
+                confirmBallImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/change c.png").toExternalForm()));
                 break;
             case "confirmPaddleButton":
-                confirmPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change c.png").toExternalForm()));
+                confirmPaddleImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/change c.png").toExternalForm()));
                 break;
             case "leftBallButton":
-                leftBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/left c.png").toExternalForm()));
+                leftBallImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/left c.png").toExternalForm()));
                 break;
             case "rightBallButton":
-                rightBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/right c.png").toExternalForm()));
+                rightBallImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/right c.png").toExternalForm()));
                 break;
             case "leftPaddleButton":
-                leftPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/left c.png").toExternalForm()));
+                leftPaddleImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/left c.png").toExternalForm()));
                 break;
             case "rightPaddleButton":
-                rightPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/right c.png").toExternalForm()));
+                rightPaddleImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/right c.png").toExternalForm()));
                 break;
         }
     }
@@ -94,31 +100,39 @@ public class SettingsController {
 
         switch (id) {
             case "saveButton":
-                saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save.png").toExternalForm()));
+                saveImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/save.png").toExternalForm()));
                 break;
             case "confirmBallButton":
-                confirmBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change.png").toExternalForm()));
+                confirmBallImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/change.png").toExternalForm()));
                 break;
             case "confirmPaddleButton":
-                confirmPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/change.png").toExternalForm()));
+                confirmPaddleImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/change.png").toExternalForm()));
                 break;
             case "leftBallButton":
-                leftBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/left.png").toExternalForm()));
+                leftBallImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/left.png").toExternalForm()));
                 break;
             case "rightBallButton":
-                rightBallImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
+                rightBallImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
                 break;
             case "leftPaddleButton":
-                leftPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/left.png").toExternalForm()));
+                leftPaddleImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/left.png").toExternalForm()));
                 break;
             case "rightPaddleButton":
-                rightPaddleImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
+                rightPaddleImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
                 break;
         }
     }
 
     // Chuyển đổi skin
-    @FXML private void prevBall() {
+    @FXML
+    private void prevBall() {
         ballIndex = (ballIndex - 1 + ballSkins.length) % ballSkins.length;
         updateBallImage();
     }
@@ -145,17 +159,18 @@ public class SettingsController {
     @FXML
     private void confirmBall() {
         System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
-        GameSettings.setSelectedBall(ballSkins[ballIndex]); // Lưu lại skin
+        GameSettings.setSelectedBall(ballSkins[ballIndex]);
     }
 
     @FXML
     private void confirmPaddle() {
         System.out.println("Paddle đã chọn: " + paddleSkins[paddleIndex]);
-        GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]); // 🟣 Lưu lại skin
+        GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]);
     }
 
     // Xác nhận thay đổi
-    @FXML private void saveSettings(ActionEvent event) {
+    @FXML
+    private void saveSettings(ActionEvent event) {
         System.out.println(" Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
         System.out.println("- Paddle: " + paddleSkins[paddleIndex]);
@@ -165,7 +180,8 @@ public class SettingsController {
     // Trở về Main Menu
     private void goBackToMenu(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource(
+                    "/game/arkanoid/fxml/StartMenu.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {
@@ -175,10 +191,12 @@ public class SettingsController {
 
     // Cập nhật hình ảnh theo skin đã chọn
     private void updateBallImage() {
-        ballImageView.setImage(new Image(getClass().getResource(ballSkins[ballIndex]).toExternalForm()));
+        ballImageView.setImage(
+                new Image(getClass().getResource(ballSkins[ballIndex]).toExternalForm()));
     }
 
     private void updatePaddleImage() {
-        paddleImageView.setImage(new Image(getClass().getResource(paddleSkins[paddleIndex]).toExternalForm()));
+        paddleImageView.setImage(
+                new Image(getClass().getResource(paddleSkins[paddleIndex]).toExternalForm()));
     }
 }

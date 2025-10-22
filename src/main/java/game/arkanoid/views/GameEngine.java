@@ -53,7 +53,8 @@ public class GameEngine extends AnimationTimer {
 
     @Override
     public void handle(long now) {
-        if (!gameRunning) return;
+        if (!gameRunning)
+            return;
         updateGameState();
         checkCollisions();
         render();
@@ -103,9 +104,12 @@ public class GameEngine extends AnimationTimer {
         this.livesLabelRef = livesLabel;
         this.levelLabelRef = levelLabel;
 
-        if (scoreLabelRef != null) scoreLabelRef.setText("Score: " + score);
-        if (livesLabelRef != null) livesLabelRef.setText("Lives: " + lives);
-        if (levelLabelRef != null) levelLabelRef.setText("Level: " + currentLevel);
+        if (scoreLabelRef != null)
+            scoreLabelRef.setText("Score: " + score);
+        if (livesLabelRef != null)
+            livesLabelRef.setText("Lives: " + lives);
+        if (levelLabelRef != null)
+            levelLabelRef.setText("Level: " + currentLevel);
 
         startNewGame();
     }
@@ -148,7 +152,8 @@ public class GameEngine extends AnimationTimer {
             ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
             // giảm mạng và cập nhật label
             lives = Math.max(0, lives - 1);
-            if (this.livesLabelRef != null) this.livesLabelRef.setText("Lives: " + lives);
+            if (this.livesLabelRef != null)
+                this.livesLabelRef.setText("Lives: " + lives);
             if (lives <= 0) {
                 // Game over
                 this.setGameRunning(false);
@@ -196,7 +201,8 @@ public class GameEngine extends AnimationTimer {
                                 score += 10;
                                 break;
                         }
-                        if (this.scoreLabelRef != null) this.scoreLabelRef.setText("Score: " + score);
+                        if (this.scoreLabelRef != null)
+                            this.scoreLabelRef.setText("Score: " + score);
                     }
                     boolean anyLeft = false;
                     for (Brick b : bricks) {
@@ -213,7 +219,8 @@ public class GameEngine extends AnimationTimer {
                             this.setGameRunning(false);
                             Platform.runLater(() -> {
                                 try {
-                                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                                    FXMLLoader loader = new FXMLLoader(
+                                            getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
                                     Parent root = loader.load();
                                     game.arkanoid.controllers.GameOverController controller = loader.getController();
                                     controller.setFinalScore(score);
@@ -228,8 +235,8 @@ public class GameEngine extends AnimationTimer {
                             loadLevelNumber(currentLevel);
                             // Đặt lại vị trí bóng trên paddle và cho bóng tự rơi
                             double resetX2 = paddle.getPosition().getX();
-                            double resetY2 = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius()
-                                    - 5.0;
+                            double resetY2 = paddle.getPosition().getY()
+                                    - (paddle.getHeight() / 2.0) - ball.getRadius() - 150.0;
                             ball.setPosition(new Vector2D(resetX2, resetY2));
                             ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
                         }
