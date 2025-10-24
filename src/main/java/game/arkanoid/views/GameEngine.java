@@ -344,6 +344,9 @@ public class GameEngine extends AnimationTimer {
 
     // Load level
     public void loadLevelNumber(int level) {
+        levelLabelRef.setText("Level: " + level);
+        this.lives = GameConstants.INITIAL_LIVES;
+        livesLabelRef.setText("Lives: " + this.lives);
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
         // Cập nhật ảnh nền khi chuyển level
@@ -381,5 +384,9 @@ public class GameEngine extends AnimationTimer {
 
     public int getCurrentLevel() {
         return currentLevel;
+    }
+
+    public void setLives(int lives) {
+        this.lives = lives;
     }
 }

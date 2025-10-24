@@ -46,7 +46,7 @@ public class LevelLoader {
                 row++;
             }
         } catch (Exception e) {
-            System.err.println("Failed to load level: " + levelFile);
+            System.err.println("Không thể load level hiện tại: " + levelFile);
             e.printStackTrace();
         }
 
