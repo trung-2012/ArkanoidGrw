@@ -30,6 +30,7 @@ public class GameEngine extends AnimationTimer {
     private boolean gameRunning;
     private int lives = GameConstants.INITIAL_LIVES;
     private int score = 0;
+    private int totalScore = 0;
     private Label scoreLabelRef;
     private Label livesLabelRef;
     private Label levelLabelRef;
@@ -105,7 +106,7 @@ public class GameEngine extends AnimationTimer {
         this.levelLabelRef = levelLabel;
 
         if (scoreLabelRef != null)
-            scoreLabelRef.setText("Score: " + score);
+            scoreLabelRef.setText("Score: " + totalScore);
         if (livesLabelRef != null)
             livesLabelRef.setText("Lives: " + lives);
         if (levelLabelRef != null)
@@ -133,6 +134,28 @@ public class GameEngine extends AnimationTimer {
         this.start();
     }
 
+    // Reset lại màn chơi hiện tại
+    public void resetCurrentLevel() {
+        this.score = this.totalScore;
+        if (this.scoreLabelRef != null) {
+            this.scoreLabelRef.setText("Score: " + totalScore);
+        }
+
+        double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
+        double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
+        double px = canvasW / 2.0;
+        double py = canvasH - (GameConstants.PADDLE_HEIGHT / 2.0) - 10;
+
+        this.paddle = new Paddle(new Vector2D(px, py));
+        double bx = px;
+        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0) - 150.0;
+        this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
+        this.ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+
+        this.loadLevelNumber(currentLevel);
+        this.gameRunning = true;
+    }
+
     // Kiểm tra va chạm
     public void checkCollisions() {
         if (ball == null)
@@ -156,6 +179,7 @@ public class GameEngine extends AnimationTimer {
                 this.livesLabelRef.setText("Lives: " + lives);
             if (lives <= 0) {
                 // Game over
+                this.totalScore = this.score;
                 this.setGameRunning(false);
                 Platform.runLater(() -> {
                     try {
@@ -163,7 +187,7 @@ public class GameEngine extends AnimationTimer {
                         Parent root = loader.load();
                         // truyền điểm vào controller
                         game.arkanoid.controllers.GameOverController controller = loader.getController();
-                        controller.setFinalScore(score);
+                        controller.setFinalScore(totalScore);
                         Stage stage = (Stage) canvas.getScene().getWindow();
                         stage.setScene(new Scene(root, 800, 600));
                     } catch (Exception e) {
@@ -216,6 +240,7 @@ public class GameEngine extends AnimationTimer {
                         currentLevel++;
                         if (currentLevel > GameConstants.totalLevels) {
                             // End game
+                            this.totalScore = this.score;
                             this.setGameRunning(false);
                             Platform.runLater(() -> {
                                 try {
@@ -223,7 +248,7 @@ public class GameEngine extends AnimationTimer {
                                             getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
                                     Parent root = loader.load();
                                     game.arkanoid.controllers.GameOverController controller = loader.getController();
-                                    controller.setFinalScore(score);
+                                    controller.setFinalScore(totalScore);
                                     Stage stage = (Stage) canvas.getScene().getWindow();
                                     stage.setScene(new Scene(root, 800, 600));
                                 } catch (Exception e) {
@@ -231,6 +256,8 @@ public class GameEngine extends AnimationTimer {
                                 }
                             });
                         } else {
+                            // Cập nhật tổng điểm hiện tại
+                            this.totalScore = this.score;
                             // Load level tiếp theo
                             loadLevelNumber(currentLevel);
                             // Đặt lại vị trí bóng trên paddle và cho bóng tự rơi
@@ -384,9 +411,5 @@ public class GameEngine extends AnimationTimer {
 
     public int getCurrentLevel() {
         return currentLevel;
-    }
-
-    public void setLives(int lives) {
-        this.lives = lives;
     }
 }
