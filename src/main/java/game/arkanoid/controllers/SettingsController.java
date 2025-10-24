@@ -44,11 +44,16 @@ public class SettingsController {
     private final String[] ballSkins = {
             "/game/arkanoid/images/Ball.png",
             "/game/arkanoid/images/Ball1.png",
-            "/game/arkanoid/images/Ball2.png"
+            "/game/arkanoid/images/Ball2.png",
+            "/game/arkanoid/images/Ball3.png",
+            "/game/arkanoid/images/Ball4.png"
     };
     private final String[] paddleSkins = {
             "/game/arkanoid/images/Paddle.png",
-            "/game/arkanoid/images/Ball.png"
+            "/game/arkanoid/images/Paddle1.png",
+            "/game/arkanoid/images/Paddle2.png",
+            "/game/arkanoid/images/Paddle3.png",
+            "/game/arkanoid/images/Paddle4.png"
     };
 
     private int ballIndex = 0;
