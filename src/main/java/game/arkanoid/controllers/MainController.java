@@ -54,19 +54,23 @@ public class MainController implements Initializable {
 
         switch (buttonId) {
             case "startButton":
-                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
                 startImageView.setImage(hoverImage);
                 break;
             case "pauseButton":
-                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
                 pauseImageView.setImage(hoverImage);
                 break;
             case "resetButton":
-                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/reset c.png").toExternalForm());
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/reset c.png").toExternalForm());
                 resetImageView.setImage(hoverImage);
                 break;
             case "menuButton":
-                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
                 menuImageView.setImage(hoverImage);
                 break;
         }
@@ -81,19 +85,23 @@ public class MainController implements Initializable {
 
         switch (buttonId) {
             case "startButton":
-                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
                 startImageView.setImage(normalImage);
                 break;
             case "pauseButton":
-                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
                 pauseImageView.setImage(normalImage);
                 break;
             case "resetButton":
-                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/reset.png").toExternalForm());
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/reset.png").toExternalForm());
                 resetImageView.setImage(normalImage);
                 break;
             case "menuButton":
-                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
                 menuImageView.setImage(normalImage);
                 break;
         }
@@ -159,7 +167,8 @@ public class MainController implements Initializable {
 
                 // Ràng buộc kích thước canvas theo khu vực trung tâm có sẵn
                 gameCanvas.widthProperty().bind(newScene.widthProperty());
-                gameCanvas.heightProperty().bind(newScene.heightProperty().subtract(topBar.heightProperty()).subtract(bottomBar.heightProperty()));
+                gameCanvas.heightProperty().bind(newScene.heightProperty().subtract(topBar.heightProperty())
+                        .subtract(bottomBar.heightProperty()));
                 // Khởi tạo game sau khi layout hoàn tất để canvas có kích thước thực
                 javafx.application.Platform.runLater(() -> {
                     engine.startNewGame();
@@ -180,8 +189,8 @@ public class MainController implements Initializable {
     // Tạm dừng
     @FXML
     private void pauseGame(ActionEvent event) {
-        // Chuyển trạng thái tạm dừng/tiếp tục
-        engine.setGameRunning(!engine.isGameRunning());
+        // Chuyển sang trạng thái tạm dừng
+        engine.setGameRunning(false);
         gameCanvas.requestFocus(); // trả lại focus cho canvas
     }
 
@@ -189,7 +198,7 @@ public class MainController implements Initializable {
     @FXML
     private void resetGame(ActionEvent event) {
         // Đặt lại trò chơi về trạng thái bắt đầu
-        engine.startNewGame();
+        engine.resetCurrentLevel();
         gameCanvas.requestFocus(); // trả lại focus cho canvas
     }
 
@@ -199,8 +208,10 @@ public class MainController implements Initializable {
         // Dừng game engine
         engine.setGameRunning(false);
         try {
-            javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
-            javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(getClass().getResource(
+                    "/game/arkanoid/fxml/StartMenu.fxml"));
+            javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene()
+                    .getWindow();
             stage.setScene(new javafx.scene.Scene(root, 800, 600));
         } catch (Exception e) {
             e.printStackTrace();
