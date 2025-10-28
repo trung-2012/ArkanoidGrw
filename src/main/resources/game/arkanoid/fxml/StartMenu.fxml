@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx/11.0.1"
+<StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="game.arkanoid.controllers.StartMenuController"
            prefWidth="800" prefHeight="600">
@@ -18,21 +18,6 @@
             <Image url="@../images/StartMenu.png"/>
         </image>
     </ImageView>
-
-    <!-- Icon bật/tắt âm thanh -->
-    <AnchorPane pickOnBounds="false">
-        <ImageView fx:id="menuSoundToggleImageView"
-                   onMouseClicked="#toggleMenuSound"
-                   fitHeight="32" fitWidth="32"
-                   preserveRatio="true"
-                   AnchorPane.topAnchor="10.0"
-                   AnchorPane.rightAnchor="10.0"
-                   style="-fx-cursor: hand;">
-            <image>
-                <Image url="@../images/sound_on.png"/>
-            </image>
-        </ImageView>
-    </AnchorPane>
 
     <!-- Các nút -->
     <VBox alignment="CENTER" spacing="30" translateY="80" pickOnBounds="false">

@@ -1,8 +1,5 @@
 package game.arkanoid.controllers;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.scene.Node;
+
 import game.arkanoid.views.GameEngine;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -10,125 +7,54 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.canvas.Canvas;
 import javafx.event.ActionEvent;
+
 import java.net.URL;
 import java.util.ResourceBundle;
-import game.arkanoid.sound.SoundManager;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 public class MainController implements Initializable {
+
     @FXML
-    private Button startButton, pauseButton, resetButton, menuButton;
+    private Button startButton;
     @FXML
-    private ImageView startImageView, pauseImageView, resetImageView, menuImageView;
+    private Button pauseButton;
     @FXML
-    private Label scoreLabel, livesLabel, levelLabel;
+    private Button resetButton;
+    @FXML
+    private Button menuButton;
+    @FXML
+    private javafx.scene.image.ImageView startImageView;
+    @FXML
+    private javafx.scene.image.ImageView pauseImageView;
+    @FXML
+    private javafx.scene.image.ImageView resetImageView;
+    @FXML
+    private javafx.scene.image.ImageView menuImageView;
+    @FXML
+    private Label scoreLabel;
+    @FXML
+    private Label livesLabel;
+    @FXML
+    private Label levelLabel;
     @FXML
     private Canvas gameCanvas;
     @FXML
-    private ImageView backgroundImageView;
+    private javafx.scene.image.ImageView backgroundImageView;
     @FXML
-    private javafx.scene.layout.HBox topBar, bottomBar;
+    private javafx.scene.layout.HBox topBar;
     @FXML
-    private ImageView soundToggleImageView;
+    private javafx.scene.layout.HBox bottomBar;
 
     private GameEngine engine;
 
-    @FXML
-    private void toggleGameSound() {
-        boolean newState = !SoundManager.isSoundEnabled();
-        SoundManager.setSoundEnabled(newState);
-
-        if (newState) {
-            soundToggleImageView.setImage(
-                    new Image(getClass().getResource("/game/arkanoid/images/sound_on.png").toExternalForm())
-            );
-            SoundManager.playGameMusic();
-            System.out.println("Sound ON (global)");
-        } else {
-            soundToggleImageView.setImage(
-                    new Image(getClass().getResource("/game/arkanoid/images/sound_off.png").toExternalForm())
-            );
-            System.out.println("Sound OFF (global)");
-        }
-    }
-
-    @FXML
-    private void onButtonMouseEntered(javafx.scene.input.MouseEvent e) {
-        Button btn = (Button) e.getSource();
-        String id = btn.getId();
-        Image hover = null;
-
-        switch (id) {
-            case "startButton":
-                hover = new Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
-                startImageView.setImage(hover);
-                break;
-            case "pauseButton":
-                hover = new Image(getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
-                pauseImageView.setImage(hover);
-                break;
-            case "resetButton":
-                hover = new Image(getClass().getResource("/game/arkanoid/images/reset c.png").toExternalForm());
-                resetImageView.setImage(hover);
-                break;
-            case "menuButton":
-                hover = new Image(getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
-                menuImageView.setImage(hover);
-                break;
-        }
-    }
-
-    @FXML
-    private void onButtonMouseExited(javafx.scene.input.MouseEvent e) {
-        Button btn = (Button) e.getSource();
-        String id = btn.getId();
-        Image normal = null;
-
-        switch (id) {
-            case "startButton":
-                normal = new Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
-                startImageView.setImage(normal);
-                break;
-            case "pauseButton":
-                normal = new Image(getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
-                pauseImageView.setImage(normal);
-                break;
-            case "resetButton":
-                normal = new Image(getClass().getResource("/game/arkanoid/images/reset.png").toExternalForm());
-                resetImageView.setImage(normal);
-                break;
-            case "menuButton":
-                normal = new Image(getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
-                menuImageView.setImage(normal);
-                break;
-        }
-    }
-
-    public void updateBackgroundForLevel(int level) {
-        String path = String.format("/game/arkanoid/images/MapLevel%d.png", level);
-        backgroundImageView.setImage(new Image(getClass().getResource(path).toExternalForm()));
-    }
-
     @Override
-    public void initialize(URL loc, ResourceBundle res) {
-        if (SoundManager.isSoundEnabled()) {
-            SoundManager.stopAll();
-            SoundManager.playGameMusic();
-            soundToggleImageView.setImage(
-                    new Image(getClass().getResource("/game/arkanoid/images/sound_on.png").toExternalForm())
-            );
-        } else {
-            soundToggleImageView.setImage(
-                    new Image(getClass().getResource("/game/arkanoid/images/sound_off.png").toExternalForm())
-            );
-        }
-
+    public void initialize(URL location, ResourceBundle resources) {
         engine = new GameEngine();
         engine.setMainController(this);
         engine.initializeGame(gameCanvas, scoreLabel, livesLabel, levelLabel);
+
         engine.setBallSkin(game.arkanoid.utils.GameSettings.getSelectedBall());
         engine.setPaddleSkin(game.arkanoid.utils.GameSettings.getSelectedPaddle());
+
         updateBackgroundForLevel(1);
         levelLabel.setText("Level: " + engine.getCurrentLevel());
 
@@ -136,16 +62,30 @@ public class MainController implements Initializable {
             if (newScene != null) {
                 backgroundImageView.fitWidthProperty().bind(newScene.widthProperty());
                 backgroundImageView.fitHeightProperty().bind(newScene.heightProperty());
+
                 newScene.setOnKeyPressed(e -> {
                     switch (e.getCode()) {
-                        case LEFT, A -> engine.setLeftPressed(true);
-                        case RIGHT, D -> engine.setRightPressed(true);
+                        case LEFT:
+                        case A:
+                            engine.setLeftPressed(true);
+                            break;
+                        case RIGHT:
+                        case D:
+                            engine.setRightPressed(true);
+                            break;
                     }
                 });
+
                 newScene.setOnKeyReleased(e -> {
                     switch (e.getCode()) {
-                        case LEFT, A -> engine.setLeftPressed(false);
-                        case RIGHT, D -> engine.setRightPressed(false);
+                        case LEFT:
+                        case A:
+                            engine.setLeftPressed(false);
+                            break;
+                        case RIGHT:
+                        case D:
+                            engine.setRightPressed(false);
+                            break;
                     }
                 });
 
@@ -165,35 +105,102 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    private void startGame(ActionEvent e) {
+    private void onButtonMouseEntered(javafx.scene.input.MouseEvent event) {
+        Button sourceButton = (Button) event.getSource();
+        String buttonId = sourceButton.getId();
+        javafx.scene.image.Image hoverImage = null;
+
+        switch (buttonId) {
+            case "startButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
+                startImageView.setImage(hoverImage);
+                break;
+            case "pauseButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
+                pauseImageView.setImage(hoverImage);
+                break;
+            case "resetButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/reset c.png").toExternalForm());
+                resetImageView.setImage(hoverImage);
+                break;
+            case "menuButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
+                menuImageView.setImage(hoverImage);
+                break;
+        }
+    }
+
+    @FXML
+    private void onButtonMouseExited(javafx.scene.input.MouseEvent event) {
+        Button sourceButton = (Button) event.getSource();
+        String buttonId = sourceButton.getId();
+        javafx.scene.image.Image normalImage = null;
+
+        switch (buttonId) {
+            case "startButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
+                startImageView.setImage(normalImage);
+                break;
+            case "pauseButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
+                pauseImageView.setImage(normalImage);
+                break;
+            case "resetButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/reset.png").toExternalForm());
+                resetImageView.setImage(normalImage);
+                break;
+            case "menuButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
+                menuImageView.setImage(normalImage);
+                break;
+        }
+    }
+
+    public void updateBackgroundForLevel(int level) {
+        String imagePath = String.format("/game/arkanoid/images/MapLevel%d.png", level);
+        backgroundImageView.setImage(
+                new javafx.scene.image.Image(getClass().getResource(imagePath).toExternalForm())
+        );
+    }
+
+    @FXML
+    private void startGame(ActionEvent event) {
         engine.setGameRunning(true);
         gameCanvas.requestFocus();
     }
 
     @FXML
-    private void pauseGame(ActionEvent e) {
+    private void pauseGame(ActionEvent event) {
         engine.setGameRunning(!engine.isGameRunning());
         gameCanvas.requestFocus();
     }
 
     @FXML
-    private void resetGame(ActionEvent e) {
+    private void resetGame(ActionEvent event) {
         engine.startNewGame();
         gameCanvas.requestFocus();
     }
 
     @FXML
-    private void returnToMenu(ActionEvent e) {
+    private void returnToMenu(ActionEvent event) {
         engine.setGameRunning(false);
-        SoundManager.stopAll();
-        if (SoundManager.isSoundEnabled()) SoundManager.playMenuMusic();
-
         try {
-            Parent root = javafx.fxml.FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
-            Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(
+                    getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml")
+            );
+            javafx.stage.Stage stage = (javafx.stage.Stage)
+                    ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new javafx.scene.Scene(root, 800, 600));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

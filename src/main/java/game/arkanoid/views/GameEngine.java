@@ -30,6 +30,7 @@ public class GameEngine extends AnimationTimer {
     private boolean gameRunning;
     private int lives = GameConstants.INITIAL_LIVES;
     private int score = 0;
+    private int totalScore = 0;
     private Label scoreLabelRef;
     private Label livesLabelRef;
     private Label levelLabelRef;
@@ -47,19 +48,20 @@ public class GameEngine extends AnimationTimer {
     private boolean leftPressed = false;
     private boolean rightPressed = false;
 
-    // skin path lấy từ Settings (có giá trị mặc định)
+    // Path skin mặc định
     private String ballSkinPath = "/game/arkanoid/images/Ball.png";
     private String paddleSkinPath = "/game/arkanoid/images/Paddle.png";
 
     @Override
     public void handle(long now) {
-        if (!gameRunning) return;
+        if (!gameRunning)
+            return;
         updateGameState();
         checkCollisions();
         render();
     }
 
-    // Hàm này cho phép MainController truyền skin đã chọn
+    // Set skin từ Settings
     public void setBallSkin(String path) {
         this.ballSkinPath = path;
     }
@@ -72,17 +74,17 @@ public class GameEngine extends AnimationTimer {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
 
-        // Load ảnh Ball & Paddle từ GameSettings (do người chơi chọn)
+        // Load ảnh Ball & Paddle theo skin đã chọn
         try {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
         } catch (Exception e) {
-            System.out.println("⚠ Không thể load skin người chơi chọn, dùng mặc định.");
+            System.out.println("Không thể load skin đã chọn, dùng mặc định.");
             this.ballImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Ball.png"));
             this.paddleImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Paddle.png"));
         }
 
-        // Các hình ảnh Brick vẫn giữ nguyên
+        // Load ảnh gạch
         try {
             this.brickNormalImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickNormal.png"));
             this.brickWoodImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickWood.png"));
@@ -90,7 +92,7 @@ public class GameEngine extends AnimationTimer {
             this.brickGoldImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickGold.png"));
             this.brickInsaneImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickInsane.png"));
         } catch (Exception e) {
-            System.out.println("⚠ Không thể load ảnh gạch.");
+            System.out.println("Không thể load ảnh gạch.");
         }
 
         // canvas focus để nhận phím
@@ -103,13 +105,17 @@ public class GameEngine extends AnimationTimer {
         this.livesLabelRef = livesLabel;
         this.levelLabelRef = levelLabel;
 
-        if (scoreLabelRef != null) scoreLabelRef.setText("Score: " + score);
-        if (livesLabelRef != null) livesLabelRef.setText("Lives: " + lives);
-        if (levelLabelRef != null) levelLabelRef.setText("Level: " + currentLevel);
+        if (scoreLabelRef != null)
+            scoreLabelRef.setText("Score: " + totalScore);
+        if (livesLabelRef != null)
+            livesLabelRef.setText("Lives: " + lives);
+        if (levelLabelRef != null)
+            levelLabelRef.setText("Level: " + currentLevel);
 
         startNewGame();
     }
 
+    // Bắt đầu game mới
     public void startNewGame() {
         double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
         double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
@@ -126,6 +132,28 @@ public class GameEngine extends AnimationTimer {
         loadLevelNumber(currentLevel);
         this.gameRunning = true;
         this.start();
+    }
+
+    // Reset lại màn chơi hiện tại
+    public void resetCurrentLevel() {
+        this.score = this.totalScore;
+        if (this.scoreLabelRef != null) {
+            this.scoreLabelRef.setText("Score: " + totalScore);
+        }
+
+        double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
+        double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
+        double px = canvasW / 2.0;
+        double py = canvasH - (GameConstants.PADDLE_HEIGHT / 2.0) - 10;
+
+        this.paddle = new Paddle(new Vector2D(px, py));
+        double bx = px;
+        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0) - 150.0;
+        this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
+        this.ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+
+        this.loadLevelNumber(currentLevel);
+        this.gameRunning = true;
     }
 
     // Kiểm tra va chạm
@@ -147,9 +175,11 @@ public class GameEngine extends AnimationTimer {
             ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
             // giảm mạng và cập nhật label
             lives = Math.max(0, lives - 1);
-            if (this.livesLabelRef != null) this.livesLabelRef.setText("Lives: " + lives);
+            if (this.livesLabelRef != null)
+                this.livesLabelRef.setText("Lives: " + lives);
             if (lives <= 0) {
                 // Game over
+                this.totalScore = this.score;
                 this.setGameRunning(false);
                 Platform.runLater(() -> {
                     try {
@@ -157,7 +187,7 @@ public class GameEngine extends AnimationTimer {
                         Parent root = loader.load();
                         // truyền điểm vào controller
                         game.arkanoid.controllers.GameOverController controller = loader.getController();
-                        controller.setFinalScore(score);
+                        controller.setFinalScore(totalScore);
                         Stage stage = (Stage) canvas.getScene().getWindow();
                         stage.setScene(new Scene(root, 800, 600));
                     } catch (Exception e) {
@@ -174,8 +204,8 @@ public class GameEngine extends AnimationTimer {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
                 if (ball.collideWith(brick)) {
-                    // Sau khi va chạm, gạch chịu sát thương (takeDamage được gọi trong collideWith)
-                    // Nếu gạch thực sự bị phá hủy sau lần này thì mới cộng điểm
+                    // Sau khi va chạm, gạch chịu sát thương
+                    // Chỉ cộng điểm khi gạch bị phá hủy
                     if (brick.isDestroyed()) {
                         switch (brick.getType()) {
                             case WOOD:
@@ -195,7 +225,8 @@ public class GameEngine extends AnimationTimer {
                                 score += 10;
                                 break;
                         }
-                        if (this.scoreLabelRef != null) this.scoreLabelRef.setText("Score: " + score);
+                        if (this.scoreLabelRef != null)
+                            this.scoreLabelRef.setText("Score: " + score);
                     }
                     boolean anyLeft = false;
                     for (Brick b : bricks) {
@@ -209,13 +240,15 @@ public class GameEngine extends AnimationTimer {
                         currentLevel++;
                         if (currentLevel > GameConstants.totalLevels) {
                             // End game
+                            this.totalScore = this.score;
                             this.setGameRunning(false);
                             Platform.runLater(() -> {
                                 try {
-                                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                                    FXMLLoader loader = new FXMLLoader(
+                                            getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
                                     Parent root = loader.load();
                                     game.arkanoid.controllers.GameOverController controller = loader.getController();
-                                    controller.setFinalScore(score);
+                                    controller.setFinalScore(totalScore);
                                     Stage stage = (Stage) canvas.getScene().getWindow();
                                     stage.setScene(new Scene(root, 800, 600));
                                 } catch (Exception e) {
@@ -223,12 +256,14 @@ public class GameEngine extends AnimationTimer {
                                 }
                             });
                         } else {
+                            // Cập nhật tổng điểm hiện tại
+                            this.totalScore = this.score;
                             // Load level tiếp theo
                             loadLevelNumber(currentLevel);
                             // Đặt lại vị trí bóng trên paddle và cho bóng tự rơi
                             double resetX2 = paddle.getPosition().getX();
-                            double resetY2 = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius()
-                                    - 5.0;
+                            double resetY2 = paddle.getPosition().getY()
+                                    - (paddle.getHeight() / 2.0) - ball.getRadius() - 150.0;
                             ball.setPosition(new Vector2D(resetX2, resetY2));
                             ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
                         }
@@ -336,6 +371,9 @@ public class GameEngine extends AnimationTimer {
 
     // Load level
     public void loadLevelNumber(int level) {
+        levelLabelRef.setText("Level: " + level);
+        this.lives = GameConstants.INITIAL_LIVES;
+        livesLabelRef.setText("Lives: " + this.lives);
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
         // Cập nhật ảnh nền khi chuyển level

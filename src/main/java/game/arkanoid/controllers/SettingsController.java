@@ -13,18 +13,19 @@ import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
+import java.net.URL;
 
+import game.arkanoid.sound.SoundManager;
 import game.arkanoid.utils.GameSettings;
-
 
 public class SettingsController {
 
-    // Các ImageView trong Settings
     @FXML
     private ImageView ballImageView;
     @FXML
     private ImageView paddleImageView;
-
+    @FXML
+    private ImageView soundToggleImage;
     @FXML
     private ImageView leftBallImageView;
     @FXML
@@ -33,7 +34,6 @@ public class SettingsController {
     private ImageView leftPaddleImageView;
     @FXML
     private ImageView rightPaddleImageView;
-
     @FXML
     private ImageView saveImageView;
     @FXML
@@ -41,26 +41,58 @@ public class SettingsController {
     @FXML
     private ImageView confirmPaddleImageView;
 
-    // Skin
     private final String[] ballSkins = {
             "/game/arkanoid/images/Ball.png",
             "/game/arkanoid/images/Ball1.png",
-            "/game/arkanoid/images/Ball2.png"
+            "/game/arkanoid/images/Ball2.png",
+            "/game/arkanoid/images/Ball3.png",
+            "/game/arkanoid/images/Ball4.png"
     };
+
     private final String[] paddleSkins = {
             "/game/arkanoid/images/Paddle.png",
-            "/game/arkanoid/images/Ball.png"
+            "/game/arkanoid/images/Paddle1.png",
+            "/game/arkanoid/images/Paddle2.png",
+            "/game/arkanoid/images/Paddle3.png",
+            "/game/arkanoid/images/Paddle4.png"
     };
 
     private int ballIndex = 0;
     private int paddleIndex = 0;
 
-    //Hover Event
+    private static final String SOUND_ON_PATH = "/game/arkanoid/images/sound_on.png";
+    private static final String SOUND_OFF_PATH = "/game/arkanoid/images/sound_off.png";
+
+    @FXML
+    public void initialize() {
+        soundToggleImage.setCursor(javafx.scene.Cursor.HAND);
+        updateSoundIcon();
+    }
+
+    @FXML
+    private void toggleSound(ActionEvent e) {
+        if (SoundManager.isSoundEnabled()) {
+            SoundManager.stopMenuMusic();
+            SoundManager.setSoundEnabled(false);
+        } else {
+            SoundManager.setSoundEnabled(true);
+            SoundManager.playMenuMusic();
+        }
+        updateSoundIcon();
+    }
+
+    private void updateSoundIcon() {
+        String path = SoundManager.isSoundEnabled() ? SOUND_ON_PATH : SOUND_OFF_PATH;
+        URL url = getClass().getResource(path);
+        if (url != null) {
+            soundToggleImage.setImage(new Image(url.toExternalForm()));
+        }
+    }
+
     @FXML
     private void onButtonMouseEntered(MouseEvent event) {
         Button btn = (Button) event.getSource();
         String id = btn.getId();
-
         switch (id) {
             case "saveButton":
                 saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save c.png").toExternalForm()));
@@ -90,7 +122,6 @@ public class SettingsController {
     private void onButtonMouseExited(MouseEvent event) {
         Button btn = (Button) event.getSource();
         String id = btn.getId();
-
         switch (id) {
             case "saveButton":
                 saveImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/save.png").toExternalForm()));
@@ -116,7 +147,8 @@ public class SettingsController {
         }
     }
 
-    @FXML private void prevBall() {
+    @FXML
+    private void prevBall() {
         ballIndex = (ballIndex - 1 + ballSkins.length) % ballSkins.length;
         updateBallImage();
     }
@@ -141,20 +173,16 @@ public class SettingsController {
 
     @FXML
     private void confirmBall() {
-        System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
-        GameSettings.setSelectedBall(ballSkins[ballIndex]); // Lưu lại skin
+        GameSettings.setSelectedBall(ballSkins[ballIndex]);
     }
 
     @FXML
     private void confirmPaddle() {
-        System.out.println("Paddle đã chọn: " + paddleSkins[paddleIndex]);
-        GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]); // 🟣 Lưu lại skin
+        GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]);
     }
 
-    @FXML private void saveSettings(ActionEvent event) {
-        System.out.println(" Đã lưu:");
-        System.out.println("- Ball: " + ballSkins[ballIndex]);
-        System.out.println("- Paddle: " + paddleSkins[paddleIndex]);
+    @FXML
+    private void saveSettings(ActionEvent event) {
         goBackToMenu(event);
     }
 
@@ -168,7 +196,6 @@ public class SettingsController {
         }
     }
 
-    // Update Images
     private void updateBallImage() {
         ballImageView.setImage(new Image(getClass().getResource(ballSkins[ballIndex]).toExternalForm()));
     }

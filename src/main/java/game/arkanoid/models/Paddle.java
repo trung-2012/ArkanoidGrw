@@ -34,10 +34,6 @@ public class Paddle {
         this.position.setX(this.position.getX() + this.moveSpeed);
     }
 
-    // Cập nhật vị trí paddle (hiện tại không làm gì vì di chuyển trực tiếp trong moveLeft/moveRight)
-    public void update() {
-    }
-
     // Getters & Setters
 
     public Vector2D getPosition() {

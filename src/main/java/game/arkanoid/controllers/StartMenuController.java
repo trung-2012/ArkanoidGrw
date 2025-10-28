@@ -19,44 +19,18 @@ public class StartMenuController {
     private ImageView settingsImageView;
     @FXML
     private ImageView exitImageView;
-    @FXML
-    private ImageView menuSoundToggleImageView;
 
     @FXML
     public void initialize() {
-        // Bật/tắt hình loa khi mở menu
         if (SoundManager.isSoundEnabled()) {
-            SoundManager.playMenuMusic();
-            menuSoundToggleImageView.setImage(
-                    new Image(getClass().getResource("/game/arkanoid/images/sound_on.png").toExternalForm())
-            );
+            if (!SoundManager.isMenuMusicPlaying()) {
+                SoundManager.playMenuMusic();
+            }
         } else {
-            menuSoundToggleImageView.setImage(
-                    new Image(getClass().getResource("/game/arkanoid/images/sound_off.png").toExternalForm())
-            );
+            SoundManager.stopAll();
         }
     }
 
-    @FXML
-    private void toggleMenuSound() {
-        // Đảo trạng thái âm thanh toàn cục
-        boolean newState = !SoundManager.isSoundEnabled();
-        SoundManager.setSoundEnabled(newState);
-
-        if (newState) {
-            menuSoundToggleImageView.setImage(
-                    new Image(getClass().getResource("/game/arkanoid/images/sound_on.png").toExternalForm())
-            );
-            SoundManager.playMenuMusic();
-            System.out.println("Menu sound ON (global)");
-        } else {
-            menuSoundToggleImageView.setImage(
-                    new Image(getClass().getResource("/game/arkanoid/images/sound_off.png").toExternalForm())
-            );
-            SoundManager.stopAll(); // đảm bảo dừng nhạc menu
-            System.out.println("Menu sound OFF (global)");
-        }
-    }
 
     @FXML
     private void onButtonMouseEntered(javafx.scene.input.MouseEvent event) {

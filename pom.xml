@@ -18,7 +18,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <javafx.version>17.0.10</javafx.version>
   </properties>
-
+  
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -34,6 +34,11 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+        <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
       <version>${javafx.version}</version>
     </dependency>
   </dependencies>
