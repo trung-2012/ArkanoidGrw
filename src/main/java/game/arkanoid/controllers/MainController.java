@@ -2,9 +2,14 @@ package game.arkanoid.controllers;
 
 import game.arkanoid.views.GameEngine;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.event.ActionEvent;
 
@@ -44,6 +49,8 @@ public class MainController implements Initializable {
     private javafx.scene.layout.HBox bottomBar;
 
     private GameEngine engine;
+
+    private Stage pauseStage;
 
     // Xử lý sự kiện khi di chuột vào button
     @FXML
@@ -189,9 +196,61 @@ public class MainController implements Initializable {
     // Tạm dừng
     @FXML
     private void pauseGame(ActionEvent event) {
-        // Chuyển sang trạng thái tạm dừng
+        if (engine.isGameRunning()) {
+            engine.setGameRunning(false);
+            showPauseMenu();
+        }
+        gameCanvas.requestFocus();
+    }
+
+    public void showPauseMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/PauseView.fxml"));
+            Parent root = loader.load();
+
+            PauseController pauseController = loader.getController();
+            pauseController.setMainController(this);
+
+            pauseStage = new Stage();
+            pauseController.setPauseStage(pauseStage);
+
+            pauseStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            pauseStage.initOwner(gameCanvas.getScene().getWindow());
+            pauseStage.initStyle(StageStyle.TRANSPARENT);
+            Scene scene = new Scene(root, 400, 300);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            pauseStage.setScene(scene);
+
+            Stage mainStage = (Stage) gameCanvas.getScene().getWindow();
+            pauseStage.setX(mainStage.getX() + (800 - 400) / 2);
+            pauseStage.setY(mainStage.getY() + (600 - 300) / 2);
+
+            pauseStage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void resumeGame() {
+        engine.setGameRunning(true);
+        gameCanvas.requestFocus();
+    }
+
+    public void resetGameFromPause() {
+        engine.resetCurrentLevel();
+        gameCanvas.requestFocus();
+    }
+
+    public void returnToMenuFromPause() {
         engine.setGameRunning(false);
-        gameCanvas.requestFocus(); // trả lại focus cho canvas
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            Stage stage = (Stage) gameCanvas.getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Reset game

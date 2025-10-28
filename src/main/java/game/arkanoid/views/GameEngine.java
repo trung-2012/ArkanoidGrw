@@ -80,8 +80,8 @@ public class GameEngine extends AnimationTimer {
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
         } catch (Exception e) {
             System.out.println("Không thể load skin đã chọn, dùng mặc định.");
-            this.ballImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Ball.png"));
-            this.paddleImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Paddle.png"));
+            this.ballImage = new Image(getClass().getResourceAsStream(ballSkinPath));
+            this.paddleImage = new Image(getClass().getResourceAsStream(paddleSkinPath));
         }
 
         // Load ảnh gạch

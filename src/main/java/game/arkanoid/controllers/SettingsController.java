@@ -53,7 +53,8 @@ public class SettingsController {
             "/game/arkanoid/images/Paddle1.png",
             "/game/arkanoid/images/Paddle2.png",
             "/game/arkanoid/images/Paddle3.png",
-            "/game/arkanoid/images/Paddle4.png"
+            "/game/arkanoid/images/Paddle4.png",
+            "/game/arkanoid/images/Paddle5.png"
     };
 
     private int ballIndex = 0;
