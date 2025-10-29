@@ -12,19 +12,16 @@
            fx:controller="game.arkanoid.controllers.StartMenuController"
            prefWidth="800" prefHeight="600">
 
-    <!-- Ảnh nền chính -->
     <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
         <image>
             <Image url="@../images/StartMenu.png"/>
         </image>
     </ImageView>
 
-    <!-- Khối nội dung trung tâm -->
     <VBox alignment="CENTER" spacing="30">
 
         <VBox alignment="CENTER" spacing="15" translateY="80">
 
-            <!-- Nút START -->
             <Button fx:id="startButton" text="" onAction="#startGame" onMouseEntered="#onButtonMouseEntered"
                     onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"
@@ -38,7 +35,6 @@
                 </graphic>
             </Button>
 
-            <!-- Nút SETTINGS -->
             <Button fx:id="settingsButton" text="" onAction="#openSettings" onMouseEntered="#onButtonMouseEntered"
                     onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"
@@ -52,7 +48,6 @@
                 </graphic>
             </Button>
 
-            <!-- Nút EXIT -->
             <Button fx:id="exitButton" text="" onAction="#exitGame" onMouseEntered="#onButtonMouseEntered"
                     onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"

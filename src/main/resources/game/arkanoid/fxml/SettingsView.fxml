@@ -7,14 +7,12 @@
 
 <AnchorPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.SettingsController">
 
-    <!-- Background -->
     <ImageView fx:id="backgroundImageView" fitHeight="600" fitWidth="800" preserveRatio="false">
         <image>
             <Image url="@../images/GameSettings.png" />
         </image>
     </ImageView>
 
-    <!-- Paddle Section -->
     <Button fx:id="leftPaddleButton" layoutX="74.0" layoutY="318.0" onAction="#prevPaddle" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="leftPaddleImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
@@ -51,7 +49,7 @@
         </graphic>
     </Button>
 
-    <!-- Ball Section -->
+
     <Button fx:id="leftBallButton" layoutX="472.0" layoutY="318.0" onAction="#prevBall" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="leftBallImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
@@ -88,7 +86,7 @@
         </graphic>
     </Button>
 
-    <!-- Nút Save -->
+
     <Button fx:id="saveButton" layoutX="334.0" layoutY="510.0" onAction="#saveSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="saveImageView" fitHeight="50" fitWidth="120" preserveRatio="true">

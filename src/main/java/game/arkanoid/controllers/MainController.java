@@ -1,12 +1,21 @@
 package game.arkanoid.controllers;
 
 import game.arkanoid.views.GameEngine;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.canvas.Canvas;
-import javafx.event.ActionEvent;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,13 +30,13 @@ public class MainController implements Initializable {
     @FXML
     private Button menuButton;
     @FXML
-    private javafx.scene.image.ImageView startImageView;
+    private ImageView startImageView;
     @FXML
-    private javafx.scene.image.ImageView pauseImageView;
+    private ImageView pauseImageView;
     @FXML
-    private javafx.scene.image.ImageView resetImageView;
+    private ImageView resetImageView;
     @FXML
-    private javafx.scene.image.ImageView menuImageView;
+    private ImageView menuImageView;
     @FXML
     private Label scoreLabel;
     @FXML
@@ -37,39 +46,41 @@ public class MainController implements Initializable {
     @FXML
     private Canvas gameCanvas;
     @FXML
-    private javafx.scene.image.ImageView backgroundImageView;
+    private ImageView backgroundImageView;
     @FXML
-    private javafx.scene.layout.HBox topBar;
+    private HBox topBar;
     @FXML
-    private javafx.scene.layout.HBox bottomBar;
+    private HBox bottomBar;
 
     private GameEngine engine;
 
+    private Stage pauseStage;
+
     // Xử lý sự kiện khi di chuột vào button
     @FXML
-    private void onButtonMouseEntered(javafx.scene.input.MouseEvent event) {
+    private void onButtonMouseEntered(MouseEvent event) {
         Button sourceButton = (Button) event.getSource();
         String buttonId = sourceButton.getId();
-        javafx.scene.image.Image hoverImage = null;
+        Image hoverImage = null;
 
         switch (buttonId) {
             case "startButton":
-                hoverImage = new javafx.scene.image.Image(
+                hoverImage = new Image(
                         getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
                 startImageView.setImage(hoverImage);
                 break;
             case "pauseButton":
-                hoverImage = new javafx.scene.image.Image(
+                hoverImage = new Image(
                         getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
                 pauseImageView.setImage(hoverImage);
                 break;
             case "resetButton":
-                hoverImage = new javafx.scene.image.Image(
+                hoverImage = new Image(
                         getClass().getResource("/game/arkanoid/images/reset c.png").toExternalForm());
                 resetImageView.setImage(hoverImage);
                 break;
             case "menuButton":
-                hoverImage = new javafx.scene.image.Image(
+                hoverImage = new Image(
                         getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
                 menuImageView.setImage(hoverImage);
                 break;
@@ -78,29 +89,29 @@ public class MainController implements Initializable {
 
     // Xử lý sự kiện khi di chuột ra khỏi button
     @FXML
-    private void onButtonMouseExited(javafx.scene.input.MouseEvent event) {
+    private void onButtonMouseExited(MouseEvent event) {
         Button sourceButton = (Button) event.getSource();
         String buttonId = sourceButton.getId();
-        javafx.scene.image.Image normalImage = null;
+        Image normalImage = null;
 
         switch (buttonId) {
             case "startButton":
-                normalImage = new javafx.scene.image.Image(
+                normalImage = new Image(
                         getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
                 startImageView.setImage(normalImage);
                 break;
             case "pauseButton":
-                normalImage = new javafx.scene.image.Image(
+                normalImage = new Image(
                         getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
                 pauseImageView.setImage(normalImage);
                 break;
             case "resetButton":
-                normalImage = new javafx.scene.image.Image(
+                normalImage = new Image(
                         getClass().getResource("/game/arkanoid/images/reset.png").toExternalForm());
                 resetImageView.setImage(normalImage);
                 break;
             case "menuButton":
-                normalImage = new javafx.scene.image.Image(
+                normalImage = new Image(
                         getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
                 menuImageView.setImage(normalImage);
                 break;
@@ -110,26 +121,21 @@ public class MainController implements Initializable {
     // Thay đổi ảnh nền theo level
     public void updateBackgroundForLevel(int level) {
         String imagePath = String.format("/game/arkanoid/images/MapLevel%d.png", level);
-        backgroundImageView.setImage(new javafx.scene.image.Image(getClass().getResource(imagePath).toExternalForm()));
+        backgroundImageView.setImage(new Image(getClass().getResource(imagePath).toExternalForm()));
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Khởi tạo engine, cấu hình canvas và ràng buộc kích thước/ sự kiện bàn phím
+        // Khởi tạo GameEngine và liên kết với UI components
         engine = new GameEngine();
         engine.setMainController(this);
         engine.initializeGame(gameCanvas, scoreLabel, livesLabel, levelLabel);
 
-        // Truyền skin đã chọn cho GameEngine
-        // Truyền skin đã chọn cho GameEngine
-        engine.setBallSkin(game.arkanoid.utils.GameSettings.getSelectedBall());
-        engine.setPaddleSkin(game.arkanoid.utils.GameSettings.getSelectedPaddle());
-
-        // Set ảnh nền cho level 1
+        // Thiết lập ảnh nền cho level đầu tiên
         updateBackgroundForLevel(1);
-        // Hiển thị level hiện tại
         levelLabel.setText("Level: " + engine.getCurrentLevel());
-        // Gắn sự kiện bàn phím khi scene sẵn sàng
+        
+        // Thiết lập event handlers khi scene được load
         gameCanvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 // Ràng buộc kích thước ảnh nền theo kích thước scene
@@ -189,9 +195,68 @@ public class MainController implements Initializable {
     // Tạm dừng
     @FXML
     private void pauseGame(ActionEvent event) {
-        // Chuyển sang trạng thái tạm dừng
+        if (engine.isGameRunning()) {
+            engine.setGameRunning(false);
+            showPauseMenu();
+        }
+        gameCanvas.requestFocus();
+    }
+
+    public void showPauseMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/PauseView.fxml"));
+            Parent root = loader.load();
+
+            PauseController pauseController = loader.getController();
+            pauseController.setMainController(this);
+
+            pauseStage = new Stage();
+            pauseController.setPauseStage(pauseStage);
+
+            pauseStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            pauseStage.initOwner(gameCanvas.getScene().getWindow());
+            pauseStage.initStyle(StageStyle.TRANSPARENT);
+            Scene scene = new Scene(root, 400, 300);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            pauseStage.setScene(scene);
+
+            Stage mainStage = (Stage) gameCanvas.getScene().getWindow();
+            pauseStage.setX(mainStage.getX() + (800 - 400) / 2);
+            pauseStage.setY(mainStage.getY() + (600 - 300) / 2);
+
+            pauseStage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void resumeGame() {
+        engine.setGameRunning(true);
+        gameCanvas.requestFocus();
+    }
+
+    // Reload skin từ GameSettings
+    public void reloadGameSkins() {
+        if (engine != null) {
+            engine.reloadSkins();
+        }
+    }
+
+    public void resetGameFromPause() {
+        engine.resetCurrentLevel();
+        gameCanvas.requestFocus();
+    }
+
+    public void returnToMenuFromPause() {
         engine.setGameRunning(false);
-        gameCanvas.requestFocus(); // trả lại focus cho canvas
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            Stage stage = (Stage) gameCanvas.getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Reset game
