@@ -1,8 +1,6 @@
 package game.arkanoid.views;
 
-import game.arkanoid.models.Ball;
-import game.arkanoid.models.Paddle;
-import game.arkanoid.models.Brick;
+import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.LevelLoader;
@@ -19,8 +17,10 @@ import javafx.scene.image.Image;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameEngine extends AnimationTimer {
     private Ball ball;
@@ -31,6 +31,10 @@ public class GameEngine extends AnimationTimer {
     private int lives = GameConstants.INITIAL_LIVES;
     private int score = 0;
     private int totalScore = 0;
+    private final List<PowerUp> powerUps = new ArrayList<>();
+    private final Random random = new Random();
+    private boolean laserActive = false;
+
     private Label scoreLabelRef;
     private Label livesLabelRef;
     private Label levelLabelRef;
@@ -53,6 +57,7 @@ public class GameEngine extends AnimationTimer {
         if (!gameRunning)
             return;
         updateGameState();
+        updatePowerUps();
         checkCollisions();
         render();
     }
@@ -225,6 +230,14 @@ public class GameEngine extends AnimationTimer {
                                 score += 10;
                                 break;
                         }
+                        if (brick.isDestroyed()) {
+                            // 20% rơi power-up
+                            if (random.nextDouble() < 1) {
+                                PowerUpType type = PowerUpType.values()[random.nextInt(PowerUpType.values().length)];
+                                PowerUp powerUp = new PowerUp(brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2, brick.getPosition().getY(), type);
+                                powerUps.add(powerUp);
+                            }
+                        }
                         if (this.scoreLabelRef != null)
                             this.scoreLabelRef.setText("Score: " + score);
                     }
@@ -274,6 +287,108 @@ public class GameEngine extends AnimationTimer {
         }
 
     }
+
+    private void updatePowerUps() {
+        Iterator<PowerUp> iterator = powerUps.iterator();
+        while (iterator.hasNext()) {
+            PowerUp powerUp = iterator.next();
+            powerUp.update();
+
+            // Kiểm tra va chạm với paddle
+            if (powerUp.intersects(paddle)) {
+                activatePowerUp(powerUp);
+                iterator.remove();
+                continue;
+            }
+
+            // Nếu rơi ra ngoài màn hình
+            if (powerUp.getY() > canvas.getHeight()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void activatePowerUp(PowerUp powerUp) {
+        switch (powerUp.getType()) {
+            case LASER:
+                // Kích hoạt laser
+                activateLaser();
+                break;
+
+            case EXTRA_LIFE:
+                // Thêm 1 mạng
+                lives++;
+                if (livesLabelRef != null) {
+                    livesLabelRef.setText("Lives: " + lives);
+                }
+                break;
+        }
+    }
+
+    private void activateLaser() {
+        if (laserActive) return; // tránh kích hoạt nhiều lần
+        laserActive = true;
+
+        new Thread(() -> {
+            try {
+                int shots = 3; // bắn 3 lần
+                for (int i = 0; i < shots; i++) {
+                    double px = paddle.getPosition().getX();
+                    double py = paddle.getPosition().getY() - paddle.getHeight() / 2;
+                    // tạo hai tia laser hai bên paddle
+                    double offset = paddle.getWidth() / 2 - 10;
+                    shootLaser(px - offset, py);
+                    shootLaser(px + offset, py);
+
+                    Thread.sleep(500); // thời gian giữa mỗi lần bắn
+                }
+            } catch (InterruptedException ignored) {
+            } finally {
+                laserActive = false;
+            }
+        }).start();
+    }
+
+    private void shootLaser(double x, double y) {
+        Platform.runLater(() -> {
+            new Thread(() -> {
+                double laserY = y;
+                while (laserY > 0 && gameRunning) {
+                    double finalY = laserY;
+                    Platform.runLater(() -> {
+                        gc.setFill(Color.RED);
+                        gc.fillRect(x - 1, finalY, 3, 10);
+                    });
+
+                    // Kiểm tra va chạm với brick
+                    for (Brick brick : bricks) {
+                        if (!brick.isDestroyed()) {
+                            double bx = brick.getPosition().getX();
+                            double by = brick.getPosition().getY();
+                            if (x >= bx && x <= bx + GameConstants.BRICK_WIDTH &&
+                                    finalY >= by && finalY <= by + GameConstants.BRICK_HEIGHT) {
+                                brick.takeDamage();
+                                if (brick.isDestroyed()) {
+                                    score += 10;
+                                    Platform.runLater(() -> scoreLabelRef.setText("Score: " + score));
+                                }
+                                return; // tia laser kết thúc khi trúng brick
+                            }
+                        }
+                    }
+
+                    laserY -= 15; // di chuyển lên trên
+                    try {
+                        Thread.sleep(30);
+                    } catch (InterruptedException ignored) {}
+                }
+            }).start();
+        });
+    }
+
+
+
+
 
     // Cập nhật trạng thái game
     public void updateGameState() {
@@ -366,6 +481,16 @@ public class GameEngine extends AnimationTimer {
         } else {
             gc.setFill(Color.WHITE);
             gc.fillOval(bx, by, size, size);
+        }
+        //vẽ power up
+        for (PowerUp p : powerUps) {
+            Image img = p.getImage();
+            if (img != null) {
+                gc.drawImage(img, p.getX() - p.getSize() / 2, p.getY() - p.getSize() / 2, p.getSize(), p.getSize());
+            } else {
+                gc.setFill(Color.LIMEGREEN);
+                gc.fillOval(p.getX() - p.getSize() / 2, p.getY() - p.getSize() / 2, p.getSize(), p.getSize());
+            }
         }
     }
 

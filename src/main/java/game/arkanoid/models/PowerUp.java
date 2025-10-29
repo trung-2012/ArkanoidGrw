@@ -1,42 +1,43 @@
 package game.arkanoid.models;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 public class PowerUp {
-    private final ImageView view;
-    private final PowerUpType type;
-    private double speedY = 2;
+    private double x, y;
+    private double speed = 2.0;
+    private double size = 24;
+    private PowerUpType type;
+    private Image image;
 
     public PowerUp(double x, double y, PowerUpType type) {
+        this.x = x;
+        this.y = y;
         this.type = type;
-
-        String imagePath = switch (type) {
-            case EXTRA_LIFE -> "game/arkanoid/images/heart_item.png";
-            case LASER -> "game/arkanoid/images/laser_item.png";
-        };
-
-        Image image = new Image(imagePath);
-        view = new ImageView(image);
-        view.setX(x);
-        view.setY(y);
-        view.setFitWidth(32);
-        view.setFitHeight(32);
+        try {
+            String path = "/game/arkanoid/images/" + type.name().toLowerCase() + ".png";
+            this.image = new Image(getClass().getResource(path).toExternalForm());
+        } catch (Exception e) {
+            this.image = null; // fallback nếu không có ảnh
+        }
     }
 
     public void update() {
-        view.setY(view.getY() + speedY);
+        y += speed;
     }
 
-    public ImageView getView() {
-        return view;
+    public boolean intersects(Paddle paddle) {
+        Rectangle2D rect1 = new Rectangle2D(x - size / 2, y - size / 2, size, size);
+        Rectangle2D rect2 = new Rectangle2D(paddle.getPosition().getX() - paddle.getWidth() / 2,
+                paddle.getPosition().getY() - paddle.getHeight() / 2,
+                paddle.getWidth(), paddle.getHeight());
+        return rect1.intersects(rect2);
     }
 
-    public PowerUpType getType() {
-        return type;
-    }
-
-    public boolean isOutOfBounds(double sceneHeight) {
-        return view.getY() > sceneHeight;
-    }
+    // Getter
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public double getSize() { return size; }
+    public Image getImage() { return image; }
+    public PowerUpType getType() { return type; }
 }
