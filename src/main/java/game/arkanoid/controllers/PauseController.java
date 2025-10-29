@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -59,11 +58,39 @@ public class PauseController {
 
     @FXML
     private void handleSettings(ActionEvent event) {
-        // Mở settings từ pause menu
+        // Đóng pause menu
+        pauseStage.close();
+        
+        // Mở Settings là 1 cửa sổ mới
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+            Parent root = loader.load();
+            
+            SettingsController settingsController = loader.getController();
+            
+            // Tạo Stage mới cho Settings
+            Stage settingsStage = new Stage();
+            settingsController.setSettingsStage(settingsStage);
+            settingsController.setMainController(mainController);
+            
+            // Lấy owner là main game stage
+            Stage mainStage = (Stage) pauseStage.getOwner();
+            
+            settingsStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            settingsStage.initOwner(mainStage);
+            settingsStage.setTitle("Settings");
+            settingsStage.setScene(new Scene(root, 800, 600));
+            settingsStage.setResizable(false);
+            
+            // Khi Settings đóng, hiện lại Pause menu
+            settingsStage.setOnHidden(e -> {
+                if (pauseStage != null && !pauseStage.isShowing()) {
+                    pauseStage.show();
+                }
+            });
+            
+            settingsStage.showAndWait();
+            
         } catch (IOException e) {
             e.printStackTrace();
         }

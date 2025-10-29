@@ -18,6 +18,9 @@ import game.arkanoid.utils.GameSettings;
 
 public class SettingsController {
 
+    private MainController mainController; // Để biết có đang từ game hay không
+    private Stage settingsStage; // Stage của Settings window
+
     // Các ImageView trong Settings
     @FXML
     private ImageView ballImageView;
@@ -59,6 +62,16 @@ public class SettingsController {
 
     private int ballIndex = 0;
     private int paddleIndex = 0;
+
+    // Setter để PauseController có thể truyền mainController vào
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
+    
+    // Setter để PauseController có thể truyền settingsStage vào
+    public void setSettingsStage(Stage settingsStage) {
+        this.settingsStage = settingsStage;
+    }
 
     // Xử lý sự kiện khi di chuột vào button
     @FXML
@@ -166,30 +179,56 @@ public class SettingsController {
     private void confirmBall() {
         System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
         GameSettings.setSelectedBall(ballSkins[ballIndex]);
+        
+        // Nếu đang trong game, reload skin ngay lập tức để preview
+        if (mainController != null) {
+            mainController.reloadGameSkins();
+        }
     }
 
     @FXML
     private void confirmPaddle() {
         System.out.println("Paddle đã chọn: " + paddleSkins[paddleIndex]);
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]);
+        
+        // Nếu đang trong game, reload skin ngay lập tức để preview
+        if (mainController != null) {
+            mainController.reloadGameSkins();
+        }
     }
 
     // Xác nhận thay đổi
     @FXML
     private void saveSettings(ActionEvent event) {
+        // Lưu settings
+        GameSettings.setSelectedBall(ballSkins[ballIndex]);
+        GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]);
+        
         System.out.println(" Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
         System.out.println("- Paddle: " + paddleSkins[paddleIndex]);
-        goBackToMenu(event);
+        
+        // Nếu đang trong game, reload skin ngay lập tức
+        if (mainController != null) {
+            mainController.reloadGameSkins();
+        }
+        
+        goBack(event);
     }
 
-    // Trở về Main Menu
-    private void goBackToMenu(ActionEvent event) {
+    // Trở về màn hình trước đó (MainView nếu từ game, StartMenu nếu từ menu)
+    private void goBack(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(
-                    "/game/arkanoid/fxml/StartMenu.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
+            // Nếu được gọi từ game (qua PauseMenu) và có settingsStage
+            if (mainController != null && settingsStage != null) {
+                // Đóng Settings modal và quay lại PauseMenu
+                settingsStage.close();
+            } else {
+                // Nếu được gọi từ StartMenu, chuyển Scene về StartMenu
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+                stage.setScene(new Scene(root, 800, 600));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

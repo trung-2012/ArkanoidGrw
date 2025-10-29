@@ -48,10 +48,6 @@ public class GameEngine extends AnimationTimer {
     private boolean leftPressed = false;
     private boolean rightPressed = false;
 
-    // Path skin mặc định
-    private String ballSkinPath = "/game/arkanoid/images/Ball.png";
-    private String paddleSkinPath = "/game/arkanoid/images/Paddle.png";
-
     @Override
     public void handle(long now) {
         if (!gameRunning)
@@ -61,27 +57,31 @@ public class GameEngine extends AnimationTimer {
         render();
     }
 
-    // Set skin từ Settings
-    public void setBallSkin(String path) {
-        this.ballSkinPath = path;
-    }
-
-    public void setPaddleSkin(String path) {
-        this.paddleSkinPath = path;
+    // Reload skin từ GameSettings (gọi khi user thay đổi trong Settings)
+    public void reloadSkins() {
+        try {
+            this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
+            this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
+            System.out.println("Đã reload skins: Ball=" + GameSettings.getSelectedBall() + ", Paddle=" + GameSettings.getSelectedPaddle());
+        } catch (Exception e) {
+            System.err.println("Lỗi khi reload skins: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void initializeGame(Canvas canvas, Label scoreLabel, Label livesLabel, Label levelLabel) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
 
-        // Load ảnh Ball & Paddle theo skin đã chọn
+        // Load ảnh Ball & Paddle theo skin đã chọn từ GameSettings
         try {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
         } catch (Exception e) {
-            System.out.println("Không thể load skin đã chọn, dùng mặc định.");
-            this.ballImage = new Image(getClass().getResourceAsStream(ballSkinPath));
-            this.paddleImage = new Image(getClass().getResourceAsStream(paddleSkinPath));
+            System.err.println("Không thể load skin đã chọn, dùng mặc định: " + e.getMessage());
+            // Fallback về skin mặc định
+            this.ballImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Ball.png"));
+            this.paddleImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Paddle.png"));
         }
 
         // Load ảnh gạch
