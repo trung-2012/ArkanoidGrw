@@ -34,6 +34,8 @@ public class GameEngine extends AnimationTimer {
     private final List<PowerUp> powerUps = new ArrayList<>();
     private final Random random = new Random();
     private boolean laserActive = false;
+    private final List<LaserBeam> laserBeams = new ArrayList<>();
+
 
     private Label scoreLabelRef;
     private Label livesLabelRef;
@@ -232,7 +234,7 @@ public class GameEngine extends AnimationTimer {
                         }
                         if (brick.isDestroyed()) {
                             // 20% rơi power-up
-                            if (random.nextDouble() < 1) {
+                            if (random.nextDouble() < GameConstants.POWER_UP_RATE) {
                                 PowerUpType type = PowerUpType.values()[random.nextInt(PowerUpType.values().length)];
                                 PowerUp powerUp = new PowerUp(brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2, brick.getPosition().getY(), type);
                                 powerUps.add(powerUp);
@@ -331,16 +333,16 @@ public class GameEngine extends AnimationTimer {
 
         new Thread(() -> {
             try {
-                int shots = 3; // bắn 3 lần
+                int shots = GameConstants.NUM_OF_BULLETS; // bắn 3 lần
                 for (int i = 0; i < shots; i++) {
                     double px = paddle.getPosition().getX();
                     double py = paddle.getPosition().getY() - paddle.getHeight() / 2;
                     // tạo hai tia laser hai bên paddle
                     double offset = paddle.getWidth() / 2 - 10;
-                    shootLaser(px - offset, py);
-                    shootLaser(px + offset, py);
+                    addLaser(px - offset, py);
+                    addLaser(px + offset, py);
 
-                    Thread.sleep(500); // thời gian giữa mỗi lần bắn
+                    Thread.sleep(GameConstants.COOL_DOWN_TIME); // thời gian giữa mỗi lần bắn
                 }
             } catch (InterruptedException ignored) {
             } finally {
@@ -349,42 +351,11 @@ public class GameEngine extends AnimationTimer {
         }).start();
     }
 
-    private void shootLaser(double x, double y) {
-        Platform.runLater(() -> {
-            new Thread(() -> {
-                double laserY = y;
-                while (laserY > 0 && gameRunning) {
-                    double finalY = laserY;
-                    Platform.runLater(() -> {
-                        gc.setFill(Color.RED);
-                        gc.fillRect(x - 1, finalY, 3, 10);
-                    });
-
-                    // Kiểm tra va chạm với brick
-                    for (Brick brick : bricks) {
-                        if (!brick.isDestroyed()) {
-                            double bx = brick.getPosition().getX();
-                            double by = brick.getPosition().getY();
-                            if (x >= bx && x <= bx + GameConstants.BRICK_WIDTH &&
-                                    finalY >= by && finalY <= by + GameConstants.BRICK_HEIGHT) {
-                                brick.takeDamage();
-                                if (brick.isDestroyed()) {
-                                    score += 10;
-                                    Platform.runLater(() -> scoreLabelRef.setText("Score: " + score));
-                                }
-                                return; // tia laser kết thúc khi trúng brick
-                            }
-                        }
-                    }
-
-                    laserY -= 15; // di chuyển lên trên
-                    try {
-                        Thread.sleep(30);
-                    } catch (InterruptedException ignored) {}
-                }
-            }).start();
-        });
+    private void addLaser(double x, double y) {
+        Platform.runLater(() -> laserBeams.add(new LaserBeam(new Vector2D(x, y))));
     }
+
+
 
 
 
@@ -408,6 +379,56 @@ public class GameEngine extends AnimationTimer {
         }
         if (ball != null)
             ball.update();
+
+        // Cập nhật power-ups đang rơi
+        Iterator<PowerUp> iter = powerUps.iterator();
+        while (iter.hasNext()) {
+            PowerUp p = iter.next();
+            p.update(); // rơi xuống
+            // Nếu power-up rơi chạm paddle
+            if (paddle != null && p.intersects(paddle)) {
+                activatePowerUp(p); // kích hoạt hiệu ứng
+                iter.remove();    // xóa power-up khỏi danh sách
+            } else if (p.getY() > canvas.getHeight()) {
+                iter.remove();    // xóa nếu rơi khỏi màn hình
+            }
+        }
+
+        // Cập nhật các tia laser
+        Iterator<LaserBeam> laserIter = laserBeams.iterator();
+        while (laserIter.hasNext()) {
+            LaserBeam beam = laserIter.next();
+            beam.update();
+
+            // Xóa nếu ra khỏi màn hình hoặc va chạm với gạch
+            boolean hit = false;
+            for (Brick brick : bricks) {
+                if (!brick.isDestroyed()) {
+                    double bx = brick.getPosition().getX();
+                    double by = brick.getPosition().getY();
+
+                    if (beam.getPosition().getX() >= bx &&
+                            beam.getPosition().getX() <= bx + GameConstants.BRICK_WIDTH &&
+                            beam.getPosition().getY() >= by &&
+                            beam.getPosition().getY() <= by + GameConstants.BRICK_HEIGHT) {
+
+                        brick.takeDamage();
+                        if (brick.isDestroyed()) {
+                            score += 10;
+                            Platform.runLater(() -> scoreLabelRef.setText("Score: " + score));
+                        }
+
+                        // Xóa laser ngay khi trúng gạch
+                        hit = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hit || beam.isOffScreen(canvas.getHeight())) {
+                laserIter.remove();
+            }
+        }
     }
 
     // Xử lý sự kiện phím bấm
@@ -491,6 +512,10 @@ public class GameEngine extends AnimationTimer {
                 gc.setFill(Color.LIMEGREEN);
                 gc.fillOval(p.getX() - p.getSize() / 2, p.getY() - p.getSize() / 2, p.getSize(), p.getSize());
             }
+        }
+        //vẽ laserBeam
+        for (LaserBeam beam : laserBeams) {
+            beam.render(gc);
         }
     }
 

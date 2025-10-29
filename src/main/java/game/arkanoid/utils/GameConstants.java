@@ -29,4 +29,9 @@ public class GameConstants {
 
     // Tổng số level trong trò chơi
     public static final int totalLevels = 3;
+
+    // Thông số powerUp
+    public static final double POWER_UP_RATE = 0.2; // tỉ lệ rơi ra powerUp (1=100%)
+    public static final int NUM_OF_BULLETS = 5; // số lượng đạn
+    public static final int COOL_DOWN_TIME = 500; // thời gian giữa mỗi lần bắn
 }

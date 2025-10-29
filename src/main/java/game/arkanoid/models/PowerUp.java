@@ -5,7 +5,7 @@ import javafx.scene.image.Image;
 
 public class PowerUp {
     private double x, y;
-    private double speed = 2.0;
+    private double speed = 1.0;
     private double size = 24;
     private PowerUpType type;
     private Image image;
