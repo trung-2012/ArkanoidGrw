@@ -22,21 +22,9 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     @FXML
-    private Button startButton;
-    @FXML
     private Button pauseButton;
     @FXML
-    private Button resetButton;
-    @FXML
-    private Button menuButton;
-    @FXML
-    private ImageView startImageView;
-    @FXML
     private ImageView pauseImageView;
-    @FXML
-    private ImageView resetImageView;
-    @FXML
-    private ImageView menuImageView;
     @FXML
     private Label scoreLabel;
     @FXML
@@ -56,66 +44,20 @@ public class MainController implements Initializable {
 
     private Stage pauseStage;
 
-    // Xử lý sự kiện khi di chuột vào button
+    // Xử lý sự kiện khi di chuột vào button Pause
     @FXML
     private void onButtonMouseEntered(MouseEvent event) {
-        Button sourceButton = (Button) event.getSource();
-        String buttonId = sourceButton.getId();
-        Image hoverImage = null;
-
-        switch (buttonId) {
-            case "startButton":
-                hoverImage = new Image(
-                        getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
-                startImageView.setImage(hoverImage);
-                break;
-            case "pauseButton":
-                hoverImage = new Image(
-                        getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
-                pauseImageView.setImage(hoverImage);
-                break;
-            case "resetButton":
-                hoverImage = new Image(
-                        getClass().getResource("/game/arkanoid/images/reset c.png").toExternalForm());
-                resetImageView.setImage(hoverImage);
-                break;
-            case "menuButton":
-                hoverImage = new Image(
-                        getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
-                menuImageView.setImage(hoverImage);
-                break;
-        }
+        Image hoverImage = new Image(
+                getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
+        pauseImageView.setImage(hoverImage);
     }
 
-    // Xử lý sự kiện khi di chuột ra khỏi button
+    // Xử lý sự kiện khi di chuột ra khỏi button Pause
     @FXML
     private void onButtonMouseExited(MouseEvent event) {
-        Button sourceButton = (Button) event.getSource();
-        String buttonId = sourceButton.getId();
-        Image normalImage = null;
-
-        switch (buttonId) {
-            case "startButton":
-                normalImage = new Image(
-                        getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
-                startImageView.setImage(normalImage);
-                break;
-            case "pauseButton":
-                normalImage = new Image(
-                        getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
-                pauseImageView.setImage(normalImage);
-                break;
-            case "resetButton":
-                normalImage = new Image(
-                        getClass().getResource("/game/arkanoid/images/reset.png").toExternalForm());
-                resetImageView.setImage(normalImage);
-                break;
-            case "menuButton":
-                normalImage = new Image(
-                        getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
-                menuImageView.setImage(normalImage);
-                break;
-        }
+        Image normalImage = new Image(
+                getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
+        pauseImageView.setImage(normalImage);
     }
 
     // Thay đổi ảnh nền theo level
@@ -184,14 +126,6 @@ public class MainController implements Initializable {
         });
     }
 
-    // Bắt đầu
-    @FXML
-    private void startGame(ActionEvent event) {
-        // Bắt đầu/bật lại vòng lặp game
-        engine.setGameRunning(true);
-        gameCanvas.requestFocus(); // trả lại focus cho canvas
-    }
-
     // Tạm dừng
     @FXML
     private void pauseGame(ActionEvent event) {
@@ -254,30 +188,6 @@ public class MainController implements Initializable {
             Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
             Stage stage = (Stage) gameCanvas.getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Reset game
-    @FXML
-    private void resetGame(ActionEvent event) {
-        // Đặt lại trò chơi về trạng thái bắt đầu
-        engine.resetCurrentLevel();
-        gameCanvas.requestFocus(); // trả lại focus cho canvas
-    }
-
-    // Trở về menu chính
-    @FXML
-    private void returnToMenu(ActionEvent event) {
-        // Dừng game engine
-        engine.setGameRunning(false);
-        try {
-            javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(getClass().getResource(
-                    "/game/arkanoid/fxml/StartMenu.fxml"));
-            javafx.stage.Stage stage = (javafx.stage.Stage) ((javafx.scene.Node) event.getSource()).getScene()
-                    .getWindow();
-            stage.setScene(new javafx.scene.Scene(root, 800, 600));
         } catch (Exception e) {
             e.printStackTrace();
         }
