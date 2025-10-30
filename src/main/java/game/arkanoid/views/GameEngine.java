@@ -211,6 +211,13 @@ public class GameEngine extends AnimationTimer {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
                 if (ball.collideWith(brick)) {
+                    boolean anyLeft = false;
+                    for (Brick b : bricks) {
+                        if (!b.getDestroyed()) {
+                            anyLeft = true;
+                            break;
+                        }
+                    }
                     // Sau khi va chạm, gạch chịu sát thương
                     // Chỉ cộng điểm khi gạch bị phá hủy
                     if (brick.isDestroyed()) {
@@ -232,18 +239,16 @@ public class GameEngine extends AnimationTimer {
                                 score += 10;
                                 break;
                         }
-                        if (brick.isDestroyed()) {
-                            // 20% rơi power-up
-                            if (random.nextDouble() < GameConstants.POWER_UP_RATE) {
-                                PowerUpType type = PowerUpType.values()[random.nextInt(PowerUpType.values().length)];
-                                PowerUp powerUp = new PowerUp(brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2, brick.getPosition().getY(), type);
-                                powerUps.add(powerUp);
-                            }
+                        // 20% rơi power-up
+                        //nếu còn 1 viên gạch thì sẽ không rơi powerUp
+                        if (random.nextDouble() < GameConstants.POWER_UP_RATE && anyLeft) {
+                            PowerUpType type = PowerUpType.values()[random.nextInt(PowerUpType.values().length)];
+                            PowerUp powerUp = new PowerUp(brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2, brick.getPosition().getY(), type);
+                            powerUps.add(powerUp);
                         }
                         if (this.scoreLabelRef != null)
                             this.scoreLabelRef.setText("Score: " + score);
                     }
-                    boolean anyLeft = false;
                     for (Brick b : bricks) {
                         if (!b.getDestroyed()) {
                             anyLeft = true;
@@ -319,7 +324,7 @@ public class GameEngine extends AnimationTimer {
 
             case EXTRA_LIFE:
                 // Thêm 1 mạng, tối đa 5 mạng
-                if (lives <=5) {
+                if (lives < GameConstants.MAX_LIVE) {
                     lives++;
                 }
                 if (livesLabelRef != null) {
@@ -335,7 +340,7 @@ public class GameEngine extends AnimationTimer {
 
         new Thread(() -> {
             try {
-                int shots = GameConstants.NUM_OF_BULLETS; // bắn 3 lần
+                int shots = GameConstants.NUM_OF_BULLETS;
                 for (int i = 0; i < shots; i++) {
                     double px = paddle.getPosition().getX();
                     double py = paddle.getPosition().getY() - paddle.getHeight() / 2;
@@ -356,11 +361,6 @@ public class GameEngine extends AnimationTimer {
     private void addLaser(double x, double y) {
         Platform.runLater(() -> laserBeams.add(new LaserBeam(new Vector2D(x, y))));
     }
-
-
-
-
-
 
 
     // Cập nhật trạng thái game
