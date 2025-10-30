@@ -100,7 +100,8 @@ public class Ball {
         return false;
     }
 
-    // Va chạm hình tròn-chữ nhật với gạch. Giả định brick.position là góc trên-trái.
+    // Va chạm hình tròn-chữ nhật với gạch. Giả định brick.position là góc
+    // trên-trái.
     public boolean collideWith(Brick brick) {
         if (brick == null || brick.getDestroyed())
             return false;

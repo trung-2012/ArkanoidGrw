@@ -35,9 +35,23 @@ public class PowerUp {
     }
 
     // Getter
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public double getSize() { return size; }
-    public Image getImage() { return image; }
-    public PowerUpType getType() { return type; }
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getSize() {
+        return size;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public PowerUpType getType() {
+        return type;
+    }
 }

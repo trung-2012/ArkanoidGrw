@@ -37,6 +37,10 @@ public class Brick {
         return type;
     }
 
+    public int getPoint() {
+        return type.getPoint();
+    }
+
     public int getHealth() {
         return health;
     }

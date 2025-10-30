@@ -23,8 +23,8 @@ public class GameConstants {
 
     // Số mạng ban đầu
     public static final int INITIAL_LIVES = 3;
-    //Số mạng tối đa
-    public static final int MAX_LIVE= 5;
+    // Số mạng tối đa
+    public static final int MAX_LIVE = 5;
 
     // Tốc độ khung hình
     public static final int FRAME_RATE = 60;
