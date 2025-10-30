@@ -459,6 +459,18 @@ public class GameEngine extends AnimationTimer {
                                 break;
                         }
                         Platform.runLater(() -> scoreLabelRef.setText("Score: " + score));
+
+                        boolean anyLeft = false;
+                        for (Brick b : bricks) {
+                            if (!b.isDestroyed()) {
+                                anyLeft = true;
+                                break;
+                            }
+                        }
+
+                        if (!anyLeft) {
+                            Platform.runLater(() -> handleLevelCompletion());
+                        }
                     }
                     hit = true;
                     break;
@@ -470,6 +482,32 @@ public class GameEngine extends AnimationTimer {
             }
         }
     }
+
+    private void handleLevelCompletion() {
+        currentLevel++;
+        if (currentLevel > GameConstants.totalLevels) {
+            totalScore = score;
+            setGameRunning(false);
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                Parent root = loader.load();
+                game.arkanoid.controllers.GameOverController controller = loader.getController();
+                controller.setFinalScore(totalScore);
+                Stage stage = (Stage) canvas.getScene().getWindow();
+                stage.setScene(new Scene(root, 800, 600));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            totalScore = score;
+            loadLevelNumber(currentLevel);
+            double resetX = paddle.getPosition().getX();
+            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius() - 150.0;
+            ball.setPosition(new Vector2D(resetX, resetY));
+            ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+        }
+    }
+
 
     // Xử lý sự kiện phím bấm
     public void setLeftPressed(boolean pressed) {
