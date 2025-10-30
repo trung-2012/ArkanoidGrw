@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import java.io.IOException;
 
 public class PauseController {
@@ -18,8 +19,10 @@ public class PauseController {
     private MainController mainController;
     private Stage pauseStage;
 
-    @FXML private Button resumeButton;
-    @FXML private ImageView resumeImageView;
+    @FXML
+    private Button resumeButton;
+    @FXML
+    private ImageView resumeImageView;
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
