@@ -342,7 +342,7 @@ public class GameEngine extends AnimationTimer {
                 }
                 break;
             case SHIELD:
-                shield = new Shield(0, canvas.getHeight(), canvas.getWidth(), GameConstants.SHIELD_HEIGHT);
+                shield = new Shield(0, canvas.getHeight()-GameConstants.SHIELD_HEIGHT, canvas.getWidth(), GameConstants.SHIELD_HEIGHT);
         }
     }
 
