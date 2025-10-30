@@ -35,6 +35,7 @@ public class GameEngine extends AnimationTimer {
     private final Random random = new Random();
     private boolean laserActive = false;
     private final List<LaserBeam> laserBeams = new ArrayList<>();
+    private Shield shield;
 
 
     private Label scoreLabelRef;
@@ -207,6 +208,15 @@ public class GameEngine extends AnimationTimer {
         // Kiểm tra va chạm với paddle
         ball.collideWith(paddle);
 
+        // Kiểm tra va chạm với shield
+        if (shield != null && shield.collidesWith(ball)) {
+            ball.reverseVelocityY();
+            shield.hit();
+            if (shield.isBroken()) {
+                shield = null;
+            }
+        }
+
         // Kiểm tra va chạm với bricks
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
@@ -331,6 +341,8 @@ public class GameEngine extends AnimationTimer {
                     livesLabelRef.setText("Lives: " + lives);
                 }
                 break;
+            case SHIELD:
+                shield = new Shield(0, canvas.getHeight(), canvas.getWidth(), GameConstants.SHIELD_HEIGHT);
         }
     }
 
@@ -518,6 +530,10 @@ public class GameEngine extends AnimationTimer {
         //vẽ laserBeam
         for (LaserBeam beam : laserBeams) {
             beam.render(gc);
+        }
+        //vẽ shield
+        if (shield != null) {
+            shield.draw(gc);
         }
     }
 
