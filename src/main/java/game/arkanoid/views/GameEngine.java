@@ -318,8 +318,10 @@ public class GameEngine extends AnimationTimer {
                 break;
 
             case EXTRA_LIFE:
-                // Thêm 1 mạng
-                lives++;
+                // Thêm 1 mạng, tối đa 5 mạng
+                if (lives <=5) {
+                    lives++;
+                }
                 if (livesLabelRef != null) {
                     livesLabelRef.setText("Lives: " + lives);
                 }
