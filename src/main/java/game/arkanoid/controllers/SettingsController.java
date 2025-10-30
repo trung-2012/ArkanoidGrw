@@ -67,7 +67,7 @@ public class SettingsController {
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
-    
+
     // Setter để PauseController có thể truyền settingsStage vào
     public void setSettingsStage(Stage settingsStage) {
         this.settingsStage = settingsStage;
@@ -179,7 +179,7 @@ public class SettingsController {
     private void confirmBall() {
         System.out.println("Ball đã chọn: " + ballSkins[ballIndex]);
         GameSettings.setSelectedBall(ballSkins[ballIndex]);
-        
+
         // Nếu đang trong game, reload skin ngay lập tức để preview
         if (mainController != null) {
             mainController.reloadGameSkins();
@@ -190,7 +190,7 @@ public class SettingsController {
     private void confirmPaddle() {
         System.out.println("Paddle đã chọn: " + paddleSkins[paddleIndex]);
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]);
-        
+
         // Nếu đang trong game, reload skin ngay lập tức để preview
         if (mainController != null) {
             mainController.reloadGameSkins();
@@ -203,16 +203,16 @@ public class SettingsController {
         // Lưu settings
         GameSettings.setSelectedBall(ballSkins[ballIndex]);
         GameSettings.setSelectedPaddle(paddleSkins[paddleIndex]);
-        
+
         System.out.println(" Đã lưu:");
         System.out.println("- Ball: " + ballSkins[ballIndex]);
         System.out.println("- Paddle: " + paddleSkins[paddleIndex]);
-        
+
         // Nếu đang trong game, reload skin ngay lập tức
         if (mainController != null) {
             mainController.reloadGameSkins();
         }
-        
+
         goBack(event);
     }
 

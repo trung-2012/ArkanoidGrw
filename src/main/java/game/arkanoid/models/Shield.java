@@ -33,7 +33,7 @@ public class Shield {
         // Màu sáng hơn khi va chạm
         Color fillColor = glowing
                 ? Color.rgb(100, 255, 255, 0.9) // sáng mạnh
-                : Color.rgb(0, 255, 255, 0.5);  // bình thường
+                : Color.rgb(0, 255, 255, 0.5); // bình thường
 
         Color borderColor = glowing
                 ? Color.rgb(255, 255, 255, 1.0) // viền sáng trắng
@@ -74,5 +74,7 @@ public class Shield {
         return health <= 0;
     }
 
-    public double getY() { return y; }
+    public double getY() {
+        return y;
+    }
 }

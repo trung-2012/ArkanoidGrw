@@ -16,7 +16,7 @@ public class LevelLoader {
         List<Brick> bricks = new ArrayList<>();
 
         try (InputStream is = LevelLoader.class.getResourceAsStream("/game/arkanoid/levels/" + levelFile);
-             BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
             String line;
             int row = 0;

@@ -44,10 +44,10 @@ public class LaserBeam {
     public boolean intersects(Brick brick) {
         double bx = brick.getPosition().getX();
         double by = brick.getPosition().getY();
-        
-        return position.getX() + width/2 >= bx &&
-               position.getX() - width/2 <= bx + GameConstants.BRICK_WIDTH &&
-               position.getY() >= by &&
-               position.getY() - height <= by + GameConstants.BRICK_HEIGHT;
+
+        return position.getX() + width / 2 >= bx &&
+                position.getX() - width / 2 <= bx + GameConstants.BRICK_WIDTH &&
+                position.getY() >= by &&
+                position.getY() - height <= by + GameConstants.BRICK_HEIGHT;
     }
 }

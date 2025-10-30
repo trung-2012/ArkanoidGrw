@@ -27,18 +27,30 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
-    @FXML private Button pauseButton;
-    @FXML private ImageView pauseImageView;
-    @FXML private Label scoreLabel;
-    @FXML private Label livesLabel;
-    @FXML private Label levelLabel;
-    @FXML private Canvas gameCanvas;
-    @FXML private ImageView backgroundImageView;
-    @FXML private HBox topBar;
-    @FXML private HBox bottomBar;
-    @FXML private StackPane rootStack;
-    @FXML private BorderPane mainGamePane;
-    @FXML private Rectangle pauseOverlay;
+    @FXML
+    private Button pauseButton;
+    @FXML
+    private ImageView pauseImageView;
+    @FXML
+    private Label scoreLabel;
+    @FXML
+    private Label livesLabel;
+    @FXML
+    private Label levelLabel;
+    @FXML
+    private Canvas gameCanvas;
+    @FXML
+    private ImageView backgroundImageView;
+    @FXML
+    private HBox topBar;
+    @FXML
+    private HBox bottomBar;
+    @FXML
+    private StackPane rootStack;
+    @FXML
+    private BorderPane mainGamePane;
+    @FXML
+    private Rectangle pauseOverlay;
 
     private GameEngine engine;
     private Stage pauseStage;
