@@ -55,7 +55,7 @@ public class MainController implements Initializable {
     private GameEngine engine;
     private Stage pauseStage;
 
-    private boolean isPaused = false; // giữ trạng thái pause
+    private boolean isPaused = false;
 
     @FXML
     private void onButtonMouseEntered(MouseEvent event) {
@@ -95,6 +95,8 @@ public class MainController implements Initializable {
                         case D:
                             engine.setRightPressed(true);
                             break;
+                        default:
+                            break;
                     }
                 });
 
@@ -107,6 +109,8 @@ public class MainController implements Initializable {
                         case RIGHT:
                         case D:
                             engine.setRightPressed(false);
+                            break;
+                        default:
                             break;
                     }
                 });
