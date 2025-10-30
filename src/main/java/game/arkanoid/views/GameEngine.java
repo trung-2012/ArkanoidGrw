@@ -372,6 +372,10 @@ public class GameEngine extends AnimationTimer {
         if (laserActive) return;
         laserActive = true;
 
+        if (laserScheduler == null || laserScheduler.isShutdown()) {
+            laserScheduler = Executors.newScheduledThreadPool(1);
+        }
+
         laserScheduler.schedule(() -> {
             int shots = GameConstants.NUM_OF_BULLETS;
             for (int i = 0; i < shots && laserActive; i++) {
