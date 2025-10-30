@@ -1,5 +1,6 @@
 package game.arkanoid.models;
 
+import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -38,5 +39,15 @@ public class LaserBeam {
 
     public Vector2D getPosition() {
         return position;
+    }
+
+    public boolean intersects(Brick brick) {
+        double bx = brick.getPosition().getX();
+        double by = brick.getPosition().getY();
+        
+        return position.getX() + width/2 >= bx &&
+               position.getX() - width/2 <= bx + GameConstants.BRICK_WIDTH &&
+               position.getY() >= by &&
+               position.getY() - height <= by + GameConstants.BRICK_HEIGHT;
     }
 }
