@@ -55,22 +55,18 @@ public class MainController implements Initializable {
     private GameEngine engine;
     private Stage pauseStage;
 
-    // Hover hiệu ứng cho nút Pause
+    private boolean isPaused = false; // giữ trạng thái pause
+
     @FXML
     private void onButtonMouseEntered(MouseEvent event) {
-        Image hoverImage = new Image(
-                getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm());
-        pauseImageView.setImage(hoverImage);
+        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm()));
     }
 
     @FXML
     private void onButtonMouseExited(MouseEvent event) {
-        Image normalImage = new Image(
-                getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm());
-        pauseImageView.setImage(normalImage);
+        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm()));
     }
 
-    // Đổi ảnh nền theo level
     public void updateBackgroundForLevel(int level) {
         String imagePath = String.format("/game/arkanoid/images/MapLevel%d.png", level);
         backgroundImageView.setImage(new Image(getClass().getResource(imagePath).toExternalForm()));
@@ -99,7 +95,6 @@ public class MainController implements Initializable {
                         case D:
                             engine.setRightPressed(true);
                             break;
-                        default:
                     }
                 });
 
@@ -113,7 +108,6 @@ public class MainController implements Initializable {
                         case D:
                             engine.setRightPressed(false);
                             break;
-                        default:
                     }
                 });
 
@@ -130,33 +124,31 @@ public class MainController implements Initializable {
         });
     }
 
-    // Khi nhấn Pause
+    // Pause Game
     @FXML
     private void pauseGame(ActionEvent event) {
-        if (engine.isGameRunning()) {
+        if (!isPaused) {
+            isPaused = true;
             engine.setGameRunning(false);
 
-            // hiệu ứng blur
-            mainGamePane.setEffect(new GaussianBlur(10));
-
-            // overlay mờ dần
-            pauseOverlay.setVisible(true);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), pauseOverlay);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
-
+            applyPauseBlur();
             showPauseMenu();
         }
         gameCanvas.requestFocus();
     }
 
-    // Hiển thị Pause menu
+    // Hàm gọi blur + overlay
+    public void applyPauseBlur() {
+        mainGamePane.setEffect(new GaussianBlur(10));
+        pauseOverlay.setVisible(true);
+        pauseOverlay.setOpacity(1);
+    }
+
+    // Show pause menu
     public void showPauseMenu() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/PauseView.fxml"));
             Parent root = loader.load();
-
             PauseController pauseController = loader.getController();
             pauseController.setMainController(this);
 
@@ -175,14 +167,15 @@ public class MainController implements Initializable {
             pauseStage.setX(mainStage.getX() + (800 - 400) / 2);
             pauseStage.setY(mainStage.getY() + (600 - 300) / 2);
 
-            // Khi đóng pause menu => remove blur
             pauseStage.setOnHidden(e -> {
-                mainGamePane.setEffect(null);
-                FadeTransition fadeOut = new FadeTransition(Duration.millis(200), pauseOverlay);
-                fadeOut.setFromValue(1);
-                fadeOut.setToValue(0);
-                fadeOut.setOnFinished(ev -> pauseOverlay.setVisible(false));
-                fadeOut.play();
+                if (!isPaused) {
+                    mainGamePane.setEffect(null);
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(200), pauseOverlay);
+                    fadeOut.setFromValue(1);
+                    fadeOut.setToValue(0);
+                    fadeOut.setOnFinished(ev -> pauseOverlay.setVisible(false));
+                    fadeOut.play();
+                }
             });
 
             pauseStage.show();
@@ -192,25 +185,23 @@ public class MainController implements Initializable {
         }
     }
 
-    // Khi Resume
+    // Resume Game
     public void resumeGame() {
+        isPaused = false;
         engine.setGameRunning(true);
         mainGamePane.setEffect(null);
 
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), pauseOverlay);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);
-        fadeOut.setOnFinished(e -> pauseOverlay.setVisible(false));
+        fadeOut.setOnFinished(ev -> pauseOverlay.setVisible(false));
         fadeOut.play();
 
         gameCanvas.requestFocus();
     }
 
-    // Reload skin từ Settings
     public void reloadGameSkins() {
-        if (engine != null) {
-            engine.reloadSkins();
-        }
+        if (engine != null) engine.reloadSkins();
     }
 
     public void resetGameFromPause() {
@@ -219,6 +210,7 @@ public class MainController implements Initializable {
     }
 
     public void returnToMenuFromPause() {
+        isPaused = false;
         engine.setGameRunning(false);
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
