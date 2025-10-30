@@ -1,58 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.paint.Color?>
 
-<AnchorPane prefHeight="300" prefWidth="400" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.PauseController">
+<AnchorPane prefHeight="300" prefWidth="400"
+            style="-fx-background-color: transparent;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="game.arkanoid.controllers.PauseController">
 
-    <!-- Background -->
-    <ImageView fitHeight="300" fitWidth="400" preserveRatio="false">
+    <ImageView fx:id="backgroundImage" fitHeight="300" fitWidth="400"
+               preserveRatio="false" opacity="0.6">
+
         <image>
-            <Image url="@../images/PauseBG.png" />
+            <Image url="@../images/PauseBG.png"/>
         </image>
+        <effect>
+            <DropShadow radius="15" color="#00000066"/>
+        </effect>
     </ImageView>
 
-    <!-- Resume - CHỈ BUTTON NÀY CÓ HOVER -->
-    <Button fx:id="resumeButton" layoutX="129.0" layoutY="203.0" onAction="#handleResume" onMouseEntered="#onResumeMouseEntered" onMouseExited="#onResumeMouseExited" prefHeight="50.0" prefWidth="120.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;" text="">
+    <Button fx:id="resumeButton" layoutX="129.0" layoutY="203.0"
+            onAction="#handleResume"
+            onMouseEntered="#onResumeMouseEntered"
+            onMouseExited="#onResumeMouseExited"
+            prefHeight="50.0" prefWidth="120.0"
+            style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="resumeImageView" fitHeight="50.0" fitWidth="120.0" preserveRatio="false">
                 <image>
-                    <Image url="@../images/resume.png" />
+                    <Image url="@../images/resume.png"/>
                 </image>
             </ImageView>
         </graphic>
     </Button>
 
-    <!-- Reset - KHÔNG CÓ HOVER -->
-    <Button fx:id="resetButton" layoutX="32.0" layoutY="68.0" onAction="#handleRestart" prefHeight="90" prefWidth="90" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;" text="">
+    <Button fx:id="resetButton" layoutX="32.0" layoutY="68.0"
+            onAction="#handleRestart"
+            prefHeight="90" prefWidth="90"
+            style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fitHeight="90" fitWidth="90" preserveRatio="false">
                 <image>
-                    <Image url="@../images/resetCurrentLv.png" />
+                    <Image url="@../images/resetCurrentLv.png"/>
                 </image>
             </ImageView>
         </graphic>
     </Button>
 
-    <!-- Back to Main - KHÔNG CÓ HOVER -->
-    <Button fx:id="backToMainButton" layoutX="144.0" layoutY="68.0" onAction="#handleMainMenu" prefHeight="90" prefWidth="90" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;" text="">
+    <Button fx:id="backToMainButton" layoutX="144.0" layoutY="68.0"
+            onAction="#handleMainMenu"
+            prefHeight="90" prefWidth="90"
+            style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fitHeight="90" fitWidth="90" preserveRatio="false">
                 <image>
-                    <Image url="@../images/backToMain.png" />
+                    <Image url="@../images/backToMain.png"/>
                 </image>
             </ImageView>
         </graphic>
     </Button>
 
-    <!-- Settings - KHÔNG CÓ HOVER -->
-    <Button fx:id="settingsButton" layoutX="256.0" layoutY="67.0" onAction="#handleSettings" prefHeight="90" prefWidth="90" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;" text="">
+    <Button fx:id="settingsButton" layoutX="256.0" layoutY="67.0"
+            onAction="#handleSettings"
+            prefHeight="90" prefWidth="90"
+            style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fitHeight="90" fitWidth="90" preserveRatio="false">
                 <image>
-                    <Image url="@../images/settingsbut.png" />
+                    <Image url="@../images/settingsbut.png"/>
                 </image>
             </ImageView>
         </graphic>

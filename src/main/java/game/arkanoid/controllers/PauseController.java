@@ -1,21 +1,24 @@
 package game.arkanoid.controllers;
 
+import javafx.animation.FadeTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import javafx.event.ActionEvent;
-
+import javafx.util.Duration;
 import java.io.IOException;
 
 public class PauseController {
-    
+
     private MainController mainController;
     private Stage pauseStage;
 
+    @FXML private Button resumeButton;
     @FXML private ImageView resumeImageView;
 
     public void setMainController(MainController mainController) {
@@ -26,20 +29,32 @@ public class PauseController {
         this.pauseStage = pauseStage;
     }
 
-    // Xử lí khi di chuột vào button
+    @FXML
+    public void initialize() {
+        // Fade-in nhẹ khi mở pause menu
+        FadeTransition fade = new FadeTransition(Duration.millis(300));
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        fade.setNode(resumeImageView.getScene() != null ? resumeImageView.getScene().getRoot() : null);
+        fade.play();
+    }
+
+    // Hover effect cho Resume
     @FXML
     private void onResumeMouseEntered() {
-        Image hoverImage = new Image(getClass().getResource("/game/arkanoid/images/resume c.png").toExternalForm());
+        Image hoverImage = new Image(getClass()
+                .getResource("/game/arkanoid/images/resume c.png").toExternalForm());
         resumeImageView.setImage(hoverImage);
     }
 
-    // Xử lí khi di chuột ra khỏi button
     @FXML
     private void onResumeMouseExited() {
-        Image normalImage = new Image(getClass().getResource("/game/arkanoid/images/resume.png").toExternalForm());
+        Image normalImage = new Image(getClass()
+                .getResource("/game/arkanoid/images/resume.png").toExternalForm());
         resumeImageView.setImage(normalImage);
     }
 
+    // Resume game
     @FXML
     private void handleResume(ActionEvent event) {
         if (mainController != null) {
@@ -48,6 +63,7 @@ public class PauseController {
         pauseStage.close();
     }
 
+    // Restart game
     @FXML
     private void handleRestart(ActionEvent event) {
         if (mainController != null) {
@@ -56,46 +72,42 @@ public class PauseController {
         pauseStage.close();
     }
 
+    // Open Settings
     @FXML
     private void handleSettings(ActionEvent event) {
-        // Đóng pause menu
         pauseStage.close();
-        
-        // Mở Settings là 1 cửa sổ mới
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
             Parent root = loader.load();
-            
+
             SettingsController settingsController = loader.getController();
-            
-            // Tạo Stage mới cho Settings
             Stage settingsStage = new Stage();
             settingsController.setSettingsStage(settingsStage);
             settingsController.setMainController(mainController);
-            
-            // Lấy owner là main game stage
+
             Stage mainStage = (Stage) pauseStage.getOwner();
-            
+
             settingsStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             settingsStage.initOwner(mainStage);
             settingsStage.setTitle("Settings");
             settingsStage.setScene(new Scene(root, 800, 600));
             settingsStage.setResizable(false);
-            
-            // Khi Settings đóng, hiện lại Pause menu
+
             settingsStage.setOnHidden(e -> {
                 if (pauseStage != null && !pauseStage.isShowing()) {
                     pauseStage.show();
                 }
             });
-            
+
             settingsStage.showAndWait();
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    // Back to main menu
     @FXML
     private void handleMainMenu(ActionEvent event) {
         if (mainController != null) {
