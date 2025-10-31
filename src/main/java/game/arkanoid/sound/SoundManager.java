@@ -8,6 +8,7 @@ import javafx.scene.media.MediaPlayer;
 import java.net.URL;
 
 public class SoundManager {
+
     private static MediaPlayer menuMusic;
     private static MediaPlayer gameMusic;
     private static AudioClip hitPaddleSound;
@@ -18,6 +19,9 @@ public class SoundManager {
     // trạng thái nhạc hiện tại
     private static boolean menuMusicPlaying = false;
     private static boolean gameMusicPlaying = false;
+
+    // volume hiện tại (0.0 -> 1.0)
+    private static double volume = 0.5;
 
     public static void init() {
         menuMusic = createMediaPlayer("/game/arkanoid/sounds/menu.mp3", true);
@@ -34,7 +38,10 @@ public class SoundManager {
         }
         Media media = new Media(resource.toString());
         MediaPlayer player = new MediaPlayer(media);
-        player.setVolume(0.5);
+
+        // apply default volume
+        player.setVolume(volume);
+
         if (loop) player.setCycleCount(MediaPlayer.INDEFINITE);
         player.setOnReady(() -> System.out.println("Ready: " + path));
         player.setOnError(() -> System.out.println("Media error: " + player.getError()));
@@ -47,7 +54,10 @@ public class SoundManager {
             System.out.println("AudioClip not found: " + path);
             return null;
         }
-        return new AudioClip(resource.toString());
+
+        AudioClip clip = new AudioClip(resource.toString());
+        clip.setVolume(volume);
+        return clip;
     }
 
     // music
@@ -58,6 +68,7 @@ public class SoundManager {
         if (menuMusic != null) {
             Platform.runLater(() -> {
                 System.out.println("Playing menu music...");
+                menuMusic.setVolume(volume);
                 menuMusic.play();
                 menuMusicPlaying = true;
                 gameMusicPlaying = false;
@@ -72,6 +83,7 @@ public class SoundManager {
         if (gameMusic != null) {
             Platform.runLater(() -> {
                 System.out.println("Playing game music...");
+                gameMusic.setVolume(volume);
                 gameMusic.play();
                 gameMusicPlaying = true;
                 menuMusicPlaying = false;
@@ -131,7 +143,22 @@ public class SoundManager {
         return gameMusicPlaying;
     }
 
-    // Toggle sound (dung trong settings)
+    // Volume control được thêm vào
+    public static void setVolume(double v) {
+        volume = v;
+
+        // apply ngay cho tất cả nguồn âm thanh
+        if (menuMusic != null) menuMusic.setVolume(v);
+        if (gameMusic != null) gameMusic.setVolume(v);
+        if (hitPaddleSound != null) hitPaddleSound.setVolume(v);
+        if (brickBreakSound != null) brickBreakSound.setVolume(v);
+    }
+
+    public static double getVolume() {
+        return volume;
+    }
+
+    // Toggle sound (dùng trong settings)
     public static void toggleGameSound() {
         soundEnabled = !soundEnabled;
         if (soundEnabled) {

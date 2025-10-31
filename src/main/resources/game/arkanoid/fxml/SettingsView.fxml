@@ -1,108 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 
-<AnchorPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.SettingsController">
+<AnchorPane prefHeight="600" prefWidth="800"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="game.arkanoid.controllers.SettingsController">
 
     <ImageView fx:id="backgroundImageView" fitHeight="600" fitWidth="800" preserveRatio="false">
-        <image>
-            <Image url="@../images/GameSettings.png" />
-        </image>
+        <image><Image url="@../images/GameSettings.png"/></image>
     </ImageView>
 
-    <Button fx:id="soundButton"
-            layoutX="730.0" layoutY="20.0"
-            onAction="#toggleSound"
-            prefWidth="50" prefHeight="50"
+    <!-- SOUND BAR BELOW OPTIONS IN BACKGROUND -->
+    <HBox spacing="25" alignment="CENTER"
+          layoutY="165"
+          prefWidth="800">
+        <children>
+
+            <!-- Toggle Sound Button -->
+            <Button fx:id="soundButton"
+                    onAction="#toggleSound"
+                    prefWidth="50" prefHeight="50"
+                    style="-fx-background-color: transparent;">
+                <graphic>
+                    <ImageView fx:id="soundToggleImage" fitWidth="45" fitHeight="45" preserveRatio="true"/>
+                </graphic>
+            </Button>
+
+            <!-- Volume Slider -->
+            <Slider fx:id="volumeSlider"
+                    prefWidth="350"
+                    min="0" max="1" value="0.5"
+                    styleClass="neon-slider"/>
+        </children>
+    </HBox>
+
+
+    <!-- Paddle Section -->
+    <Button fx:id="leftPaddleButton" layoutX="74" layoutY="318"
+            onAction="#prevPaddle" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+            prefHeight="40" prefWidth="40"
             style="-fx-background-color: transparent;">
         <graphic>
-            <ImageView fx:id="soundToggleImage"
-                       fitWidth="40" fitHeight="40"
-                       preserveRatio="true" />
-        </graphic>
-    </Button>
-
-    <Button fx:id="leftPaddleButton" layoutX="74.0" layoutY="318.0" onAction="#prevPaddle" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
-        <graphic>
-            <ImageView fx:id="leftPaddleImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
-                <image>
-                    <Image url="@../images/left.png" />
-                </image>
+            <ImageView fx:id="leftPaddleImageView" fitHeight="40" fitWidth="40">
+                <image><Image url="@../images/left.png"/></image>
             </ImageView>
         </graphic>
     </Button>
 
-    <ImageView fx:id="paddleImageView" fitHeight="70" fitWidth="180" layoutX="154.0" layoutY="307.0" preserveRatio="true">
-        <image>
-            <Image url="@../images/Paddle.png" />
-        </image>
+    <ImageView fx:id="paddleImageView" fitHeight="70" fitWidth="180"
+               layoutX="154" layoutY="307" preserveRatio="true">
+        <image><Image url="@../images/Paddle.png"/></image>
     </ImageView>
 
-    <Button fx:id="rightPaddleButton" layoutX="346.0" layoutY="318.0" onAction="#nextPaddle" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
+    <Button fx:id="rightPaddleButton" layoutX="346" layoutY="318"
+            onAction="#nextPaddle" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+            prefHeight="40" prefWidth="40"
+            style="-fx-background-color: transparent;">
         <graphic>
-            <ImageView fx:id="rightPaddleImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
-                <image>
-                    <Image url="@../images/right.png" />
-                </image>
+            <ImageView fx:id="rightPaddleImageView" fitHeight="40" fitWidth="40">
+                <image><Image url="@../images/right.png"/></image>
             </ImageView>
         </graphic>
     </Button>
 
-    <Button fx:id="confirmPaddleButton" layoutX="176.0" layoutY="410.0" onAction="#confirmPaddle" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="120" style="-fx-background-color: transparent;">
+    <Button fx:id="confirmPaddleButton" layoutX="176" layoutY="410"
+            onAction="#confirmPaddle" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+            prefHeight="40" prefWidth="120"
+            style="-fx-background-color: transparent;">
         <graphic>
-            <ImageView fx:id="confirmPaddleImageView" fitHeight="40" fitWidth="120" preserveRatio="true">
-                <image>
-                    <Image url="@../images/change.png" />
-                </image>
+            <ImageView fx:id="confirmPaddleImageView" fitHeight="40" fitWidth="120">
+                <image><Image url="@../images/change.png"/></image>
             </ImageView>
         </graphic>
     </Button>
 
-    <Button fx:id="leftBallButton" layoutX="472.0" layoutY="318.0" onAction="#prevBall" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
+
+    <!-- Ball Section -->
+    <Button fx:id="leftBallButton" layoutX="472" layoutY="318"
+            onAction="#prevBall" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+            prefHeight="40" prefWidth="40"
+            style="-fx-background-color: transparent;">
         <graphic>
-            <ImageView fx:id="leftBallImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
-                <image>
-                    <Image url="@../images/left.png" />
-                </image>
+            <ImageView fx:id="leftBallImageView" fitHeight="40" fitWidth="40">
+                <image><Image url="@../images/left.png"/></image>
             </ImageView>
         </graphic>
     </Button>
 
-    <ImageView fx:id="ballImageView" fitHeight="70" fitWidth="70" layoutX="558.0" layoutY="307.0" preserveRatio="true">
-        <image>
-            <Image url="@../images/Ball.png" />
-        </image>
+    <ImageView fx:id="ballImageView" fitHeight="70" fitWidth="70"
+               layoutX="558" layoutY="307" preserveRatio="true">
+        <image><Image url="@../images/Ball.png"/></image>
     </ImageView>
 
-    <Button fx:id="rightBallButton" layoutX="656.0" layoutY="318.0" onAction="#nextBall" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
+    <Button fx:id="rightBallButton" layoutX="656" layoutY="318"
+            onAction="#nextBall" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+            prefHeight="40" prefWidth="40"
+            style="-fx-background-color: transparent;">
         <graphic>
-            <ImageView fx:id="rightBallImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
-                <image>
-                    <Image url="@../images/right.png" />
-                </image>
+            <ImageView fx:id="rightBallImageView" fitHeight="40" fitWidth="40">
+                <image><Image url="@../images/right.png"/></image>
             </ImageView>
         </graphic>
     </Button>
 
-    <Button fx:id="confirmBallButton" layoutX="532.0" layoutY="410.0" onAction="#confirmBall" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="120" style="-fx-background-color: transparent;">
+    <Button fx:id="confirmBallButton" layoutX="532" layoutY="410"
+            onAction="#confirmBall" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+            prefHeight="40" prefWidth="120"
+            style="-fx-background-color: transparent;">
         <graphic>
-            <ImageView fx:id="confirmBallImageView" fitHeight="40" fitWidth="120" preserveRatio="true">
-                <image>
-                    <Image url="@../images/change.png" />
-                </image>
+            <ImageView fx:id="confirmBallImageView" fitHeight="40" fitWidth="120">
+                <image><Image url="@../images/change.png"/></image>
             </ImageView>
         </graphic>
     </Button>
 
-    <Button fx:id="saveButton" layoutX="334.0" layoutY="510.0" onAction="#saveSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
+
+    <!-- Save Button -->
+    <Button fx:id="saveButton" layoutX="334" layoutY="510"
+            onAction="#saveSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited"
+            prefHeight="50" prefWidth="120"
+            style="-fx-background-color: transparent;">
         <graphic>
-            <ImageView fx:id="saveImageView" fitHeight="50" fitWidth="120" preserveRatio="true">
-                <image>
-                    <Image url="@../images/save.png" />
-                </image>
+            <ImageView fx:id="saveImageView" fitHeight="50" fitWidth="120">
+                <image><Image url="@../images/save.png"/></image>
             </ImageView>
         </graphic>
     </Button>

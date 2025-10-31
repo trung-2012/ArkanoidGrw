@@ -13,6 +13,7 @@ import java.io.IOException;
 import game.arkanoid.sound.SoundManager;
 
 public class StartMenuController {
+
     @FXML
     private ImageView startImageView;
     @FXML
@@ -31,47 +32,38 @@ public class StartMenuController {
         }
     }
 
-
     @FXML
     private void onButtonMouseEntered(javafx.scene.input.MouseEvent event) {
-        javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
-        String id = sourceButton.getId();
-        Image hover = null;
+        javafx.scene.control.Button btn = (javafx.scene.control.Button) event.getSource();
+        String id = btn.getId();
 
         switch (id) {
             case "startButton":
-                hover = new Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
-                startImageView.setImage(hover);
+                startImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm()));
                 break;
             case "settingsButton":
-                hover = new Image(getClass().getResource("/game/arkanoid/images/settings c.png").toExternalForm());
-                settingsImageView.setImage(hover);
+                settingsImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/settings c.png").toExternalForm()));
                 break;
             case "exitButton":
-                hover = new Image(getClass().getResource("/game/arkanoid/images/exit c.png").toExternalForm());
-                exitImageView.setImage(hover);
+                exitImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/exit c.png").toExternalForm()));
                 break;
         }
     }
 
     @FXML
     private void onButtonMouseExited(javafx.scene.input.MouseEvent event) {
-        javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
-        String id = sourceButton.getId();
-        Image normal = null;
+        javafx.scene.control.Button btn = (javafx.scene.control.Button) event.getSource();
+        String id = btn.getId();
 
         switch (id) {
             case "startButton":
-                normal = new Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
-                startImageView.setImage(normal);
+                startImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm()));
                 break;
             case "settingsButton":
-                normal = new Image(getClass().getResource("/game/arkanoid/images/settings.png").toExternalForm());
-                settingsImageView.setImage(normal);
+                settingsImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/settings.png").toExternalForm()));
                 break;
             case "exitButton":
-                normal = new Image(getClass().getResource("/game/arkanoid/images/exit.png").toExternalForm());
-                exitImageView.setImage(normal);
+                exitImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/exit.png").toExternalForm()));
                 break;
         }
     }
@@ -84,7 +76,11 @@ public class StartMenuController {
 
             Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/MainView.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
+
+            Scene scene = new Scene(root, 800, 600);
+            scene.getStylesheets().add(getClass().getResource("/game/arkanoid/css/neon.css").toExternalForm());
+
+            stage.setScene(scene);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,8 +90,12 @@ public class StartMenuController {
     private void openSettings(ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+
+            Scene scene = new Scene(root, 800, 600);
+            scene.getStylesheets().add(getClass().getResource("/game/arkanoid/css/neon.css").toExternalForm());
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
+            stage.setScene(scene);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,7 +103,6 @@ public class StartMenuController {
 
     @FXML
     private void exitGame() {
-        System.out.println("Exit game");
         SoundManager.stopAll();
         System.exit(0);
     }

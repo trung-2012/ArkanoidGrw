@@ -1,0 +1,34 @@
+/* Neon xanh cho toàn bộ slider */
+.slider {
+    -fx-padding: 10;
+}
+
+/* Thanh trượt (track) */
+.slider .track {
+    -fx-background-color: rgba(0, 255, 255, 0.3); /* xanh nhạt */
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.6), 10, 0.5, 0, 0);
+}
+
+/* Nút trượt (thumb) */
+.slider .thumb {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, #00ffff, #0077ff);
+    -fx-background-radius: 50%;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.8), 15, 0.5, 0, 0);
+}
+
+/* Khi hover vào thumb */
+.slider .thumb:hover {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, #00ffff, #33ccff);
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 1), 20, 0.8, 0, 0);
+    -fx-cursor: hand;
+}
+
+/* Thanh tiến độ (filled track) */
+.slider .track:filled {
+    -fx-background-color: linear-gradient(to right, #00ffff, #0077ff);
+    -fx-background-radius: 10;
+}
