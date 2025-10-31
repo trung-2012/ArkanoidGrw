@@ -37,15 +37,23 @@ public class StartMenuController {
         javafx.scene.control.Button btn = (javafx.scene.control.Button) event.getSource();
         String id = btn.getId();
 
+        Image hoverImage;
+
         switch (id) {
             case "startButton":
-                startImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm()));
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
+                startImageView.setImage(hoverImage);
                 break;
             case "settingsButton":
-                settingsImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/settings c.png").toExternalForm()));
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/settings c.png").toExternalForm());
+                settingsImageView.setImage(hoverImage);
                 break;
             case "exitButton":
-                exitImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/exit c.png").toExternalForm()));
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/exit c.png").toExternalForm());
+                exitImageView.setImage(hoverImage);
                 break;
         }
     }
@@ -55,15 +63,23 @@ public class StartMenuController {
         javafx.scene.control.Button btn = (javafx.scene.control.Button) event.getSource();
         String id = btn.getId();
 
+        Image normalImage;
+
         switch (id) {
             case "startButton":
-                startImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/start.png").toExternalForm()));
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
+                startImageView.setImage(normalImage);
                 break;
             case "settingsButton":
-                settingsImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/settings.png").toExternalForm()));
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/settings.png").toExternalForm());
+                settingsImageView.setImage(normalImage);
                 break;
             case "exitButton":
-                exitImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/exit.png").toExternalForm()));
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/exit.png").toExternalForm());
+                exitImageView.setImage(normalImage);
                 break;
         }
     }
@@ -101,6 +117,7 @@ public class StartMenuController {
         }
     }
 
+    // Thoát khỏi ứng dụng hoàn toàn.
     @FXML
     private void exitGame() {
         SoundManager.stopAll();

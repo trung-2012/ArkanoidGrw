@@ -19,4 +19,20 @@ public enum BrickType {
     public int getHealth() {
         return health;
     }
+
+    public int getPoint() {
+        switch (this) {
+            case WOOD:
+                return 20;
+            case IRON:
+                return 40;
+            case GOLD:
+                return 50;
+            case INSANE:
+                return 1000;
+            case NORMAL:
+            default:
+                return 10;
+        }
+    }
 }

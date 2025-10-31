@@ -56,7 +56,7 @@ public class Ball {
             reverseVelocityY();
         }
 
-        // Đáy (paddle bỏ lỡ) -> báo hiệu mất mạng / bóng rơi
+        // Đáy (paddle bỏ lỡ)
         if (position.getY() - radius > screenHeight) {
             bottomHit = true;
         }
@@ -64,8 +64,7 @@ public class Ball {
         return bottomHit;
     }
 
-    // Va chạm hình tròn-chữ nhật với paddle. Giả định paddle.position là tâm
-    // của paddle.
+    // Va chạm hình tròn - chữ nhật với paddle
     public boolean collideWith(Paddle paddle) {
         if (paddle == null)
             return false;
@@ -87,16 +86,28 @@ public class Ball {
             position.setY(closestY - radius - 1);
             reverseVelocityY();
 
-            // phát âm thanh khi bóng chạm paddle
+            // âm thanh va paddle
             SoundManager.playHitPaddle();
 
-            // Điều chỉnh vận tốc X dựa trên vị trí va chạm dọc paddle
-            double hitPos = (position.getX() - rx) / hw; // -1 .. 1
-            double speed = Math.max(velocity.magnitude(), BALL_SPEED);
+            // vị trí va chạm dọc paddle: -1 .. 1
+            double hitPos = (position.getX() - rx) / hw;
+
+            // Giữ speed cố định, tránh tăng tốc vô hạn
+            double speed = BALL_SPEED;
+
+            // Tính Vx theo vị trí đập
             double newVx = speed * hitPos * 0.8;
+
+            // Clamp góc: tránh vx quá lớn khiến vy gần 0
+            if (Math.abs(newVx) > speed * 0.9) {
+                newVx = speed * 0.9 * Math.signum(newVx);
+            }
+
+            // Vy để tổng magnitude giữ nguyên
+            double newVy = -Math.sqrt(Math.max(0, speed * speed - newVx * newVx));
+
             this.velocity.setX(newVx);
-            double vy = -Math.abs(Math.sqrt(Math.max(0, speed * speed - newVx * newVx)));
-            this.velocity.setY(vy);
+            this.velocity.setY(newVy);
 
             return true;
         }
@@ -104,7 +115,7 @@ public class Ball {
         return false;
     }
 
-    // Va chạm hình tròn-chữ nhật với gạch. Giả định brick.position là góc trên-trái.
+    // Va chạm với gạch
     public boolean collideWith(Brick brick) {
         if (brick == null || brick.getDestroyed())
             return false;
@@ -122,23 +133,20 @@ public class Ball {
 
         double distanceSq = dx * dx + dy * dy;
         if (distanceSq <= radius * radius) {
-            // Quyết định phản xạ X hay Y dựa trên độ xuyên vào
             double overlapLeft = Math.abs(position.getX() - bx);
             double overlapRight = Math.abs(position.getX() - (bx + bw));
             double overlapTop = Math.abs(position.getY() - by);
             double overlapBottom = Math.abs(position.getY() - (by + bh));
 
-            double minOverlap = Math.min(Math.min(overlapLeft, overlapRight), Math.min(overlapTop, overlapBottom));
+            double minOverlap = Math.min(Math.min(overlapLeft, overlapRight),
+                    Math.min(overlapTop, overlapBottom));
             if (minOverlap == overlapLeft || minOverlap == overlapRight) {
                 reverseVelocityX();
             } else {
                 reverseVelocityY();
             }
 
-            // phát âm thanh khi gạch bị phá
             SoundManager.playBrickBreak();
-
-            // Gây sát thương cho gạch
             brick.takeDamage();
             return true;
         }
@@ -146,12 +154,9 @@ public class Ball {
         return false;
     }
 
-    // Giúp hàm va chạm hình tròn-chữ nhật
     private double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
     }
-
-    // Getters & Setters
 
     public Vector2D getPosition() {
         return position;

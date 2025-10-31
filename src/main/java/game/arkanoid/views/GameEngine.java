@@ -1,8 +1,6 @@
 package game.arkanoid.views;
 
-import game.arkanoid.models.Ball;
-import game.arkanoid.models.Paddle;
-import game.arkanoid.models.Brick;
+import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.LevelLoader;
@@ -19,8 +17,13 @@ import javafx.scene.image.Image;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class GameEngine extends AnimationTimer {
     private Ball ball;
@@ -31,6 +34,13 @@ public class GameEngine extends AnimationTimer {
     private int lives = GameConstants.INITIAL_LIVES;
     private int score = 0;
     private int totalScore = 0;
+    private final List<PowerUp> powerUps = new ArrayList<>();
+    private final Random random = new Random();
+    private boolean laserActive = false;
+    private final List<LaserBeam> laserBeams = new ArrayList<>();
+    private Shield shield;
+    private ScheduledExecutorService laserScheduler;
+
     private Label scoreLabelRef;
     private Label livesLabelRef;
     private Label levelLabelRef;
@@ -57,6 +67,7 @@ public class GameEngine extends AnimationTimer {
         if (!gameRunning)
             return;
         updateGameState();
+        updatePowerUps();
         checkCollisions();
         render();
     }
@@ -79,7 +90,8 @@ public class GameEngine extends AnimationTimer {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
         } catch (Exception e) {
-            System.out.println("Không thể load skin đã chọn, dùng mặc định.");
+            System.err.println("Không thể load skin đã chọn, dùng mặc định: " + e.getMessage());
+            // Fallback về skin mặc định
             this.ballImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Ball.png"));
             this.paddleImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Paddle.png"));
         }
@@ -111,6 +123,8 @@ public class GameEngine extends AnimationTimer {
             livesLabelRef.setText("Lives: " + lives);
         if (levelLabelRef != null)
             levelLabelRef.setText("Level: " + currentLevel);
+        // Khởi tạo ScheduledExecutorService cho laser
+        laserScheduler = Executors.newSingleThreadScheduledExecutor();
 
         startNewGame();
     }
@@ -175,8 +189,14 @@ public class GameEngine extends AnimationTimer {
             ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
             // giảm mạng và cập nhật label
             lives = Math.max(0, lives - 1);
-            if (this.livesLabelRef != null)
+            if (this.livesLabelRef != null) {
                 this.livesLabelRef.setText("Lives: " + lives);
+                if (lives == GameConstants.MAX_LIVE) {
+                    livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
+                } else {
+                    livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+                }
+            }
             if (lives <= 0) {
                 // Game over
                 this.totalScore = this.score;
@@ -199,6 +219,15 @@ public class GameEngine extends AnimationTimer {
 
         // Kiểm tra va chạm với paddle
         ball.collideWith(paddle);
+
+        // Kiểm tra va chạm với shield
+        if (shield != null && shield.collidesWith(ball)) {
+            ball.reverseVelocityY();
+            shield.hit();
+            if (shield.isBroken()) {
+                shield = null;
+            }
+        }
 
         // Kiểm tra va chạm với bricks
         for (Brick brick : bricks) {
@@ -267,12 +296,107 @@ public class GameEngine extends AnimationTimer {
                             ball.setPosition(new Vector2D(resetX2, resetY2));
                             ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
                         }
+                        if (this.scoreLabelRef != null)
+                            this.scoreLabelRef.setText("Score: " + score);
+                    }
+                    for (Brick b : bricks) {
+                        if (!b.getDestroyed()) {
+                            anyLeft = true;
+                            break;
+                        }
+                    }
+                    if (!anyLeft) {
+                        Platform.runLater(() -> handleLevelCompletion());
                     }
                     break; // Chỉ xử lý một va chạm mỗi frame
                 }
             }
         }
 
+    }
+
+    private PowerUpType getRandomPowerUpType() {
+        double rand = random.nextDouble();
+        if (rand < 0.1)
+            return PowerUpType.EXTRA_LIFE; // 10%
+        else if (rand < 0.55)
+            return PowerUpType.LASER; // 45%
+        else
+            return PowerUpType.SHIELD; // 45%
+    }
+
+    private void updatePowerUps() {
+        Iterator<PowerUp> iterator = powerUps.iterator();
+        while (iterator.hasNext()) {
+            PowerUp powerUp = iterator.next();
+            powerUp.update();
+
+            // Kiểm tra va chạm với paddle
+            if (powerUp.intersects(paddle)) {
+                activatePowerUp(powerUp);
+                iterator.remove();
+                continue;
+            }
+
+            // Nếu rơi ra ngoài màn hình
+            if (powerUp.getY() > canvas.getHeight()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void activatePowerUp(PowerUp powerUp) {
+        switch (powerUp.getType()) {
+            case LASER:
+                activateLaser();
+                break;
+
+            case EXTRA_LIFE:
+                if (lives < GameConstants.MAX_LIVE) {
+                    lives++;
+                }
+                if (livesLabelRef != null) {
+                    livesLabelRef.setText("Lives: " + lives);
+                    if (lives == GameConstants.MAX_LIVE) {
+                        livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
+                    } else {
+                        livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+                    }
+                }
+                break;
+            case SHIELD:
+                shield = new Shield(0, canvas.getHeight() - GameConstants.SHIELD_HEIGHT, canvas.getWidth(),
+                        GameConstants.SHIELD_HEIGHT);
+        }
+    }
+
+    private void activateLaser() {
+        if (laserActive)
+            return;
+        laserActive = true;
+
+        if (laserScheduler == null || laserScheduler.isShutdown()) {
+            laserScheduler = Executors.newScheduledThreadPool(1);
+        }
+
+        laserScheduler.schedule(() -> {
+            int shots = GameConstants.NUM_OF_BULLETS;
+            for (int i = 0; i < shots && laserActive; i++) {
+                Platform.runLater(() -> {
+                    double px = paddle.getPosition().getX();
+                    double py = paddle.getPosition().getY() - paddle.getHeight() / 2;
+                    double offset = paddle.getWidth() / 2 - 10;
+                    laserBeams.add(new LaserBeam(new Vector2D(px - offset, py)));
+                    laserBeams.add(new LaserBeam(new Vector2D(px + offset, py)));
+                });
+                try {
+                    Thread.sleep(GameConstants.COOL_DOWN_TIME);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+            laserActive = false;
+        }, 0, TimeUnit.MILLISECONDS);
     }
 
     // Cập nhật trạng thái game
@@ -293,6 +417,81 @@ public class GameEngine extends AnimationTimer {
         }
         if (ball != null)
             ball.update();
+
+        // Cập nhật power-ups đang rơi
+        Iterator<PowerUp> iter = powerUps.iterator();
+        while (iter.hasNext()) {
+            PowerUp p = iter.next();
+            p.update(); // rơi xuống
+            // Nếu power-up rơi chạm paddle
+            if (paddle != null && p.intersects(paddle)) {
+                activatePowerUp(p); // kích hoạt hiệu ứng
+                iter.remove(); // xóa power-up khỏi danh sách
+            } else if (p.getY() > canvas.getHeight()) {
+                iter.remove(); // xóa nếu rơi khỏi màn hình
+            }
+        }
+
+        // Cập nhật các tia laser
+        Iterator<LaserBeam> laserIter = laserBeams.iterator();
+        while (laserIter.hasNext()) {
+            LaserBeam beam = laserIter.next();
+            beam.update();
+
+            boolean hit = false;
+            for (Brick brick : bricks) {
+                if (!brick.isDestroyed() && beam.intersects(brick)) {
+                    brick.takeDamage();
+                    if (brick.isDestroyed()) {
+                        score += brick.getPoint();
+                        Platform.runLater(() -> scoreLabelRef.setText("Score: " + score));
+
+                        boolean anyLeft = false;
+                        for (Brick b : bricks) {
+                            if (!b.isDestroyed()) {
+                                anyLeft = true;
+                                break;
+                            }
+                        }
+
+                        if (!anyLeft) {
+                            Platform.runLater(() -> handleLevelCompletion());
+                        }
+                    }
+                    hit = true;
+                    break;
+                }
+            }
+
+            if (hit || beam.isOffScreen(canvas.getHeight())) {
+                laserIter.remove();
+            }
+        }
+    }
+
+    private void handleLevelCompletion() {
+        currentLevel++;
+        if (currentLevel > GameConstants.totalLevels) {
+            totalScore = score;
+            setGameRunning(false);
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                Parent root = loader.load();
+                game.arkanoid.controllers.GameOverController controller = loader.getController();
+                controller.setFinalScore(totalScore);
+                Stage stage = (Stage) canvas.getScene().getWindow();
+                stage.setScene(new Scene(root, 800, 600));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            totalScore = score;
+            loadLevelNumber(currentLevel);
+            double resetX = paddle.getPosition().getX();
+            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius() - 150.0;
+            ball.setPosition(new Vector2D(resetX, resetY));
+            ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+        }
     }
 
     // Xử lý sự kiện phím bấm
@@ -367,16 +566,36 @@ public class GameEngine extends AnimationTimer {
             gc.setFill(Color.WHITE);
             gc.fillOval(bx, by, size, size);
         }
+        // vẽ power up
+        for (PowerUp p : powerUps) {
+            Image img = p.getImage();
+            if (img != null) {
+                gc.drawImage(img, p.getX() - p.getSize() / 2, p.getY() - p.getSize() / 2, p.getSize(), p.getSize());
+            } else {
+                gc.setFill(Color.LIMEGREEN);
+                gc.fillOval(p.getX() - p.getSize() / 2, p.getY() - p.getSize() / 2, p.getSize(), p.getSize());
+            }
+        }
+        // vẽ laserBeam
+        for (LaserBeam beam : laserBeams) {
+            beam.render(gc);
+        }
+        // vẽ shield
+        if (shield != null) {
+            shield.draw(gc);
+        }
     }
 
     // Load level
     public void loadLevelNumber(int level) {
         levelLabelRef.setText("Level: " + level);
         this.lives = GameConstants.INITIAL_LIVES;
-        livesLabelRef.setText("Lives: " + this.lives);
+        if (livesLabelRef != null) {
+            livesLabelRef.setText("Lives: " + this.lives);
+            livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+        }
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
-        // Cập nhật ảnh nền khi chuyển level
         if (mainController != null) {
             Platform.runLater(() -> mainController.updateBackgroundForLevel(level));
         }
@@ -407,9 +626,32 @@ public class GameEngine extends AnimationTimer {
 
     public void setGameRunning(boolean gameRunning) {
         this.gameRunning = gameRunning;
+        if (!gameRunning) {
+            cleanup();
+        }
     }
 
     public int getCurrentLevel() {
         return currentLevel;
+    }
+
+    public void cleanup() {
+        laserActive = false;
+        if (laserScheduler != null && !laserScheduler.isShutdown()) {
+            laserScheduler.shutdownNow();
+        }
+    }
+
+    // Reload skin từ GameSettings (gọi khi user thay đổi trong Settings)
+    public void reloadSkins() {
+        try {
+            this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
+            this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
+            System.out.println("Đã reload skins: Ball=" + GameSettings.getSelectedBall() + ", Paddle="
+                    + GameSettings.getSelectedPaddle());
+        } catch (Exception e) {
+            System.err.println("Lỗi khi reload skins: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

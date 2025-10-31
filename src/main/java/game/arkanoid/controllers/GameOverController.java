@@ -28,11 +28,13 @@ public class GameOverController {
 
         switch (buttonId) {
             case "restartButton":
-                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/PlayAgain c.png").toExternalForm());
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/PlayAgain c.png").toExternalForm());
                 restartImageView.setImage(hoverImage);
                 break;
             case "menuButton":
-                hoverImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/MainMenu c.png").toExternalForm());
                 menuImageView.setImage(hoverImage);
                 break;
         }
@@ -47,11 +49,13 @@ public class GameOverController {
 
         switch (buttonId) {
             case "restartButton":
-                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/PlayAgain.png").toExternalForm());
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/PlayAgain.png").toExternalForm());
                 restartImageView.setImage(normalImage);
                 break;
             case "menuButton":
-                normalImage = new javafx.scene.image.Image(getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/MainMenu.png").toExternalForm());
                 menuImageView.setImage(normalImage);
                 break;
         }
