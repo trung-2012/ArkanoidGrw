@@ -210,7 +210,6 @@ public class MainController implements Initializable {
 
     public void resetGameFromPause() {
         isPaused = false;
-        engine.setGameRunning(true);
         engine.resetCurrentLevel();
         
         // Xóa blur và overlay
