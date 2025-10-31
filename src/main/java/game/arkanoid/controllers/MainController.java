@@ -209,7 +209,18 @@ public class MainController implements Initializable {
     }
 
     public void resetGameFromPause() {
+        isPaused = false;
+        engine.setGameRunning(true);
         engine.resetCurrentLevel();
+        
+        // Xóa blur và overlay
+        mainGamePane.setEffect(null);
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), pauseOverlay);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+        fadeOut.setOnFinished(ev -> pauseOverlay.setVisible(false));
+        fadeOut.play();
+        
         gameCanvas.requestFocus();
     }
 
