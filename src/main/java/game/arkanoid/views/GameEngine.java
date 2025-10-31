@@ -166,6 +166,18 @@ public class GameEngine extends AnimationTimer {
         this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
         this.ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
 
+        // Xóa tất cả power-ups đang rơi
+        powerUps.clear();
+        
+        // Xóa tất cả laser beams
+        laserBeams.clear();
+        
+        // Xóa shield nếu có
+        shield = null;
+        
+        // Tắt laser active
+        laserActive = false;
+
         this.loadLevelNumber(currentLevel);
         this.gameRunning = true;
     }
@@ -194,7 +206,7 @@ public class GameEngine extends AnimationTimer {
                 if (lives == GameConstants.MAX_LIVE) {
                     livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
                 } else {
-                    livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+                    livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
                 }
             }
             if (lives <= 0) {
@@ -360,7 +372,7 @@ public class GameEngine extends AnimationTimer {
                     if (lives == GameConstants.MAX_LIVE) {
                         livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
                     } else {
-                        livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+                        livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
                     }
                 }
                 break;
@@ -592,7 +604,7 @@ public class GameEngine extends AnimationTimer {
         this.lives = GameConstants.INITIAL_LIVES;
         if (livesLabelRef != null) {
             livesLabelRef.setText("Lives: " + this.lives);
-            livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+            livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
         }
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
