@@ -216,6 +216,7 @@ public class MainController implements Initializable {
     public void returnToMenuFromPause() {
         isPaused = false;
         engine.setGameRunning(false);
+        engine.cleanup(); // Cleanup hoàn toàn khi quay về menu
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
             Stage stage = (Stage) gameCanvas.getScene().getWindow();

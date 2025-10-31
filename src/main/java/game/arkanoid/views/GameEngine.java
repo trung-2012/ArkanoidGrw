@@ -123,8 +123,12 @@ public class GameEngine extends AnimationTimer {
             livesLabelRef.setText("Lives: " + lives);
         if (levelLabelRef != null)
             levelLabelRef.setText("Level: " + currentLevel);
-        // Khởi tạo ScheduledExecutorService cho laser
-        laserScheduler = Executors.newSingleThreadScheduledExecutor();
+        // Khởi tạo ScheduledExecutorService cho laser với daemon thread
+        laserScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread thread = new Thread(r);
+            thread.setDaemon(true);
+            return thread;
+        });
 
         startNewGame();
     }
@@ -194,13 +198,14 @@ public class GameEngine extends AnimationTimer {
                 if (lives == GameConstants.MAX_LIVE) {
                     livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
                 } else {
-                    livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+                    livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
                 }
             }
             if (lives <= 0) {
                 // Game over
                 this.totalScore = this.score;
                 this.setGameRunning(false);
+                this.cleanup(); // Cleanup hoàn toàn khi game over
                 Platform.runLater(() -> {
                     try {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
@@ -316,7 +321,7 @@ public class GameEngine extends AnimationTimer {
                     if (lives == GameConstants.MAX_LIVE) {
                         livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
                     } else {
-                        livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+                        livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
                     }
                 }
                 break;
@@ -332,7 +337,11 @@ public class GameEngine extends AnimationTimer {
         laserActive = true;
 
         if (laserScheduler == null || laserScheduler.isShutdown()) {
-            laserScheduler = Executors.newScheduledThreadPool(1);
+            laserScheduler = Executors.newScheduledThreadPool(1, r -> {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                return thread;
+            });
         }
 
         laserScheduler.schedule(() -> {
@@ -430,6 +439,7 @@ public class GameEngine extends AnimationTimer {
         if (currentLevel > GameConstants.totalLevels) {
             totalScore = score;
             setGameRunning(false);
+            cleanup(); // Cleanup hoàn toàn khi hoàn thành game
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
                 Parent root = loader.load();
@@ -548,7 +558,7 @@ public class GameEngine extends AnimationTimer {
         this.lives = GameConstants.INITIAL_LIVES;
         if (livesLabelRef != null) {
             livesLabelRef.setText("Lives: " + this.lives);
-            livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16;");
+            livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
         }
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
@@ -582,9 +592,6 @@ public class GameEngine extends AnimationTimer {
 
     public void setGameRunning(boolean gameRunning) {
         this.gameRunning = gameRunning;
-        if (!gameRunning) {
-            cleanup();
-        }
     }
 
     public int getCurrentLevel() {
@@ -592,9 +599,50 @@ public class GameEngine extends AnimationTimer {
     }
 
     public void cleanup() {
+        System.out.println("GameEngine cleanup started...");
         laserActive = false;
-        if (laserScheduler != null && !laserScheduler.isShutdown()) {
-            laserScheduler.shutdownNow();
+        gameRunning = false;
+        
+        // Dừng AnimationTimer
+        try {
+            this.stop();
+        } catch (Exception e) {
+            System.err.println("Lỗi khi dừng AnimationTimer: " + e.getMessage());
         }
+        
+        // Shutdown ExecutorService một cách graceful
+        if (laserScheduler != null && !laserScheduler.isShutdown()) {
+            System.out.println("Đang shutdown laser scheduler...");
+            laserScheduler.shutdown(); // Shutdown gracefully trước
+            try {
+                // Đợi 500ms để threads kết thúc tự nhiên
+                if (!laserScheduler.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                    System.out.println("LaserScheduler chưa dừng, buộc dừng...");
+                    laserScheduler.shutdownNow(); // Force shutdown nếu không kịp
+                    // Đợi thêm 500ms cho shutdownNow
+                    if (!laserScheduler.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                        System.err.println("LaserScheduler không thể dừng hoàn toàn");
+                    }
+                }
+                System.out.println("Laser scheduler đã dừng thành công");
+            } catch (InterruptedException e) {
+                System.err.println("Bị interrupt khi shutdown: " + e.getMessage());
+                laserScheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+        
+        // Clear collections để giải phóng bộ nhớ
+        if (laserBeams != null) {
+            laserBeams.clear();
+        }
+        if (powerUps != null) {
+            powerUps.clear();
+        }
+        if (bricks != null) {
+            bricks.clear();
+        }
+        
+        System.out.println("GameEngine cleanup completed");
     }
 }
