@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import java.io.IOException;
 
 public class PauseController {
@@ -18,11 +19,18 @@ public class PauseController {
     private MainController mainController;
     private Stage pauseStage;
 
-    @FXML private Button resumeButton;
-    @FXML private ImageView resumeImageView;
+    @FXML
+    private Button resumeButton;
+    @FXML
+    private ImageView resumeImageView;
 
-    public void setMainController(MainController c) { mainController = c; }
-    public void setPauseStage(Stage s) { pauseStage = s; }
+    public void setMainController(MainController c) {
+        mainController = c;
+    }
+
+    public void setPauseStage(Stage s) {
+        pauseStage = s;
+    }
 
     @FXML
     public void initialize() {
@@ -35,25 +43,30 @@ public class PauseController {
         }
     }
 
-    @FXML private void onResumeMouseEntered() {
+    @FXML
+    private void onResumeMouseEntered() {
         resumeImageView.setImage(new Image(get("/game/arkanoid/images/resume c.png")));
     }
 
-    @FXML private void onResumeMouseExited() {
+    @FXML
+    private void onResumeMouseExited() {
         resumeImageView.setImage(new Image(get("/game/arkanoid/images/resume.png")));
     }
 
-    @FXML private void handleResume(ActionEvent e) {
+    @FXML
+    private void handleResume(ActionEvent e) {
         if (mainController != null) mainController.resumeGame();
         pauseStage.close();
     }
 
-    @FXML private void handleRestart(ActionEvent e) {
+    @FXML
+    private void handleRestart(ActionEvent e) {
         if (mainController != null) mainController.resetGameFromPause();
         pauseStage.close();
     }
 
-    @FXML private void handleSettings(ActionEvent e) {
+    @FXML
+    private void handleSettings(ActionEvent e) {
         try {
             FXMLLoader l = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
             Parent root = l.load();
@@ -70,15 +83,22 @@ public class PauseController {
             ss.setScene(scene);
             ss.show();
 
-            ss.setOnHidden(ev -> { if (mainController != null) mainController.reloadGameSkins(); });
+            ss.setOnHidden(ev -> {
+                if (mainController != null) mainController.reloadGameSkins();
+            });
 
-        } catch (IOException ex) { ex.printStackTrace(); }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
-    @FXML private void handleMainMenu(ActionEvent e) {
+    @FXML
+    private void handleMainMenu(ActionEvent e) {
         if (mainController != null) mainController.returnToMenuFromPause();
         pauseStage.close();
     }
 
-    private String get(String p) { return getClass().getResource(p).toExternalForm(); }
+    private String get(String p) {
+        return getClass().getResource(p).toExternalForm();
+    }
 }
