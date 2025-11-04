@@ -16,35 +16,41 @@ public class LevelLoader {
         List<Brick> bricks = new ArrayList<>();
 
         try (InputStream is = LevelLoader.class.getResourceAsStream("/game/arkanoid/levels/" + levelFile);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+             BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
-            String line;
-            int row = 0;
+            List<String> lines = new ArrayList<>(); // can chinh phu hop voi man hinh
+            String rawLine;
+            while ((rawLine = br.readLine()) != null) {
+                if (!rawLine.trim().isEmpty()) {
+                    lines.add(rawLine.trim());
+                }
+            }
 
             // Thông số gạch
             int bw = GameConstants.BRICK_WIDTH;
             int bh = GameConstants.BRICK_HEIGHT;
             int pad = GameConstants.BRICK_PADDING;
-            int startX = 50;
+
+            int maxCols = lines.stream().mapToInt(String::length).max().orElse(0);
+
+            int totalWidth = maxCols * bw;
+            int startX = (GameConstants.WINDOW_WIDTH - totalWidth) / 2;
             int startY = 50;
 
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty()) {
-                    row++;
-                    continue;
-                }
+            int row = 0;
+            for (String line : lines) {
                 for (int col = 0; col < line.length(); col++) {
                     char c = line.charAt(col);
                     BrickType type = charToBrickType(c);
                     if (type != null) {
-                        double x = startX + col * (bw + pad);
-                        double y = startY + row * (bh + pad);
+                        double x = startX + col * bw;
+                        double y = startY + row * bh;
                         bricks.add(new Brick(type, new Vector2D(x, y)));
                     }
                 }
                 row++;
             }
+
         } catch (Exception e) {
             System.err.println("Không thể load level hiện tại: " + levelFile);
             e.printStackTrace();
