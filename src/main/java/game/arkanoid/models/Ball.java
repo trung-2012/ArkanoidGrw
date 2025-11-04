@@ -12,7 +12,7 @@ public class Ball {
     private double radius;
     // Lưu dấu vết quỹ đạo bóng
     private List<Vector2D> trail = new java.util.LinkedList<>();
-    private static final int TRAIL_MAX = 50; // số điểm lưu lại
+    private static final int TRAIL_MAX = 20; // số điểm lưu lại
 
     // Constructor
     public Ball(Vector2D position, double radius) {

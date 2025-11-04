@@ -59,6 +59,8 @@ public class GameEngine extends AnimationTimer {
     private boolean leftPressed = false;
     private boolean rightPressed = false;
     private boolean ballAttachedToPaddle = true;
+    private double chargePulse = 0;
+    private boolean chargeIncreasing = true;
 
     @Override
     public void handle(long now) {
@@ -173,13 +175,13 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa tất cả power-ups đang rơi
         powerUps.clear();
-        
+
         // Xóa tất cả laser beams
         laserBeams.clear();
-        
+
         // Xóa shield nếu có
         shield = null;
-        
+
         // Tắt laser active
         laserActive = false;
 
@@ -393,6 +395,14 @@ public class GameEngine extends AnimationTimer {
         if (ball != null) {
             if (ballAttachedToPaddle) {
                 ball.getTrail().clear();
+                // charge aura
+                if (chargeIncreasing) {
+                    chargePulse += 0.01;
+                    if (chargePulse > 1.0) chargeIncreasing = false;
+                } else {
+                    chargePulse -= 0.01;
+                    if (chargePulse < 0.0) chargeIncreasing = true;
+                }
                 // Giữ bóng trên paddle
                 double bx = paddle.getPosition().getX();
                 double by = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
@@ -455,16 +465,16 @@ public class GameEngine extends AnimationTimer {
     private void handleLevelCompletion() {
         // Xóa tất cả power-ups đang rơi
         powerUps.clear();
-        
+
         // Xóa tất cả laser beams
         laserBeams.clear();
-        
+
         // Xóa shield nếu có
         shield = null;
-        
+
         // Tắt laser active
         laserActive = false;
-        
+
         currentLevel++;
         if (currentLevel > GameConstants.totalLevels) {
             totalScore = score;
@@ -551,19 +561,19 @@ public class GameEngine extends AnimationTimer {
             gc.fillRect(px, py, pw, ph);
         }
 
-// echo laser trail
+// echo laser trail (compact + behind ball)
         List<Vector2D> t = ball.getTrail();
         for (int i = 0; i < t.size(); i++) {
             Vector2D p = t.get(i);
 
-            double progress = (double) i / t.size();  // 0 -> 1
-            double alpha = progress * 0.6;            // fade
+            double progress = (double) i / t.size();  // 0 -> 1 (đuôi -> đầu)
+            double alpha = progress * 0.8;    // fade mạnh từ đầu
             gc.setGlobalAlpha(alpha);
 
-            // neon magenta trail (universal color)
             gc.setFill(Color.web("#a0cfff", alpha));
 
-            double trailSize = ball.getRadius() * (1.0 + progress * 3.3); // expand
+            double trailSize = ball.getRadius() * 2;
+
             gc.fillOval(
                     p.getX() - trailSize / 2,
                     p.getY() - trailSize / 2,
@@ -572,6 +582,56 @@ public class GameEngine extends AnimationTimer {
             );
         }
         gc.setGlobalAlpha(1.0);
+        // charge aura
+        if (ballAttachedToPaddle) {
+            double bx = ball.getPosition().getX();
+            double by = ball.getPosition().getY();
+            double r = ball.getRadius();
+
+            double auraSize = r * (2.2 + chargePulse * 1.5);
+            double alpha = 0.35 + chargePulse * 0.5;
+
+            gc.setGlobalAlpha(alpha);
+            gc.setFill(Color.web("#a6f6ff", alpha)); // neon magenta
+            gc.fillOval(
+                    bx - auraSize,
+                    by - auraSize,
+                    auraSize * 2,
+                    auraSize * 2
+            );
+            gc.setGlobalAlpha(1.0);
+            // chaotic electric arcs around ball
+            Random rr = new Random();
+            int boltCount = 4 + rr.nextInt(4); // 4-7 tia
+
+            for (int b = 0; b < boltCount; b++) {
+                int segments = 3 + rr.nextInt(3); // 3-5 đoạn zigzag
+                double radiusStart = ball.getRadius() * (0.7 + rr.nextDouble() * 0.4);
+                double angle = rr.nextDouble() * Math.PI * 2;
+
+                double x = bx + Math.cos(angle) * radiusStart;
+                double y = by + Math.sin(angle) * radiusStart;
+
+                gc.setLineWidth(1.5 + rr.nextDouble() * 0.8);
+                gc.setStroke(Color.web("#ccfaff"));
+                gc.setGlobalAlpha(0.7 + rr.nextDouble() * 0.3);
+
+                for (int s = 0; s < segments; s++) {
+                    double length = ball.getRadius() * (0.6 + rr.nextDouble() * 0.8);
+
+                    // random hướng mỗi segment, tạo zig-zag
+                    double ang = angle + (rr.nextDouble() * 1.6 - 0.8);
+                    double nx = x + Math.cos(ang) * length;
+                    double ny = y + Math.sin(ang) * length;
+
+                    gc.strokeLine(x, y, nx, ny);
+
+                    x = nx;
+                    y = ny;
+                }
+            }
+            gc.setGlobalAlpha(1.0);
+        }
         // vẽ ball
         double bx = ball.getPosition().getX() - ball.getRadius();
         double by = ball.getPosition().getY() - ball.getRadius();
@@ -661,7 +721,8 @@ public class GameEngine extends AnimationTimer {
     public void handleSpacePressed() {
         if (ballAttachedToPaddle) {
             ballAttachedToPaddle = false;
-
+            chargePulse = 0;
+            chargeIncreasing = true;
             double diag = GameConstants.BALL_SPEED / Math.sqrt(2.0);
             double dir = 0;
 
