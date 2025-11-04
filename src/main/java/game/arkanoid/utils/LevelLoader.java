@@ -29,7 +29,6 @@ public class LevelLoader {
             // Thông số gạch
             int bw = GameConstants.BRICK_WIDTH;
             int bh = GameConstants.BRICK_HEIGHT;
-            int pad = GameConstants.BRICK_PADDING;
 
             int maxCols = lines.stream().mapToInt(String::length).max().orElse(0);
 

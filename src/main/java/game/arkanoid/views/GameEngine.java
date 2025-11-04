@@ -144,9 +144,10 @@ public class GameEngine extends AnimationTimer {
         this.paddle = new Paddle(new Vector2D(px, py));
 
         double bx = px;
-        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0) - 150.0;
+        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0);
         this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
-        this.ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+        this.ball.setVelocity(new Vector2D(0.0, 0.0));
+        this.ballAttachedToPaddle = true;
 
         loadLevelNumber(currentLevel);
         this.gameRunning = true;
@@ -167,9 +168,10 @@ public class GameEngine extends AnimationTimer {
 
         this.paddle = new Paddle(new Vector2D(px, py));
         double bx = px;
-        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0) - 150.0;
+        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0);
         this.ball = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
-        this.ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+        this.ball.setVelocity(new Vector2D(0.0, 0.0));
+        this.ballAttachedToPaddle = true;
 
         // Xóa tất cả power-ups đang rơi
         powerUps.clear();
