@@ -4,15 +4,18 @@ import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 
 public class LaserBeam {
     private Vector2D position;
     private double speed = 12;
-    private double width = 3;
-    private double height = 5;
+    private double width = 15;
+    private double height = 30;
+    private Image bulletImage;
 
-    public LaserBeam(Vector2D position) {
+    public LaserBeam(Vector2D position, Image bulletImage) {
         this.position = position;
+        this.bulletImage = bulletImage;
     }
 
     public void update() {
@@ -24,17 +27,18 @@ public class LaserBeam {
     }
 
     public void render(GraphicsContext gc) {
-        // Vẽ tia laser đỏ sáng có hiệu ứng glow
-        gc.save();
-        gc.setGlobalAlpha(0.9);
-        gc.setFill(Color.rgb(0, 215, 240));
-        gc.fillRect(position.getX() - width / 2, position.getY() - height, width, height * 2);
-
-        // Hiệu ứng sáng quanh tia
-        gc.setGlobalAlpha(0.4);
-        gc.setFill(Color.rgb(153, 255, 255, 0.6));
-        gc.fillRect(position.getX() - width * 2, position.getY() - height * 2, width * 4, height * 4);
-        gc.restore();
+        // Vẽ tia laser bằng ảnh nếu có, nếu không thì dùng màu mặc định
+        if (bulletImage != null) {
+            gc.drawImage(bulletImage, 
+                position.getX() - width / 2, 
+                position.getY() - height / 2, 
+                width, 
+                height);
+        } else {
+            // Fallback: vẽ tia laser nếu không có ảnh
+            gc.setFill(Color.rgb(0, 215, 240));
+            gc.fillRect(position.getX() - width / 2, position.getY() - height / 2, width, height);
+        }
     }
 
     public Vector2D getPosition() {

@@ -50,6 +50,7 @@ public class GameEngine extends AnimationTimer {
     private GraphicsContext gc;
     private Image paddleImage;
     private Image ballImage;
+    private Image bulletImage;
     private Image brickNormalImage;
     private Image brickWoodImage;
     private Image brickIronImage;
@@ -73,8 +74,9 @@ public class GameEngine extends AnimationTimer {
         try {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
+            this.bulletImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBullet()));
             System.out.println("Đã reload skins: Ball=" + GameSettings.getSelectedBall() + ", Paddle="
-                    + GameSettings.getSelectedPaddle());
+                    + GameSettings.getSelectedPaddle() + ", Bullet=" + GameSettings.getSelectedBullet());
         } catch (Exception e) {
             System.err.println("Lỗi khi reload skins: " + e.getMessage());
             e.printStackTrace();
@@ -89,11 +91,13 @@ public class GameEngine extends AnimationTimer {
         try {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
+            this.bulletImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBullet()));
         } catch (Exception e) {
             System.err.println("Không thể load skin đã chọn, dùng mặc định: " + e.getMessage());
             // Fallback về skin mặc định
             this.ballImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Ball.png"));
             this.paddleImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Paddle.png"));
+            this.bulletImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/bulletPaddle.png"));
         }
 
         // Load ảnh gạch
@@ -354,8 +358,8 @@ public class GameEngine extends AnimationTimer {
                     double px = paddle.getPosition().getX();
                     double py = paddle.getPosition().getY() - paddle.getHeight() / 2;
                     double offset = paddle.getWidth() / 2 - 10;
-                    laserBeams.add(new LaserBeam(new Vector2D(px - offset, py)));
-                    laserBeams.add(new LaserBeam(new Vector2D(px + offset, py)));
+                    laserBeams.add(new LaserBeam(new Vector2D(px - offset, py), bulletImage));
+                    laserBeams.add(new LaserBeam(new Vector2D(px + offset, py), bulletImage));
                 });
                 try {
                     Thread.sleep(GameConstants.COOL_DOWN_TIME);
@@ -438,6 +442,18 @@ public class GameEngine extends AnimationTimer {
     }
 
     private void handleLevelCompletion() {
+        // Xóa tất cả power-ups đang rơi
+        powerUps.clear();
+        
+        // Xóa tất cả laser beams
+        laserBeams.clear();
+        
+        // Xóa shield nếu có
+        shield = null;
+        
+        // Tắt laser active
+        laserActive = false;
+        
         currentLevel++;
         if (currentLevel > GameConstants.totalLevels) {
             totalScore = score;
