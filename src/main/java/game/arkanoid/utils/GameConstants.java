@@ -30,7 +30,7 @@ public class GameConstants {
     public static final int FRAME_RATE = 60;
 
     // Tổng số level trong trò chơi
-    public static final int totalLevels = 3;
+    public static final int totalLevels = 4;
 
     // Thông số powerUp
     public static final double POWER_UP_RATE = 1; // tỉ lệ rơi ra powerUp (1=100%)
