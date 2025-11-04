@@ -95,6 +95,9 @@ public class MainController implements Initializable {
                         case D:
                             engine.setRightPressed(true);
                             break;
+                        case SPACE:
+                            engine.handleSpacePressed();
+                            break;
                         default:
                             break;
                     }

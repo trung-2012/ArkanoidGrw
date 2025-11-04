@@ -58,6 +58,7 @@ public class GameEngine extends AnimationTimer {
     private Image brickInsaneImage;
     private boolean leftPressed = false;
     private boolean rightPressed = false;
+    private boolean ballAttachedToPaddle = true;
 
     @Override
     public void handle(long now) {
@@ -197,12 +198,13 @@ public class GameEngine extends AnimationTimer {
         boolean out = ball.collideWithWall(w, h);
         if (out) {
             // Bóng rơi xuống đáy thì bay màu 1 mạng
-            // Đặt lại vị trí bóng trên paddle
+            // Đặt lại vị trí bóng trên paddle, chờ Space để bắn ra
             double resetX = paddle.getPosition().getX();
-            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius() - 150.0;
+            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
             ball.setPosition(new Vector2D(resetX, resetY));
-            // Bóng sẽ rơi thẳng xuống paddle (vận tốc chỉ có thành phần Y dương)
-            ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+            ball.setVelocity(new Vector2D(0.0, 0.0));
+            ballAttachedToPaddle = true;
+
             // giảm mạng và cập nhật label
             lives = Math.max(0, lives - 1);
             if (this.livesLabelRef != null) {
@@ -213,6 +215,7 @@ public class GameEngine extends AnimationTimer {
                     livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
                 }
             }
+
             if (lives <= 0) {
                 // Game over
                 this.totalScore = this.score;
@@ -387,9 +390,16 @@ public class GameEngine extends AnimationTimer {
             if (paddle.getPosition().getX() + half > canvasW)
                 paddle.getPosition().setX(canvasW - half);
         }
-        if (ball != null)
-            ball.update();
-
+        if (ball != null) {
+            if (ballAttachedToPaddle) {
+                // Giữ bóng trên paddle
+                double bx = paddle.getPosition().getX();
+                double by = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
+                ball.setPosition(new Vector2D(bx, by));
+            } else {
+                ball.update();
+            }
+        }
         // Cập nhật power-ups đang rơi
         Iterator<PowerUp> iter = powerUps.iterator();
         while (iter.hasNext()) {
@@ -623,6 +633,21 @@ public class GameEngine extends AnimationTimer {
         laserActive = false;
         if (laserScheduler != null && !laserScheduler.isShutdown()) {
             laserScheduler.shutdownNow();
+        }
+    }
+
+    public void handleSpacePressed() {
+        if (ballAttachedToPaddle) {
+            ballAttachedToPaddle = false;
+
+            double diag = GameConstants.BALL_SPEED / Math.sqrt(2.0);
+            double dir = 0;
+
+            if (leftPressed && !rightPressed) dir = -1;
+            else if (rightPressed && !leftPressed) dir = 1;
+            else dir = Math.random() < 0.5 ? -1 : 1; // nếu paddle đứng yên thì ngẫu nhiên
+
+            ball.setVelocity(new Vector2D(diag * dir, -diag));
         }
     }
 }
