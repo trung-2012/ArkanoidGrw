@@ -2,9 +2,9 @@ package game.arkanoid.views;
 
 import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
-import game.arkanoid.utils.Vector2D;
-import game.arkanoid.utils.LevelLoader;
 import game.arkanoid.utils.GameSettings;
+import game.arkanoid.utils.LevelLoader;
+import game.arkanoid.utils.Vector2D;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -12,20 +12,23 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.image.Image;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class GameEngine extends AnimationTimer {
+    private final List<PowerUp> powerUps = new ArrayList<>();
+    private final Random random = new Random();
+    private final List<LaserBeam> laserBeams = new ArrayList<>();
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
@@ -34,10 +37,7 @@ public class GameEngine extends AnimationTimer {
     private int lives = GameConstants.INITIAL_LIVES;
     private int score = 0;
     private int totalScore = 0;
-    private final List<PowerUp> powerUps = new ArrayList<>();
-    private final Random random = new Random();
     private boolean laserActive = false;
-    private final List<LaserBeam> laserBeams = new ArrayList<>();
     private Shield shield;
     private ScheduledExecutorService laserScheduler;
 
@@ -600,37 +600,7 @@ public class GameEngine extends AnimationTimer {
                     auraSize * 2
             );
             gc.setGlobalAlpha(1.0);
-            // chaotic electric arcs around ball
-            Random rr = new Random();
-            int boltCount = 4 + rr.nextInt(4); // 4-7 tia
 
-            for (int b = 0; b < boltCount; b++) {
-                int segments = 3 + rr.nextInt(3); // 3-5 đoạn zigzag
-                double radiusStart = ball.getRadius() * (0.7 + rr.nextDouble() * 0.4);
-                double angle = rr.nextDouble() * Math.PI * 2;
-
-                double x = bx + Math.cos(angle) * radiusStart;
-                double y = by + Math.sin(angle) * radiusStart;
-
-                gc.setLineWidth(1.5 + rr.nextDouble() * 0.8);
-                gc.setStroke(Color.web("#ccfaff"));
-                gc.setGlobalAlpha(0.7 + rr.nextDouble() * 0.3);
-
-                for (int s = 0; s < segments; s++) {
-                    double length = ball.getRadius() * (0.6 + rr.nextDouble() * 0.8);
-
-                    // random hướng mỗi segment, tạo zig-zag
-                    double ang = angle + (rr.nextDouble() * 1.6 - 0.8);
-                    double nx = x + Math.cos(ang) * length;
-                    double ny = y + Math.sin(ang) * length;
-
-                    gc.strokeLine(x, y, nx, ny);
-
-                    x = nx;
-                    y = ny;
-                }
-            }
-            gc.setGlobalAlpha(1.0);
         }
         // vẽ ball
         double bx = ball.getPosition().getX() - ball.getRadius();
@@ -688,6 +658,13 @@ public class GameEngine extends AnimationTimer {
 
     // Getters & Setters
 
+    public void setGameRunning(boolean gameRunning) {
+        this.gameRunning = gameRunning;
+        if (!gameRunning) {
+            cleanup();
+        }
+    }
+
     public Ball getBall() {
         return ball;
     }
@@ -698,13 +675,6 @@ public class GameEngine extends AnimationTimer {
 
     public List<Brick> getBricks() {
         return bricks;
-    }
-
-    public void setGameRunning(boolean gameRunning) {
-        this.gameRunning = gameRunning;
-        if (!gameRunning) {
-            cleanup();
-        }
     }
 
     public int getCurrentLevel() {
