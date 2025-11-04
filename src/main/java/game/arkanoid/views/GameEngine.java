@@ -392,6 +392,7 @@ public class GameEngine extends AnimationTimer {
         }
         if (ball != null) {
             if (ballAttachedToPaddle) {
+                ball.getTrail().clear();
                 // Giữ bóng trên paddle
                 double bx = paddle.getPosition().getX();
                 double by = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
@@ -550,6 +551,27 @@ public class GameEngine extends AnimationTimer {
             gc.fillRect(px, py, pw, ph);
         }
 
+// echo laser trail
+        List<Vector2D> t = ball.getTrail();
+        for (int i = 0; i < t.size(); i++) {
+            Vector2D p = t.get(i);
+
+            double progress = (double) i / t.size();  // 0 -> 1
+            double alpha = progress * 0.6;            // fade
+            gc.setGlobalAlpha(alpha);
+
+            // neon magenta trail (universal color)
+            gc.setFill(Color.web("#a0cfff", alpha));
+
+            double trailSize = ball.getRadius() * (1.0 + progress * 3.3); // expand
+            gc.fillOval(
+                    p.getX() - trailSize / 2,
+                    p.getY() - trailSize / 2,
+                    trailSize,
+                    trailSize
+            );
+        }
+        gc.setGlobalAlpha(1.0);
         // vẽ ball
         double bx = ball.getPosition().getX() - ball.getRadius();
         double by = ball.getPosition().getY() - ball.getRadius();
