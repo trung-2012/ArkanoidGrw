@@ -31,6 +31,7 @@ public class GameEngine extends AnimationTimer {
     private final List<LaserBeam> laserBeams = new ArrayList<>();
     private final List<ExplosionEffect> explosions = new ArrayList<>();
     private Ball ball;
+    private final List<Ball> balls = new ArrayList<>();
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
     private int currentLevel = 1;
@@ -156,6 +157,10 @@ public class GameEngine extends AnimationTimer {
         this.ball.setVelocity(new Vector2D(0.0, 0.0));
         this.ballAttachedToPaddle = true;
 
+        balls.clear();
+        balls.add(ball);
+        ball.setOriginal(true);
+
         loadLevelNumber(currentLevel);
         this.gameRunning = true;
         this.start();
@@ -180,6 +185,9 @@ public class GameEngine extends AnimationTimer {
         this.ball.setVelocity(new Vector2D(0.0, 0.0));
         this.ballAttachedToPaddle = true;
 
+        balls.clear();
+        balls.add(ball);
+
         // Xóa tất cả power-ups đang rơi
         powerUps.clear();
 
@@ -198,131 +206,142 @@ public class GameEngine extends AnimationTimer {
 
     // Kiểm tra va chạm
     public void checkCollisions() {
-        if (ball == null)
+        if (balls.isEmpty())
             return;
 
         // Kiểm tra va chạm với tường
         double w = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
         double h = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
-        boolean out = ball.collideWithWall(w, h);
-        if (out) {
-            // Bóng rơi xuống đáy thì bay màu 1 mạng
-            // Đặt lại vị trí bóng trên paddle, chờ Space để bắn ra
-            double resetX = paddle.getPosition().getX();
-            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
-            ball.setPosition(new Vector2D(resetX, resetY));
-            ball.setVelocity(new Vector2D(0.0, 0.0));
-            ballAttachedToPaddle = true;
 
-            // giảm mạng và cập nhật label
-            lives = Math.max(0, lives - 1);
-            if (this.livesLabelRef != null) {
-                this.livesLabelRef.setText("Lives: " + lives);
-                if (lives == GameConstants.MAX_LIVE) {
-                    livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
-                } else {
-                    livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
+        // MULTI-BALL: kiểm tra cho từng bóng
+        for (Ball ball : new ArrayList<>(balls)) {
+            boolean out = ball.collideWithWall(w, h);
+            if (out) {
+                balls.remove(ball); // MULTI-BALL: rơi thì xóa bóng đó
+
+                // Nếu vẫn còn bóng khác thì continue, không trừ mạng
+                if (!balls.isEmpty()) continue; // MULTI-BALL
+
+                // Hết bóng: reset như cũ và trừ mạng
+                double resetX = paddle.getPosition().getX();
+                double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
+                ball.setPosition(new Vector2D(resetX, resetY));
+                ball.setVelocity(new Vector2D(0.0, 0.0));
+                ballAttachedToPaddle = true;
+
+                balls.clear();
+                balls.add(ball);             // thêm lại 1 bóng để chờ Space
+                this.ball = ball;                 // cập nhật bóng chính để render trail, aura
+
+                lives = Math.max(0, lives - 1);
+                if (this.livesLabelRef != null) {
+                    this.livesLabelRef.setText("Lives: " + lives);
+                    if (lives == GameConstants.MAX_LIVE) {
+                        livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
+                    } else {
+                        livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
+                    }
+                }
+
+                if (lives <= 0) {
+                    // Game over
+                    this.totalScore = this.score;
+                    this.setGameRunning(false);
+                    Platform.runLater(() -> {
+                        try {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                            Parent root = loader.load();
+                            // truyền điểm vào controller
+                            game.arkanoid.controllers.GameOverController controller = loader.getController();
+                            controller.setFinalScore(totalScore);
+                            Stage stage = (Stage) canvas.getScene().getWindow();
+                            stage.setScene(new Scene(root, 800, 600));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                continue; // xử lý xong rơi
+            }
+
+            // Kiểm tra va chạm với paddle
+            ball.collideWith(paddle);
+            // Kiểm tra va chạm với shield
+            if (shield != null && shield.collidesWith(ball)) {
+                ball.reverseVelocityY();
+                shield.hit();
+                if (shield.isBroken()) {
+                    shield = null;
                 }
             }
 
-            if (lives <= 0) {
-                // Game over
-                this.totalScore = this.score;
-                this.setGameRunning(false);
-                Platform.runLater(() -> {
-                    try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
-                        Parent root = loader.load();
-                        // truyền điểm vào controller
-                        game.arkanoid.controllers.GameOverController controller = loader.getController();
-                        controller.setFinalScore(totalScore);
-                        Stage stage = (Stage) canvas.getScene().getWindow();
-                        stage.setScene(new Scene(root, 800, 600));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-        }
+            // Bricks
+            for (Brick brick : bricks) {
+                if (!brick.isDestroyed()) {
+                    if (ball.collideWith(brick)) {
+                        boolean anyLeft = false;
+                        for (Brick bb : bricks) {
+                            if (!bb.getDestroyed()) {
+                                anyLeft = true;
+                                break;
+                            }
+                        }
+                        // Sau khi va chạm, gạch chịu sát thương
+                        // Chỉ cộng điểm khi gạch bị phá hủy
+                        if (brick.isDestroyed()) {
+                            score += brick.getPoint();
 
-        // Kiểm tra va chạm với paddle
-        ball.collideWith(paddle);
+                            if (brick.getType() == BrickType.EXPLODE) {
+                                handleExplosion(brick);
+                            }
 
-        // Kiểm tra va chạm với shield
-        if (shield != null && shield.collidesWith(ball)) {
-            ball.reverseVelocityY();
-            shield.hit();
-            if (shield.isBroken()) {
-                shield = null;
-            }
-        }
+                            // Rơi power-up nếu còn gạch khác
+                            if (random.nextDouble() < GameConstants.POWER_UP_RATE && anyLeft) {
+                                PowerUpType type = getRandomPowerUpType();
+                                PowerUp powerUp = new PowerUp(brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2,
+                                        brick.getPosition().getY(), type);
+                                powerUps.add(powerUp);
+                            }
+                            if (this.scoreLabelRef != null)
+                                this.scoreLabelRef.setText("Score: " + score);
+                        }
 
-        // Kiểm tra va chạm với bricks
-        for (Brick brick : bricks) {
-            if (!brick.isDestroyed()) {
-                if (ball.collideWith(brick)) {
-                    boolean anyLeft = false;
-                    for (Brick b : bricks) {
-                        if (!b.getDestroyed()) {
-                            anyLeft = true;
-                            break;
+                        // Check clear level
+                        anyLeft = false;
+                        for (Brick bb : bricks) {
+                            if (!bb.getDestroyed()) {
+                                anyLeft = true;
+                                break;
+                            }
                         }
-                    }
-                    // Sau khi va chạm, gạch chịu sát thương
-                    // Chỉ cộng điểm khi gạch bị phá hủy
-                    if (brick.isDestroyed()) {
-                        score += brick.getPoint();
-                        
-                        // Xử lý nổ nếu là gạch EXPLODE
-                        if (brick.getType() == BrickType.EXPLODE) {
-                            handleExplosion(brick);
+                        if (!anyLeft) {
+                            Platform.runLater(this::handleLevelCompletion);
                         }
-                        
-                        // 20% rơi power-up
-                        // nếu còn 1 viên gạch thì sẽ không rơi powerUp
-                        if (random.nextDouble() < GameConstants.POWER_UP_RATE && anyLeft) {
-                            PowerUpType type = getRandomPowerUpType();
-                            PowerUp powerUp = new PowerUp(brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2,
-                                    brick.getPosition().getY(), type);
-                            powerUps.add(powerUp);
-                        }
-                        if (this.scoreLabelRef != null)
-                            this.scoreLabelRef.setText("Score: " + score);
+                        break; // một va chạm mỗi frame
                     }
-                    for (Brick b : bricks) {
-                        if (!b.getDestroyed()) {
-                            anyLeft = true;
-                            break;
-                        }
-                    }
-                    if (!anyLeft) {
-                        Platform.runLater(() -> handleLevelCompletion());
-                    }
-                    break; // Chỉ xử lý một va chạm mỗi frame
                 }
             }
         }
-
     }
 
     private void handleExplosion(Brick explodedBrick) {
         // Tạo hiệu ứng nổ cho gạch bị phá
         explosions.add(new ExplosionEffect(explodedBrick.getPosition(), explosionEffectImage));
-        
+
         // Random 50-50: nổ theo hàng (true) hoặc theo cột (false)
         boolean explodeRow = random.nextBoolean();
-        
+
         double explodedX = explodedBrick.getPosition().getX();
         double explodedY = explodedBrick.getPosition().getY();
-        
+
         for (Brick brick : bricks) {
             if (brick == explodedBrick || brick.isDestroyed()) continue;
-            
+
             double bx = brick.getPosition().getX();
             double by = brick.getPosition().getY();
-            
+
             boolean shouldExplode = false;
-            
+
             if (explodeRow) {
                 // Nổ theo hàng (cùng tọa độ Y)
                 if (Math.abs(by - explodedY) < 5) {
@@ -334,18 +353,18 @@ public class GameEngine extends AnimationTimer {
                     shouldExplode = true;
                 }
             }
-            
+
             if (shouldExplode) {
                 brick.setDestroyed(true);
                 score += brick.getPoint();
                 explosions.add(new ExplosionEffect(brick.getPosition(), explosionEffectImage));
-                
+
                 if (brick.getType() == BrickType.EXPLODE) {
                     handleExplosion(brick);
                 }
             }
         }
-        
+
         if (scoreLabelRef != null) {
             scoreLabelRef.setText("Score: " + score);
         }
@@ -353,12 +372,14 @@ public class GameEngine extends AnimationTimer {
 
     private PowerUpType getRandomPowerUpType() {
         double rand = random.nextDouble();
-        if (rand < 0.1)
+        if (rand < 0.10)
             return PowerUpType.EXTRA_LIFE; // 10%
-        else if (rand < 0.55)
-            return PowerUpType.LASER; // 45%
+        else if (rand < 0.45)
+            return PowerUpType.LASER; // 35%
+        else if (rand < 0.80)
+            return PowerUpType.SHIELD; // 35%
         else
-            return PowerUpType.SHIELD; // 45%
+            return PowerUpType.MULTI_BALL;  // MULTI-BALL: 20%
     }
 
     private void updatePowerUps() {
@@ -373,7 +394,6 @@ public class GameEngine extends AnimationTimer {
                 iterator.remove();
                 continue;
             }
-
             // Nếu rơi ra ngoài màn hình
             if (powerUp.getY() > canvas.getHeight()) {
                 iterator.remove();
@@ -386,7 +406,6 @@ public class GameEngine extends AnimationTimer {
             case LASER:
                 activateLaser();
                 break;
-
             case EXTRA_LIFE:
                 if (lives < GameConstants.MAX_LIVE) {
                     lives++;
@@ -403,6 +422,15 @@ public class GameEngine extends AnimationTimer {
             case SHIELD:
                 shield = new Shield(0, canvas.getHeight() - GameConstants.SHIELD_HEIGHT, canvas.getWidth(),
                         GameConstants.SHIELD_HEIGHT);
+                break;
+            case MULTI_BALL:
+                // Nhân tất cả bóng đang tồn tại
+                List<Ball> currentBalls = new ArrayList<>(balls);
+                for (Ball b : currentBalls) {
+                    activateMultiBall(b);
+                }
+                break;
+
         }
     }
 
@@ -451,9 +479,11 @@ public class GameEngine extends AnimationTimer {
             if (paddle.getPosition().getX() + half > canvasW)
                 paddle.getPosition().setX(canvasW - half);
         }
-        if (ball != null) {
-            if (ballAttachedToPaddle) {
-                ball.getTrail().clear();
+
+        // MULTI-BALL: update tất cả bóng
+        for (Ball ball : new ArrayList<>(balls)) {
+            if (ballAttachedToPaddle && ball == this.ball) {
+                this.ball.getTrail().clear();
                 // charge aura
                 if (chargeIncreasing) {
                     chargePulse += 0.01;
@@ -470,19 +500,6 @@ public class GameEngine extends AnimationTimer {
                 ball.update();
             }
         }
-        // Cập nhật power-ups đang rơi
-        Iterator<PowerUp> iter = powerUps.iterator();
-        while (iter.hasNext()) {
-            PowerUp p = iter.next();
-            p.update(); // rơi xuống
-            // Nếu power-up rơi chạm paddle
-            if (paddle != null && p.intersects(paddle)) {
-                activatePowerUp(p); // kích hoạt hiệu ứng
-                iter.remove(); // xóa power-up khỏi danh sách
-            } else if (p.getY() > canvas.getHeight()) {
-                iter.remove(); // xóa nếu rơi khỏi màn hình
-            }
-        }
 
         // Cập nhật các tia laser
         Iterator<LaserBeam> laserIter = laserBeams.iterator();
@@ -496,12 +513,11 @@ public class GameEngine extends AnimationTimer {
                     brick.takeDamage();
                     if (brick.isDestroyed()) {
                         score += brick.getPoint();
-                        
+
                         // Xử lý nổ nếu là gạch EXPLODE
                         if (brick.getType() == BrickType.EXPLODE) {
                             handleExplosion(brick);
                         }
-                        
                         Platform.runLater(() -> scoreLabelRef.setText("Score: " + score));
 
                         boolean anyLeft = false;
@@ -511,21 +527,19 @@ public class GameEngine extends AnimationTimer {
                                 break;
                             }
                         }
-
                         if (!anyLeft) {
-                            Platform.runLater(() -> handleLevelCompletion());
+                            Platform.runLater(this::handleLevelCompletion);
                         }
                     }
                     hit = true;
                     break;
                 }
             }
-
             if (hit || beam.isOffScreen(canvas.getHeight())) {
                 laserIter.remove();
             }
         }
-        
+
         // Cập nhật hiệu ứng nổ
         Iterator<ExplosionEffect> explosionIter = explosions.iterator();
         while (explosionIter.hasNext()) {
@@ -572,6 +586,9 @@ public class GameEngine extends AnimationTimer {
             ball.setPosition(new Vector2D(resetX, resetY));
             ball.setVelocity(new Vector2D(0.0, 0.0));
             ballAttachedToPaddle = true;
+
+            balls.clear();      // MULTI-BALL: reset khi qua màn ✅
+            balls.add(ball);    // MULTI-BALL ✅
         }
     }
 
@@ -640,57 +657,60 @@ public class GameEngine extends AnimationTimer {
             gc.fillRect(px, py, pw, ph);
         }
 
-// echo laser trail (compact + behind ball)
-        List<Vector2D> t = ball.getTrail();
-        for (int i = 0; i < t.size(); i++) {
-            Vector2D p = t.get(i);
+        // Vẽ hiệu ứng cho từng bóng (clone cũng có glow)
+        for (Ball ball : balls) {
 
-            double progress = (double) i / t.size();  // 0 -> 1 (đuôi -> đầu)
-            double alpha = progress * 0.8;    // fade mạnh từ đầu
-            gc.setGlobalAlpha(alpha);
+            // Draw trail glow
+            List<Vector2D> trail = ball.getTrail();
+            for (int i = 0; i < trail.size(); i++) {
+                Vector2D p = trail.get(i);
+                double progress = (double) i / trail.size();
+                double alpha = progress * 0.8;
 
-            gc.setFill(Color.web("#a0cfff", alpha));
+                gc.setGlobalAlpha(alpha);
 
-            double trailSize = ball.getRadius() * 2;
+                // Clone bóng = màu khác để nhìn cho ngầu
+                Color glowColor = ball == this.ball
+                        ? Color.web("#a0cfff", alpha)     // bóng gốc xanh
+                        : Color.web("#ff80ff", alpha);    // bóng clone tím neon
 
-            gc.fillOval(
-                    p.getX() - trailSize / 2,
-                    p.getY() - trailSize / 2,
-                    trailSize,
-                    trailSize
-            );
-        }
-        gc.setGlobalAlpha(1.0);
-        // charge aura
-        if (ballAttachedToPaddle) {
-            double bx = ball.getPosition().getX();
-            double by = ball.getPosition().getY();
-            double r = ball.getRadius();
+                gc.setFill(glowColor);
+                gc.fillOval(p.getX() - ball.getRadius(),
+                        p.getY() - ball.getRadius(),
+                        ball.getRadius() * 2,
+                        ball.getRadius() * 2);
+            }
 
-            double auraSize = r * (2.2 + chargePulse * 1.5);
-            double alpha = 0.35 + chargePulse * 0.5;
-
-            gc.setGlobalAlpha(alpha);
-            gc.setFill(Color.web("#a6f6ff", alpha)); // neon magenta
-            gc.fillOval(
-                    bx - auraSize,
-                    by - auraSize,
-                    auraSize * 2,
-                    auraSize * 2
-            );
             gc.setGlobalAlpha(1.0);
 
+            // Aura khi đang attach paddle (chỉ bóng đang attach thôi)
+            if (ballAttachedToPaddle && ball == this.ball) {
+                double r = ball.getRadius();
+                double auraSize = r * (2.2 + chargePulse * 1.5);
+                double alpha = 0.35 + chargePulse * 0.5;
+                gc.setGlobalAlpha(alpha);
+                gc.setFill(Color.web("#a6f6ff", alpha));
+                gc.fillOval(
+                        ball.getPosition().getX() - auraSize,
+                        ball.getPosition().getY() - auraSize,
+                        auraSize * 2, auraSize * 2
+                );
+                gc.setGlobalAlpha(1.0);
+            }
         }
-        // vẽ ball
-        double bx = ball.getPosition().getX() - ball.getRadius();
-        double by = ball.getPosition().getY() - ball.getRadius();
-        double size = ball.getRadius() * 2;
-        if (ballImage != null) {
-            gc.drawImage(ballImage, bx, by, size, size);
-        } else {
-            gc.setFill(Color.WHITE);
-            gc.fillOval(bx, by, size, size);
+
+        // vẽ tất cả bóng
+        for (Ball b : balls) { // MULTI-BALL: render toàn bộ bóng
+            double bx = b.getPosition().getX() - b.getRadius();
+            double by = b.getPosition().getY() - b.getRadius();
+            double size = b.getRadius() * 2;
+            if (ballImage != null) gc.drawImage(ballImage, bx, by, size, size);
+            else {
+                gc.setFill(Color.WHITE);
+                gc.fillOval(bx, by, size, size);
+            }
         }
+
         // vẽ power up
         for (PowerUp p : powerUps) {
             Image img = p.getImage();
@@ -709,7 +729,7 @@ public class GameEngine extends AnimationTimer {
         if (shield != null) {
             shield.draw(gc);
         }
-        
+
         // vẽ hiệu ứng nổ
         for (ExplosionEffect explosion : explosions) {
             explosion.render(gc);
@@ -778,8 +798,7 @@ public class GameEngine extends AnimationTimer {
             chargePulse = 0;
             chargeIncreasing = true;
             double diag = GameConstants.BALL_SPEED / Math.sqrt(2.0);
-            double dir = 0;
-
+            double dir;
             if (leftPressed && !rightPressed) dir = -1;
             else if (rightPressed && !leftPressed) dir = 1;
             else dir = Math.random() < 0.5 ? -1 : 1; // nếu paddle đứng yên thì ngẫu nhiên
@@ -787,4 +806,31 @@ public class GameEngine extends AnimationTimer {
             ball.setVelocity(new Vector2D(diag * dir, -diag));
         }
     }
+
+    // MULTI-BALL: tạo thêm 2 bóng từ bóng hiện tại (tổng 3 bóng)
+    // MULTI BALL: mọi bóng đều có thể nhân bản, giới hạn tổng để không lag 
+    private void activateMultiBall(Ball sourceBall) {
+
+        Vector2D pos = new Vector2D(
+                sourceBall.getPosition().getX(),
+                sourceBall.getPosition().getY()
+        );
+
+        Ball b1 = new Ball(new Vector2D(pos.getX(), pos.getY()), sourceBall.getRadius());
+        Ball b2 = new Ball(new Vector2D(pos.getX(), pos.getY()), sourceBall.getRadius());
+
+        double vx = sourceBall.getVelocity().getX();
+        double vy = sourceBall.getVelocity().getY();
+
+        b1.setVelocity(new Vector2D(vx + 1.5, vy));
+        b2.setVelocity(new Vector2D(vx - 1.5, vy));
+
+        b1.setOriginal(false);
+        b2.setOriginal(false);
+
+        balls.add(b1);
+        balls.add(b2);
+    }
+
+
 }

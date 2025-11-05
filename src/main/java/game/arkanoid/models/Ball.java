@@ -15,6 +15,16 @@ public class Ball {
     // Lưu dấu vết quỹ đạo bóng
     private final List<Vector2D> trail = new java.util.LinkedList<>();
 
+    private boolean original = false; // flag bóng gốc hoặc clone
+
+    public boolean isOriginal() {
+        return original;
+    }
+
+    public void setOriginal(boolean original) {
+        this.original = original;
+    }
+
     // Constructor
     public Ball(Vector2D position, double radius) {
         this.position = position;
