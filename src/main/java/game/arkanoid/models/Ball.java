@@ -2,14 +2,14 @@ package game.arkanoid.models;
 
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
+import javafx.scene.canvas.GraphicsContext;
 
 import java.util.List;
 
 import static game.arkanoid.utils.GameConstants.BALL_SPEED;
 
-public class Ball {
+public class Ball extends GameObject {
     private static final int TRAIL_MAX = 20; // số điểm lưu lại
-    private Vector2D position;
     private Vector2D velocity;
     private double radius;
     // Lưu dấu vết quỹ đạo bóng
@@ -17,22 +17,28 @@ public class Ball {
 
     // Constructor
     public Ball(Vector2D position, double radius) {
-        this.position = position;
+        super(position, radius * 2, radius * 2);
         this.radius = radius;
-        // Vận tốc mặc định: xấp xỉ BALL_SPEED theo hướng 45 độ lên trên-phải
+        // Speed ban đầu chéo lên trên bên phải
         double diag = BALL_SPEED / Math.sqrt(2.0);
         this.velocity = new Vector2D(diag, -diag);
     }
 
-    // Cập nhật vị trí bóng dựa trên vận tốc
+    // Cập nhật vị trí bóng dựa trên vận tốc và lưu trail
+    @Override
     public void update() {
         position.add(velocity);
         // Thêm vị trí hiện tại vào trail
-        trail.add(new Vector2D(position.getX(), position.getY())); // thêm
+        trail.add(new Vector2D(position.getX(), position.getY()));
         // Giữ số lượng điểm trail cố định
         if (trail.size() > TRAIL_MAX) {
             trail.remove(0);
         }
+    }
+
+    @Override
+    public void render(GraphicsContext gc) {
+        // Render logic sẽ được xử lý bởi GameEngine với ballImage
     }
 
     // Đảo chiều các thành phần vận tốc
@@ -74,8 +80,7 @@ public class Ball {
         return bottomHit;
     }
 
-    // Va chạm hình tròn-chữ nhật với paddle. Giả định paddle.position là tâm
-    // của paddle.
+    // Va chạm hình tròn-chữ nhật với paddle. Giả định paddle.position là tâm của paddle.
     public boolean collideWith(Paddle paddle) {
         if (paddle == null)
             return false;
@@ -111,8 +116,7 @@ public class Ball {
         return false;
     }
 
-    // Va chạm hình tròn-chữ nhật với gạch. Giả định brick.position là góc
-    // trên-trái.
+    // Va chạm hình tròn-chữ nhật với gạch. Giả định brick.position là góc trên trái của gạch.
     public boolean collideWith(Brick brick) {
         if (brick == null || brick.getDestroyed())
             return false;
@@ -161,14 +165,6 @@ public class Ball {
     }
 
     // Getters & Setters
-
-    public Vector2D getPosition() {
-        return position;
-    }
-
-    public void setPosition(Vector2D position) {
-        this.position = position;
-    }
 
     public double getRadius() {
         return radius;
