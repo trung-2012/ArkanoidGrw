@@ -69,6 +69,8 @@ public class LevelLoader {
                 return BrickType.IRON;
             case '4':
                 return BrickType.GOLD;
+            case '5':
+                return BrickType.EXPLODE;
             case '9':
                 return BrickType.INSANE;
             case '0':
