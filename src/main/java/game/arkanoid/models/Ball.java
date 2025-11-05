@@ -1,14 +1,19 @@
 package game.arkanoid.models;
 
-import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.GameConstants;
+import game.arkanoid.utils.Vector2D;
+
+import java.util.List;
 
 import static game.arkanoid.utils.GameConstants.BALL_SPEED;
 
 public class Ball {
+    private static final int TRAIL_MAX = 20; // số điểm lưu lại
     private Vector2D position;
     private Vector2D velocity;
     private double radius;
+    // Lưu dấu vết quỹ đạo bóng
+    private final List<Vector2D> trail = new java.util.LinkedList<>();
 
     // Constructor
     public Ball(Vector2D position, double radius) {
@@ -22,6 +27,12 @@ public class Ball {
     // Cập nhật vị trí bóng dựa trên vận tốc
     public void update() {
         position.add(velocity);
+        // Thêm vị trí hiện tại vào trail
+        trail.add(new Vector2D(position.getX(), position.getY())); // thêm
+        // Giữ số lượng điểm trail cố định
+        if (trail.size() > TRAIL_MAX) {
+            trail.remove(0);
+        }
     }
 
     // Đảo chiều các thành phần vận tốc
@@ -145,14 +156,26 @@ public class Ball {
         return Math.max(min, Math.min(max, val));
     }
 
+    public List<Vector2D> getTrail() {
+        return trail;
+    }
+
     // Getters & Setters
 
     public Vector2D getPosition() {
         return position;
     }
 
+    public void setPosition(Vector2D position) {
+        this.position = position;
+    }
+
     public double getRadius() {
         return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
     }
 
     public Vector2D getVelocity() {
@@ -161,13 +184,5 @@ public class Ball {
 
     public void setVelocity(Vector2D velocity) {
         this.velocity = velocity;
-    }
-
-    public void setPosition(Vector2D position) {
-        this.position = position;
-    }
-
-    public void setRadius(double radius) {
-        this.radius = radius;
     }
 }

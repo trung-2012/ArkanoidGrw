@@ -2,9 +2,9 @@ package game.arkanoid.views;
 
 import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
-import game.arkanoid.utils.Vector2D;
-import game.arkanoid.utils.LevelLoader;
 import game.arkanoid.utils.GameSettings;
+import game.arkanoid.utils.LevelLoader;
+import game.arkanoid.utils.Vector2D;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -12,20 +12,23 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.image.Image;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class GameEngine extends AnimationTimer {
+    private final List<PowerUp> powerUps = new ArrayList<>();
+    private final Random random = new Random();
+    private final List<LaserBeam> laserBeams = new ArrayList<>();
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
@@ -34,10 +37,7 @@ public class GameEngine extends AnimationTimer {
     private int lives = GameConstants.INITIAL_LIVES;
     private int score = 0;
     private int totalScore = 0;
-    private final List<PowerUp> powerUps = new ArrayList<>();
-    private final Random random = new Random();
     private boolean laserActive = false;
-    private final List<LaserBeam> laserBeams = new ArrayList<>();
     private Shield shield;
     private ScheduledExecutorService laserScheduler;
 
@@ -59,6 +59,8 @@ public class GameEngine extends AnimationTimer {
     private boolean leftPressed = false;
     private boolean rightPressed = false;
     private boolean ballAttachedToPaddle = true;
+    private double chargePulse = 0;
+    private boolean chargeIncreasing = true;
 
     @Override
     public void handle(long now) {
@@ -175,13 +177,13 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa tất cả power-ups đang rơi
         powerUps.clear();
-        
+
         // Xóa tất cả laser beams
         laserBeams.clear();
-        
+
         // Xóa shield nếu có
         shield = null;
-        
+
         // Tắt laser active
         laserActive = false;
 
@@ -394,6 +396,15 @@ public class GameEngine extends AnimationTimer {
         }
         if (ball != null) {
             if (ballAttachedToPaddle) {
+                ball.getTrail().clear();
+                // charge aura
+                if (chargeIncreasing) {
+                    chargePulse += 0.01;
+                    if (chargePulse > 1.0) chargeIncreasing = false;
+                } else {
+                    chargePulse -= 0.01;
+                    if (chargePulse < 0.0) chargeIncreasing = true;
+                }
                 // Giữ bóng trên paddle
                 double bx = paddle.getPosition().getX();
                 double by = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
@@ -456,16 +467,16 @@ public class GameEngine extends AnimationTimer {
     private void handleLevelCompletion() {
         // Xóa tất cả power-ups đang rơi
         powerUps.clear();
-        
+
         // Xóa tất cả laser beams
         laserBeams.clear();
-        
+
         // Xóa shield nếu có
         shield = null;
-        
+
         // Tắt laser active
         laserActive = false;
-        
+
         currentLevel++;
         if (currentLevel > GameConstants.totalLevels) {
             totalScore = score;
@@ -552,6 +563,47 @@ public class GameEngine extends AnimationTimer {
             gc.fillRect(px, py, pw, ph);
         }
 
+// echo laser trail (compact + behind ball)
+        List<Vector2D> t = ball.getTrail();
+        for (int i = 0; i < t.size(); i++) {
+            Vector2D p = t.get(i);
+
+            double progress = (double) i / t.size();  // 0 -> 1 (đuôi -> đầu)
+            double alpha = progress * 0.8;    // fade mạnh từ đầu
+            gc.setGlobalAlpha(alpha);
+
+            gc.setFill(Color.web("#a0cfff", alpha));
+
+            double trailSize = ball.getRadius() * 2;
+
+            gc.fillOval(
+                    p.getX() - trailSize / 2,
+                    p.getY() - trailSize / 2,
+                    trailSize,
+                    trailSize
+            );
+        }
+        gc.setGlobalAlpha(1.0);
+        // charge aura
+        if (ballAttachedToPaddle) {
+            double bx = ball.getPosition().getX();
+            double by = ball.getPosition().getY();
+            double r = ball.getRadius();
+
+            double auraSize = r * (2.2 + chargePulse * 1.5);
+            double alpha = 0.35 + chargePulse * 0.5;
+
+            gc.setGlobalAlpha(alpha);
+            gc.setFill(Color.web("#a6f6ff", alpha)); // neon magenta
+            gc.fillOval(
+                    bx - auraSize,
+                    by - auraSize,
+                    auraSize * 2,
+                    auraSize * 2
+            );
+            gc.setGlobalAlpha(1.0);
+
+        }
         // vẽ ball
         double bx = ball.getPosition().getX() - ball.getRadius();
         double by = ball.getPosition().getY() - ball.getRadius();
@@ -608,6 +660,13 @@ public class GameEngine extends AnimationTimer {
 
     // Getters & Setters
 
+    public void setGameRunning(boolean gameRunning) {
+        this.gameRunning = gameRunning;
+        if (!gameRunning) {
+            cleanup();
+        }
+    }
+
     public Ball getBall() {
         return ball;
     }
@@ -618,13 +677,6 @@ public class GameEngine extends AnimationTimer {
 
     public List<Brick> getBricks() {
         return bricks;
-    }
-
-    public void setGameRunning(boolean gameRunning) {
-        this.gameRunning = gameRunning;
-        if (!gameRunning) {
-            cleanup();
-        }
     }
 
     public int getCurrentLevel() {
@@ -641,7 +693,8 @@ public class GameEngine extends AnimationTimer {
     public void handleSpacePressed() {
         if (ballAttachedToPaddle) {
             ballAttachedToPaddle = false;
-
+            chargePulse = 0;
+            chargeIncreasing = true;
             double diag = GameConstants.BALL_SPEED / Math.sqrt(2.0);
             double dir = 0;
 
