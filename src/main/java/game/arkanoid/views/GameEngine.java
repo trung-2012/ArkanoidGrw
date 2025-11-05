@@ -482,24 +482,28 @@ public class GameEngine extends AnimationTimer {
                 ball.update();
             }
         }
-        // Cập nhật power-ups đang rơi
-        Iterator<PowerUp> iter = powerUps.iterator();
-        while (iter.hasNext()) {
-            PowerUp p = iter.next();
+        // Cập nhật power-ups đang rơi (CopyOnWriteArrayList không hỗ trợ iterator.remove())
+        for (PowerUp p : powerUps) {
             p.update(); // rơi xuống
+        }
+        
+        // Xóa power-ups bằng removeIf() thay vì iterator.remove()
+        powerUps.removeIf(p -> {
             // Nếu power-up rơi chạm paddle
             if (paddle != null && p.intersects(paddle)) {
                 activatePowerUp(p); // kích hoạt hiệu ứng
-                iter.remove(); // xóa power-up khỏi danh sách
+                return true; // đánh dấu xóa
             } else if (p.getY() > canvas.getHeight()) {
-                iter.remove(); // xóa nếu rơi khỏi màn hình
+                return true; // xóa nếu rơi khỏi màn hình
             }
-        }
+            return false; // giữ lại
+        });
 
-        // Cập nhật các tia laser
-        Iterator<LaserBeam> laserIter = laserBeams.iterator();
-        while (laserIter.hasNext()) {
-            LaserBeam beam = laserIter.next();
+        // Cập nhật các tia laser và kiểm tra va chạm
+        // Dùng List để lưu laser cần xóa
+        List<LaserBeam> lasersToRemove = new ArrayList<>();
+        
+        for (LaserBeam beam : laserBeams) {
             beam.update();
 
             boolean hit = false;
@@ -534,19 +538,21 @@ public class GameEngine extends AnimationTimer {
             }
 
             if (hit || beam.isOffScreen(canvas.getHeight())) {
-                laserIter.remove();
+                lasersToRemove.add(beam);
             }
         }
         
-        // Cập nhật hiệu ứng nổ
-        Iterator<ExplosionEffect> explosionIter = explosions.iterator();
-        while (explosionIter.hasNext()) {
-            ExplosionEffect explosion = explosionIter.next();
+        // Xóa laser beams đã đánh dấu
+        laserBeams.removeAll(lasersToRemove);
+
+        
+        // Cập nhật hiệu ứng nổ và xóa các explosion đã kết thúc
+        for (ExplosionEffect explosion : explosions) {
             explosion.update();
-            if (explosion.isFinished()) {
-                explosionIter.remove();
-            }
         }
+        
+        // Xóa các explosion đã kết thúc bằng removeIf()
+        explosions.removeIf(ExplosionEffect::isFinished);
     }
 
     private void handleLevelCompletion() {

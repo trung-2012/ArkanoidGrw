@@ -6,26 +6,27 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
 
-public class LaserBeam {
-    private Vector2D position;
-    private double speed = 12;
-    private double width = 15;
-    private double height = 30;
+
+public class LaserBeam extends GameObject {
+    private static final double DEFAULT_WIDTH = 15;
+    private static final double DEFAULT_HEIGHT = 30;
+    private static final double DEFAULT_SPEED = 12;
+    
+    private double speed;
     private Image bulletImage;
 
     public LaserBeam(Vector2D position, Image bulletImage) {
-        this.position = position;
+        super(position, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        this.speed = DEFAULT_SPEED;
         this.bulletImage = bulletImage;
     }
 
+    @Override
     public void update() {
         position.setY(position.getY() - speed);
     }
 
-    public boolean isOffScreen(double canvasHeight) {
-        return position.getY() + height < 0;
-    }
-
+    @Override
     public void render(GraphicsContext gc) {
         // Vẽ tia laser bằng ảnh nếu có, nếu không thì dùng màu mặc định
         if (bulletImage != null) {
@@ -41,8 +42,8 @@ public class LaserBeam {
         }
     }
 
-    public Vector2D getPosition() {
-        return position;
+    public boolean isOffScreen(double canvasHeight) {
+        return position.getY() + height < 0;
     }
 
     public boolean intersects(Brick brick) {

@@ -1,22 +1,29 @@
 package game.arkanoid.models;
 
 import game.arkanoid.utils.Vector2D;
+import javafx.scene.canvas.GraphicsContext;
+
 import static game.arkanoid.utils.GameConstants.PADDLE_WIDTH;
 import static game.arkanoid.utils.GameConstants.PADDLE_HEIGHT;
 import static game.arkanoid.utils.GameConstants.PADDLE_SPEED;
 
-public class Paddle {
-    private Vector2D position;
-    private int width;
-    private int height;
+public class Paddle extends GameObject {
     private double moveSpeed;
 
     // Constructor
     public Paddle(Vector2D position) {
-        this.position = position;
-        this.width = PADDLE_WIDTH;
-        this.height = PADDLE_HEIGHT;
+        super(position, PADDLE_WIDTH, PADDLE_HEIGHT);
         this.moveSpeed = PADDLE_SPEED;
+    }
+
+    @Override
+    public void update() {
+        // Paddle không tự động update
+    }
+
+    @Override
+    public void render(GraphicsContext gc) {
+        // Render logic sẽ được xử lý bởi GameEngine với paddleImage
     }
 
     // Di chuyển paddle trái/phải với tốc độ cố định
@@ -35,25 +42,12 @@ public class Paddle {
     }
 
     // Getters & Setters
-
-    public Vector2D getPosition() {
-        return position;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
     public double getMoveSpeed() {
         return moveSpeed;
     }
 
-    public void setPosition(Vector2D position) {
-        this.position = position;
+    public void setMoveSpeed(double moveSpeed) {
+        this.moveSpeed = moveSpeed;
     }
 
     public void setWidth(int width) {
@@ -62,9 +56,5 @@ public class Paddle {
 
     public void setHeight(int height) {
         this.height = height;
-    }
-
-    public void setMoveSpeed(double moveSpeed) {
-        this.moveSpeed = moveSpeed;
     }
 }

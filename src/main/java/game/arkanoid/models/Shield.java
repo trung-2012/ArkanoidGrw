@@ -1,32 +1,48 @@
 package game.arkanoid.models;
 
+import game.arkanoid.utils.Vector2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class Shield {
-    private double x, y, width, height;
-    private int health = 3;
-
+public class Shield extends GameObject {
+    private static final int MAX_HEALTH = 3;
+    private static final long GLOW_DURATION = 150; // sáng trong 150ms
+    
+    private int health;
     // Thời gian sáng (ms)
     private long glowTimer = 0;
-    private static final long GLOW_DURATION = 150; // sáng trong 150ms
 
     public Shield(double x, double y, double width, double height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        super(new Vector2D(x + width/2, y + height/2), width, height);
+        this.health = MAX_HEALTH;
     }
 
-    /** Gọi khi bóng va chạm với shield */
+    @Override
+    public void update() {
+        // Shield không cần update logic
+    }
+
+    @Override
+    public void render(GraphicsContext gc) {
+        draw(gc);
+    }
+
+    // Xử lý khi shield bị trúng
     public void onHit() {
         health--;
         glowTimer = System.currentTimeMillis(); // kích hoạt hiệu ứng sáng
+        if (health <= 0) {
+            this.active = false; // Deactivate khi hết health
+        }
     }
 
-    /** Vẽ tấm khiên, tự thay đổi độ sáng nếu đang được kích hoạt */
+    // Vẽ tấm khiên, tự thay đổi độ sáng nếu đang được kích hoạt
     public void draw(GraphicsContext gc) {
+        // Tính toán tọa độ góc trên trái từ center position
+        double x = position.getX() - width / 2;
+        double y = position.getY() - height / 2;
+        
         double elapsed = System.currentTimeMillis() - glowTimer;
         boolean glowing = elapsed < GLOW_DURATION;
 
@@ -61,6 +77,11 @@ public class Shield {
         double bx = ball.getPosition().getX();
         double by = ball.getPosition().getY();
         double br = ball.getRadius();
+        
+        // Tính toán bounds từ center position
+        double x = position.getX() - width / 2;
+        double y = position.getY() - height / 2;
+        
         Rectangle2D rect = new Rectangle2D(x, y, width, height);
         Rectangle2D ballRect = new Rectangle2D(bx - br, by - br, br * 2, br * 2);
         return rect.intersects(ballRect);
@@ -71,10 +92,16 @@ public class Shield {
     }
 
     public boolean isBroken() {
-        return health <= 0;
+        return health <= 0 || !active;
     }
 
     public double getY() {
-        return y;
+        return position.getY() - height / 2; // Trả về Y của góc trên trái
+    }
+
+    // Getters
+    
+    public int getHealth() {
+        return health;
     }
 }
