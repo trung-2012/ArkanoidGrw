@@ -8,11 +8,11 @@ public class GameConstants {
     // Thông số Paddle
     public static final int PADDLE_WIDTH = 100;
     public static final int PADDLE_HEIGHT = 20;
-    public static final double PADDLE_SPEED = 7.5;
+    public static final double PADDLE_SPEED = 10.0;
 
     // Thông số Ball
     public static final int BALL_SIZE = 15;
-    public static final double BALL_SPEED = 3.0;
+    public static final double BALL_SPEED = 5.0;
 
     // Thông số Brick
     public static final int BRICK_ROWS = 5;
