@@ -1,7 +1,6 @@
 package game.arkanoid.utils;
 
-import game.arkanoid.models.Brick;
-import game.arkanoid.models.BrickType;
+import game.arkanoid.models.*;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -18,7 +17,7 @@ public class LevelLoader {
         try (InputStream is = LevelLoader.class.getResourceAsStream("/game/arkanoid/levels/" + levelFile);
              BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
-            List<String> lines = new ArrayList<>(); // can chinh phu hop voi man hinh
+            List<String> lines = new ArrayList<>();
             String rawLine;
             while ((rawLine = br.readLine()) != null) {
                 if (!rawLine.trim().isEmpty()) {
@@ -40,11 +39,9 @@ public class LevelLoader {
             for (String line : lines) {
                 for (int col = 0; col < line.length(); col++) {
                     char c = line.charAt(col);
-                    BrickType type = charToBrickType(c);
-                    if (type != null) {
-                        double x = startX + col * bw;
-                        double y = startY + row * bh;
-                        bricks.add(new Brick(type, new Vector2D(x, y)));
+                    Brick brick = createBrickFromChar(c, startX + col * bw, startY + row * bh);
+                    if (brick != null) {
+                        bricks.add(brick);
                     }
                 }
                 row++;
@@ -58,24 +55,29 @@ public class LevelLoader {
         return bricks;
     }
 
-    // Phân loại gạch dựa trên các ký tự trong file txt
-    private static BrickType charToBrickType(char c) {
+    /**
+     * Factory method - Tạo Brick subclass dựa trên ký tự
+     * Áp dụng Polymorphism thay vì BrickType enum
+     */
+    private static Brick createBrickFromChar(char c, double x, double y) {
+        Vector2D position = new Vector2D(x, y);
+        
         switch (c) {
             case '1':
-                return BrickType.NORMAL;
+                return new NormalBrick(position);
             case '2':
-                return BrickType.WOOD;
+                return new WoodBrick(position);
             case '3':
-                return BrickType.IRON;
+                return new IronBrick(position);
             case '4':
-                return BrickType.GOLD;
+                return new GoldBrick(position);
             case '5':
-                return BrickType.EXPLODE;
+                return new ExplodeBrick(position);
             case '9':
-                return BrickType.INSANE;
+                return new InsaneBrick(position);
             case '0':
             default:
-                return null;
+                return null; // Khoảng trống
         }
     }
 }

@@ -58,12 +58,6 @@ public class GameEngine extends AnimationTimer {
     private Image paddleImage;
     private Image ballImage;
     private Image bulletImage;
-    private Image brickNormalImage;
-    private Image brickWoodImage;
-    private Image brickIronImage;
-    private Image brickGoldImage;
-    private Image brickInsaneImage;
-    private Image brickExplodeImage;
     private Image explosionEffectImage;
     private boolean leftPressed = false;
     private boolean rightPressed = false;
@@ -112,17 +106,10 @@ public class GameEngine extends AnimationTimer {
             this.bulletImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/bulletPaddle.png"));
         }
 
-        // Load ảnh gạch
         try {
-            this.brickNormalImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickNormal.png"));
-            this.brickWoodImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickWood.png"));
-            this.brickIronImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickIron.png"));
-            this.brickGoldImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickGold.png"));
-            this.brickInsaneImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickInsane.png"));
-            this.brickExplodeImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/ExplodeBrick.png"));
             this.explosionEffectImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/ExplodeEffect.png"));
         } catch (Exception e) {
-            System.out.println("Không thể load ảnh gạch.");
+            System.out.println("Không thể load ảnh explosion effect.");
         }
 
         // canvas focus để nhận phím
@@ -277,12 +264,7 @@ public class GameEngine extends AnimationTimer {
                     // Sau khi va chạm, gạch chịu sát thương
                     // Chỉ cộng điểm khi gạch bị phá hủy
                     if (brick.isDestroyed()) {
-                        score += brick.getPoint();
-                        
-                        // Xử lý nổ nếu là gạch EXPLODE
-                        if (brick.getType() == BrickType.EXPLODE) {
-                            handleExplosion(brick);
-                        }
+                        score += brick.getPoints();
                         
                         // 20% rơi power-up
                         // nếu còn 1 viên gạch thì sẽ không rơi powerUp
@@ -311,7 +293,8 @@ public class GameEngine extends AnimationTimer {
 
     }
 
-    private void handleExplosion(Brick explodedBrick) {
+    // Xử lý nổ cho ExplodeBrick
+    private void handleExplosion(ExplodeBrick explodedBrick) {
         // Tạo hiệu ứng nổ cho gạch bị phá
         explosions.add(new ExplosionEffect(explodedBrick.getPosition(), explosionEffectImage));
         
@@ -343,11 +326,11 @@ public class GameEngine extends AnimationTimer {
             
             if (shouldExplode) {
                 brick.setDestroyed(true);
-                score += brick.getPoint();
+                score += brick.getPoints();
                 explosions.add(new ExplosionEffect(brick.getPosition(), explosionEffectImage));
                 
-                if (brick.getType() == BrickType.EXPLODE) {
-                    handleExplosion(brick);
+                if (brick instanceof ExplodeBrick) {
+                    handleExplosion((ExplodeBrick) brick);
                 }
             }
         }
@@ -511,12 +494,8 @@ public class GameEngine extends AnimationTimer {
                 if (!brick.isDestroyed() && beam.intersects(brick)) {
                     brick.takeDamage();
                     if (brick.isDestroyed()) {
-                        score += brick.getPoint();
+                        score += brick.getPoints();
                         
-                        // Xử lý nổ nếu là gạch EXPLODE
-                        if (brick.getType() == BrickType.EXPLODE) {
-                            handleExplosion(brick);
-                        }
                         
                         Platform.runLater(() -> scoreLabelRef.setText("Score: " + score));
 
@@ -610,39 +589,10 @@ public class GameEngine extends AnimationTimer {
         // clear canvas
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        // vẽ bricks
+        // Vẽ bricks
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
-                double bx = brick.getPosition().getX();
-                double by = brick.getPosition().getY();
-                Image img = null;
-                switch (brick.getType()) {
-                    case WOOD:
-                        img = brickWoodImage;
-                        break;
-                    case IRON:
-                        img = brickIronImage;
-                        break;
-                    case GOLD:
-                        img = brickGoldImage;
-                        break;
-                    case EXPLODE:
-                        img = brickExplodeImage;
-                        break;
-                    case INSANE:
-                        img = brickInsaneImage;
-                        break;
-                    case NORMAL:
-                    default:
-                        img = brickNormalImage;
-                        break;
-                }
-                if (img != null) {
-                    gc.drawImage(img, bx, by, GameConstants.BRICK_WIDTH, GameConstants.BRICK_HEIGHT);
-                } else {
-                    gc.setFill(Color.DARKORANGE);
-                    gc.fillRect(bx, by, GameConstants.BRICK_WIDTH, GameConstants.BRICK_HEIGHT);
-                }
+                brick.render(gc); // Polymorphic call - mỗi subclass tự render!
             }
         }
 
@@ -744,6 +694,14 @@ public class GameEngine extends AnimationTimer {
         }
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
+        
+        // Setup explosion handlers cho ExplodeBricks
+        for (Brick brick : bricks) {
+            if (brick instanceof ExplodeBrick) {
+                ((ExplodeBrick) brick).setExplosionHandler(this::handleExplosion);
+            }
+        }
+        
         if (mainController != null) {
             Platform.runLater(() -> mainController.updateBackgroundForLevel(level));
         }
