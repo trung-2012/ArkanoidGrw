@@ -21,15 +21,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameEngine extends AnimationTimer {
-    private final List<PowerUp> powerUps = new ArrayList<>();
+    // Thread-safe collections for concurrent access
+    private final List<PowerUp> powerUps = new CopyOnWriteArrayList<>();
+    private final List<LaserBeam> laserBeams = new CopyOnWriteArrayList<>();
+    private final List<ExplosionEffect> explosions = new CopyOnWriteArrayList<>();
+    
     private final Random random = new Random();
-    private final List<LaserBeam> laserBeams = new ArrayList<>();
-    private final List<ExplosionEffect> explosions = new ArrayList<>();
     private Ball ball;
     private final List<Ball> balls = new ArrayList<>();
     private Paddle paddle;
@@ -39,7 +43,9 @@ public class GameEngine extends AnimationTimer {
     private int lives = GameConstants.INITIAL_LIVES;
     private int score = 0;
     private int totalScore = 0;
-    private boolean laserActive = false;
+    
+    // Thread-safe boolean for laser state
+    private final AtomicBoolean laserActive = new AtomicBoolean(false);
     private Shield shield;
     private ScheduledExecutorService laserScheduler;
 
@@ -198,7 +204,7 @@ public class GameEngine extends AnimationTimer {
         shield = null;
 
         // Tắt laser active
-        laserActive = false;
+        laserActive.set(false);
 
         this.loadLevelNumber(currentLevel);
         this.gameRunning = true;
@@ -435,17 +441,22 @@ public class GameEngine extends AnimationTimer {
     }
 
     private void activateLaser() {
-        if (laserActive)
-            return;
-        laserActive = true;
+        // Atomic check-and-set để tránh activate nhiều lần
+        if (!laserActive.compareAndSet(false, true)) {
+            return;  // active r thì th
+        }
 
         if (laserScheduler == null || laserScheduler.isShutdown()) {
-            laserScheduler = Executors.newScheduledThreadPool(1);
+            laserScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "LaserThread");
+                t.setDaemon(true);  // Daemon thread tự động cleanup
+                return t;
+            });
         }
 
         laserScheduler.schedule(() -> {
             int shots = GameConstants.NUM_OF_BULLETS;
-            for (int i = 0; i < shots && laserActive; i++) {
+            for (int i = 0; i < shots && laserActive.get(); i++) {
                 Platform.runLater(() -> {
                     double px = paddle.getPosition().getX();
                     double py = paddle.getPosition().getY() - paddle.getHeight() / 2;
@@ -456,10 +467,11 @@ public class GameEngine extends AnimationTimer {
                 try {
                     Thread.sleep(GameConstants.COOL_DOWN_TIME);
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     break;
                 }
             }
-            laserActive = false;
+            laserActive.set(false);
         }, 0, TimeUnit.MILLISECONDS);
     }
 
@@ -500,11 +512,28 @@ public class GameEngine extends AnimationTimer {
                 ball.update();
             }
         }
+        // Cập nhật power-ups đang rơi (CopyOnWriteArrayList không hỗ trợ iterator.remove())
+        for (PowerUp p : powerUps) {
+            p.update(); // rơi xuống
+        }
+        
+        // Xóa power-ups bằng removeIf() thay vì iterator.remove()
+        powerUps.removeIf(p -> {
+            // Nếu power-up rơi chạm paddle
+            if (paddle != null && p.intersects(paddle)) {
+                activatePowerUp(p); // kích hoạt hiệu ứng
+                return true; // đánh dấu xóa
+            } else if (p.getY() > canvas.getHeight()) {
+                return true; // xóa nếu rơi khỏi màn hình
+            }
+            return false; // giữ lại
+        });
 
-        // Cập nhật các tia laser
-        Iterator<LaserBeam> laserIter = laserBeams.iterator();
-        while (laserIter.hasNext()) {
-            LaserBeam beam = laserIter.next();
+        // Cập nhật các tia laser và kiểm tra va chạm
+        // Dùng List để lưu laser cần xóa
+        List<LaserBeam> lasersToRemove = new ArrayList<>();
+        
+        for (LaserBeam beam : laserBeams) {
             beam.update();
 
             boolean hit = false;
@@ -536,19 +565,21 @@ public class GameEngine extends AnimationTimer {
                 }
             }
             if (hit || beam.isOffScreen(canvas.getHeight())) {
-                laserIter.remove();
+                lasersToRemove.add(beam);
             }
         }
+        
+        // Xóa laser beams đã đánh dấu
+        laserBeams.removeAll(lasersToRemove);
 
-        // Cập nhật hiệu ứng nổ
-        Iterator<ExplosionEffect> explosionIter = explosions.iterator();
-        while (explosionIter.hasNext()) {
-            ExplosionEffect explosion = explosionIter.next();
+        
+        // Cập nhật hiệu ứng nổ và xóa các explosion đã kết thúc
+        for (ExplosionEffect explosion : explosions) {
             explosion.update();
-            if (explosion.isFinished()) {
-                explosionIter.remove();
-            }
         }
+        
+        // Xóa các explosion đã kết thúc bằng removeIf()
+        explosions.removeIf(ExplosionEffect::isFinished);
     }
 
     private void handleLevelCompletion() {
@@ -562,7 +593,7 @@ public class GameEngine extends AnimationTimer {
         shield = null;
 
         // Tắt laser active
-        laserActive = false;
+        laserActive.set(false);
 
         currentLevel++;
         if (currentLevel > GameConstants.totalLevels) {
@@ -786,9 +817,17 @@ public class GameEngine extends AnimationTimer {
     }
 
     public void cleanup() {
-        laserActive = false;
+        laserActive.set(false);
         if (laserScheduler != null && !laserScheduler.isShutdown()) {
-            laserScheduler.shutdownNow();
+            laserScheduler.shutdown();
+            try {
+                if (!laserScheduler.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS)) {
+                    laserScheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                laserScheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
         }
     }
 

@@ -5,8 +5,7 @@ import game.arkanoid.utils.GameConstants;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
-public class ExplosionEffect {
-    private Vector2D position;
+public class ExplosionEffect extends GameObject {
     private int currentFrame;
     private int frameDelay;
     private int frameCounter;
@@ -19,14 +18,15 @@ public class ExplosionEffect {
     private static final int FRAME_DELAY = 10; 
     
     public ExplosionEffect(Vector2D position, Image explosionImage) {
-        this.position = position;
+        super(position, GameConstants.BRICK_WIDTH, GameConstants.BRICK_HEIGHT);
         this.explosionImage = explosionImage;
         this.currentFrame = TOTAL_FRAMES - 1;
         this.frameCounter = 0;
         this.frameDelay = FRAME_DELAY;
         this.finished = false;
     }
-    
+
+    @Override
     public void update() {
         if (finished) return;
         
@@ -37,10 +37,12 @@ public class ExplosionEffect {
             
             if (currentFrame < 0) {
                 finished = true;
+                this.active = false; // Deactivate khi animation kết thúc
             }
         }
     }
-    
+
+    @Override
     public void render(GraphicsContext gc) {
         if (finished || explosionImage == null) return;
         
@@ -51,14 +53,10 @@ public class ExplosionEffect {
         gc.drawImage(explosionImage, 
             sourceX, sourceY, FRAME_SIZE, FRAME_SIZE, 
             position.getX(), position.getY(), 
-            GameConstants.BRICK_WIDTH, GameConstants.BRICK_HEIGHT); 
+            width, height); 
     }
     
     public boolean isFinished() {
-        return finished;
-    }
-    
-    public Vector2D getPosition() {
-        return position;
+        return finished || !active;
     }
 }
