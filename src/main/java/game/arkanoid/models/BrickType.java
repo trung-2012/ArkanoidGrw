@@ -5,6 +5,7 @@ public enum BrickType {
     WOOD(2),
     IRON(3),
     GOLD(4),
+    EXPLODE(2),      // Gạch nổ
     INSANE(100); // Hầu như không thể phá hủy
 
     // Số máu của loại gạch
@@ -28,6 +29,8 @@ public enum BrickType {
                 return 40;
             case GOLD:
                 return 50;
+            case EXPLODE:
+                return 30;
             case INSANE:
                 return 1000;
             case NORMAL:

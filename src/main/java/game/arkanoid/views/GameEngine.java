@@ -29,6 +29,7 @@ public class GameEngine extends AnimationTimer {
     private final List<PowerUp> powerUps = new ArrayList<>();
     private final Random random = new Random();
     private final List<LaserBeam> laserBeams = new ArrayList<>();
+    private final List<ExplosionEffect> explosions = new ArrayList<>();
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
@@ -56,6 +57,8 @@ public class GameEngine extends AnimationTimer {
     private Image brickIronImage;
     private Image brickGoldImage;
     private Image brickInsaneImage;
+    private Image brickExplodeImage;
+    private Image explosionEffectImage;
     private boolean leftPressed = false;
     private boolean rightPressed = false;
     private boolean ballAttachedToPaddle = true;
@@ -110,6 +113,8 @@ public class GameEngine extends AnimationTimer {
             this.brickIronImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickIron.png"));
             this.brickGoldImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickGold.png"));
             this.brickInsaneImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/BrickInsane.png"));
+            this.brickExplodeImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/ExplodeBrick.png"));
+            this.explosionEffectImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/ExplodeEffect.png"));
         } catch (Exception e) {
             System.out.println("Không thể load ảnh gạch.");
         }
@@ -267,6 +272,12 @@ public class GameEngine extends AnimationTimer {
                     // Chỉ cộng điểm khi gạch bị phá hủy
                     if (brick.isDestroyed()) {
                         score += brick.getPoint();
+                        
+                        // Xử lý nổ nếu là gạch EXPLODE
+                        if (brick.getType() == BrickType.EXPLODE) {
+                            handleExplosion(brick);
+                        }
+                        
                         // 20% rơi power-up
                         // nếu còn 1 viên gạch thì sẽ không rơi powerUp
                         if (random.nextDouble() < GameConstants.POWER_UP_RATE && anyLeft) {
@@ -292,6 +303,52 @@ public class GameEngine extends AnimationTimer {
             }
         }
 
+    }
+
+    private void handleExplosion(Brick explodedBrick) {
+        // Tạo hiệu ứng nổ cho gạch bị phá
+        explosions.add(new ExplosionEffect(explodedBrick.getPosition(), explosionEffectImage));
+        
+        // Random 50-50: nổ theo hàng (true) hoặc theo cột (false)
+        boolean explodeRow = random.nextBoolean();
+        
+        double explodedX = explodedBrick.getPosition().getX();
+        double explodedY = explodedBrick.getPosition().getY();
+        
+        for (Brick brick : bricks) {
+            if (brick == explodedBrick || brick.isDestroyed()) continue;
+            
+            double bx = brick.getPosition().getX();
+            double by = brick.getPosition().getY();
+            
+            boolean shouldExplode = false;
+            
+            if (explodeRow) {
+                // Nổ theo hàng (cùng tọa độ Y)
+                if (Math.abs(by - explodedY) < 5) {
+                    shouldExplode = true;
+                }
+            } else {
+                // Nổ theo cột (cùng tọa độ X)
+                if (Math.abs(bx - explodedX) < 5) {
+                    shouldExplode = true;
+                }
+            }
+            
+            if (shouldExplode) {
+                brick.setDestroyed(true);
+                score += brick.getPoint();
+                explosions.add(new ExplosionEffect(brick.getPosition(), explosionEffectImage));
+                
+                if (brick.getType() == BrickType.EXPLODE) {
+                    handleExplosion(brick);
+                }
+            }
+        }
+        
+        if (scoreLabelRef != null) {
+            scoreLabelRef.setText("Score: " + score);
+        }
     }
 
     private PowerUpType getRandomPowerUpType() {
@@ -439,6 +496,12 @@ public class GameEngine extends AnimationTimer {
                     brick.takeDamage();
                     if (brick.isDestroyed()) {
                         score += brick.getPoint();
+                        
+                        // Xử lý nổ nếu là gạch EXPLODE
+                        if (brick.getType() == BrickType.EXPLODE) {
+                            handleExplosion(brick);
+                        }
+                        
                         Platform.runLater(() -> scoreLabelRef.setText("Score: " + score));
 
                         boolean anyLeft = false;
@@ -460,6 +523,16 @@ public class GameEngine extends AnimationTimer {
 
             if (hit || beam.isOffScreen(canvas.getHeight())) {
                 laserIter.remove();
+            }
+        }
+        
+        // Cập nhật hiệu ứng nổ
+        Iterator<ExplosionEffect> explosionIter = explosions.iterator();
+        while (explosionIter.hasNext()) {
+            ExplosionEffect explosion = explosionIter.next();
+            explosion.update();
+            if (explosion.isFinished()) {
+                explosionIter.remove();
             }
         }
     }
@@ -534,6 +607,9 @@ public class GameEngine extends AnimationTimer {
                         break;
                     case GOLD:
                         img = brickGoldImage;
+                        break;
+                    case EXPLODE:
+                        img = brickExplodeImage;
                         break;
                     case INSANE:
                         img = brickInsaneImage;
@@ -632,6 +708,11 @@ public class GameEngine extends AnimationTimer {
         // vẽ shield
         if (shield != null) {
             shield.draw(gc);
+        }
+        
+        // vẽ hiệu ứng nổ
+        for (ExplosionEffect explosion : explosions) {
+            explosion.render(gc);
         }
     }
 
