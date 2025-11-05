@@ -495,9 +495,10 @@ public class GameEngine extends AnimationTimer {
             totalScore = score;
             loadLevelNumber(currentLevel);
             double resetX = paddle.getPosition().getX();
-            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius() - 150.0;
+            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
             ball.setPosition(new Vector2D(resetX, resetY));
-            ball.setVelocity(new Vector2D(0.0, GameConstants.BALL_SPEED));
+            ball.setVelocity(new Vector2D(0.0, 0.0));
+            ballAttachedToPaddle = true;
         }
     }
 
