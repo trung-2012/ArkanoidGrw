@@ -73,6 +73,8 @@ public class LevelLoader {
                 return new GoldBrick(position);
             case '5':
                 return new ExplodeBrick(position);
+            case '7':
+                return new SecretBrick(position);
             case '9':
                 return new InsaneBrick(position);
             case '0':

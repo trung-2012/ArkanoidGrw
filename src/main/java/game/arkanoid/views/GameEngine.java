@@ -254,8 +254,28 @@ public class GameEngine extends AnimationTimer {
         // Sync lại shield (có thể đã null nếu broken)
         shield = collisionManager.getShield();
     }
+    
+    /**
+     * Setup explosion handler cho brick.
+     * Xử lý cả ExplodeBrick trực tiếp và ExplodeBrick bên trong SecretBrick.
+     */
+    private void setupExplosionHandler(Brick brick) {
+        if (brick instanceof ExplodeBrick) {
+            ((ExplodeBrick) brick).setExplosionHandler(this::handleExplosion);
+        } else if (brick instanceof SecretBrick) {
+            // SecretBrick có thể chứa ExplodeBrick bên trong
+            SecretBrick secretBrick = (SecretBrick) brick;
+            Brick disguise = secretBrick.getDisguiseBrick();
+            if (disguise instanceof ExplodeBrick) {
+                ((ExplodeBrick) disguise).setExplosionHandler(this::handleExplosion);
+            }
+        }
+    }
 
-    // Xử lý nổ cho ExplodeBrick
+    /**
+     * Xử lý nổ cho ExplodeBrick.
+     * Được gọi khi ExplodeBrick bị phá hủy.
+     */
     private void handleExplosion(ExplodeBrick explodedBrick) {
         // Tạo hiệu ứng nổ cho gạch bị phá
         explosions.add(new ExplosionEffect(explodedBrick.getPosition(), explosionEffectImage));
@@ -327,6 +347,17 @@ public class GameEngine extends AnimationTimer {
                 ball.setPosition(new Vector2D(bx, by));
             } else {
                 ball.update();
+            }
+        }
+        
+        // Update bricks (cần thiết cho SecretBrick transform logic)
+        for (Brick brick : bricks) {
+            if (!brick.isDestroyed()) {
+                brick.update();
+                // Re-setup explosion handler nếu SecretBrick transform thành ExplodeBrick
+                if (brick instanceof SecretBrick) {
+                    setupExplosionHandler(brick);
+                }
             }
         }
         
@@ -412,11 +443,9 @@ public class GameEngine extends AnimationTimer {
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
         
-        // Setup explosion handlers cho ExplodeBricks
+        // Setup explosion handlers cho ExplodeBricks (bao gồm cả trong SecretBrick)
         for (Brick brick : bricks) {
-            if (brick instanceof ExplodeBrick) {
-                ((ExplodeBrick) brick).setExplosionHandler(this::handleExplosion);
-            }
+            setupExplosionHandler(brick);
         }
         
         if (mainController != null) {
