@@ -148,7 +148,7 @@ public class CollisionManager {
         return false;
     }
     
-    // Setters
+    // Getters & Setters
     
     public void setBall(Ball ball) {
         this.ball = ball;
@@ -164,6 +164,10 @@ public class CollisionManager {
     
     public void setShield(Shield shield) {
         this.shield = shield;
+    }
+
+    public Shield getShield() {
+        return this.shield;
     }
     
     public void setCanvas(Canvas canvas) {
