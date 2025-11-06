@@ -1,8 +1,10 @@
 package game.arkanoid.views;
 
 import game.arkanoid.managers.CollisionManager;
+import game.arkanoid.managers.InputManager;
 import game.arkanoid.managers.PowerUpManager;
 import game.arkanoid.managers.RenderManager;
+import game.arkanoid.managers.ScoreManager;
 import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.GameSettings;
@@ -28,6 +30,8 @@ public class GameEngine extends AnimationTimer {
     private CollisionManager collisionManager;
     private RenderManager renderManager;
     private PowerUpManager powerUpManager;
+    private InputManager inputManager;
+    private ScoreManager scoreManager;
 
     // GAME OBJECTS
     // Thread-safe collections for concurrent access
@@ -43,16 +47,8 @@ public class GameEngine extends AnimationTimer {
     // GAME STATE
     private int currentLevel = 1;
     private boolean gameRunning;
-    private int lives = GameConstants.INITIAL_LIVES;
-    private int score = 0;
-    private int totalScore = 0;
     
     private Shield shield;
-
-    // UI REFERENCES
-    private Label scoreLabelRef;
-    private Label livesLabelRef;
-    private Label levelLabelRef;
     private game.arkanoid.controllers.MainController mainController;
 
     private Canvas canvas;
@@ -64,8 +60,6 @@ public class GameEngine extends AnimationTimer {
     private Image explosionEffectImage;
 
     // INPUT STATE
-    private boolean leftPressed = false;
-    private boolean rightPressed = false;
     private boolean ballAttachedToPaddle = true;
     private double chargePulse = 0;
     private boolean chargeIncreasing = true;
@@ -105,6 +99,10 @@ public class GameEngine extends AnimationTimer {
     public void initializeGame(Canvas canvas, Label scoreLabel, Label livesLabel, Label levelLabel) {
         this.canvas = canvas;
         
+        // Khởi tạo ScoreManager
+        this.scoreManager = new ScoreManager(scoreLabel, livesLabel, levelLabel);
+        setupScoreCallbacks();
+        
         // Khởi tạo RenderManager
         this.renderManager = new RenderManager(canvas);
         
@@ -112,6 +110,14 @@ public class GameEngine extends AnimationTimer {
         this.powerUpManager = new PowerUpManager(powerUps, laserBeams);
         this.powerUpManager.setPaddle(paddle);
         this.powerUpManager.setCanvas(canvas);
+        
+        // Khởi tạo InputManager (sẽ set paddle sau khi startNewGame)
+        this.inputManager = new InputManager(paddle, canvas);
+        this.inputManager.setSpaceCallback(() -> {
+            ballAttachedToPaddle = false;
+            chargePulse = 0;
+            chargeIncreasing = true;
+        });
 
         // Load ảnh Ball & Paddle theo skin đã chọn từ GameSettings
         try {
@@ -147,17 +153,6 @@ public class GameEngine extends AnimationTimer {
         } catch (Exception ignored) {
         }
 
-        this.scoreLabelRef = scoreLabel;
-        this.livesLabelRef = livesLabel;
-        this.levelLabelRef = levelLabel;
-
-        if (scoreLabelRef != null)
-            scoreLabelRef.setText("Score: " + totalScore);
-        if (livesLabelRef != null)
-            livesLabelRef.setText("Lives: " + lives);
-        if (levelLabelRef != null)
-            levelLabelRef.setText("Level: " + currentLevel);
-
         startNewGame();
     }
 
@@ -186,15 +181,20 @@ public class GameEngine extends AnimationTimer {
         powerUpManager.setPaddle(paddle);
         setupPowerUpCallbacks();
         
+        // Update InputManager với paddle mới
+        if (inputManager != null) {
+            inputManager.setPaddle(paddle);
+        }
+        
         this.gameRunning = true;
         this.start();
     }
 
     // Reset lại màn chơi hiện tại
     public void resetCurrentLevel() {
-        this.score = this.totalScore;
-        if (this.scoreLabelRef != null) {
-            this.scoreLabelRef.setText("Score: " + totalScore);
+        // Delegate reset logic cho ScoreManager
+        if (scoreManager != null) {
+            scoreManager.resetCurrentLevel();
         }
 
         double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
@@ -218,6 +218,11 @@ public class GameEngine extends AnimationTimer {
         powerUpManager.clearLaserBeams();
         powerUpManager.setPaddle(paddle);
         setupPowerUpCallbacks();
+        
+        // Update InputManager với paddle mới
+        if (inputManager != null) {
+            inputManager.setPaddle(paddle);
+        }
 
         // Xóa shield nếu có
         shield = null;
@@ -274,7 +279,12 @@ public class GameEngine extends AnimationTimer {
             
             if (shouldExplode) {
                 brick.setDestroyed(true);
-                score += brick.getPoints();
+                
+                // Delegate cộng điểm cho ScoreManager
+                if (scoreManager != null) {
+                    scoreManager.addScore(brick.getPoints());
+                }
+                
                 explosions.add(new ExplosionEffect(brick.getPosition(), explosionEffectImage));
                 
                 if (brick instanceof ExplodeBrick) {
@@ -282,28 +292,15 @@ public class GameEngine extends AnimationTimer {
                 }
             }
         }
-        
-        if (scoreLabelRef != null) {
-            scoreLabelRef.setText("Score: " + score);
-        }
     }
 
     // Cập nhật trạng thái game
     public void updateGameState() {
-        // Cập nhật vị trí paddle dựa trên trạng thái bấm phím
-        if (paddle != null) {
-            if (leftPressed && !rightPressed)
-                paddle.moveLeft();
-            if (rightPressed && !leftPressed)
-                paddle.moveRight();
-            // Đảm bảo paddle không đi ra ngoài màn hình
-            double half = paddle.getWidth() / 2.0;
-            double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
-            if (paddle.getPosition().getX() - half < 0)
-                paddle.getPosition().setX(half);
-            if (paddle.getPosition().getX() + half > canvasW)
-                paddle.getPosition().setX(canvasW - half);
+        // Delegate paddle movement cho InputManager
+        if (inputManager != null) {
+            inputManager.updatePaddleMovement();
         }
+        
         if (ball != null) {
             if (ballAttachedToPaddle) {
                 ball.getTrail().clear();
@@ -323,8 +320,6 @@ public class GameEngine extends AnimationTimer {
                 ball.update();
             }
         }
-        
-        // Power-ups và lasers được handle bởi PowerUpManager
         
         // Power-ups và lasers được handle bởi PowerUpManager
         
@@ -348,38 +343,35 @@ public class GameEngine extends AnimationTimer {
         shield = null;
 
         currentLevel++;
-        if (currentLevel > GameConstants.totalLevels) {
-            totalScore = score;
-            setGameRunning(false);
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
-                Parent root = loader.load();
-                game.arkanoid.controllers.GameOverController controller = loader.getController();
-                controller.setFinalScore(totalScore);
-                Stage stage = (Stage) canvas.getScene().getWindow();
-                stage.setScene(new Scene(root, 800, 600));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            totalScore = score;
-            loadLevelNumber(currentLevel);
-            double resetX = paddle.getPosition().getX();
-            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
-            ball.setPosition(new Vector2D(resetX, resetY));
-            ball.setVelocity(new Vector2D(0.0, 0.0));
-            ballAttachedToPaddle = true;
+        
+        // Delegate level completion cho ScoreManager (sẽ trigger callback)
+        if (scoreManager != null) {
+            scoreManager.completeLevel();
         }
+    }
+    
+    // Được gọi từ ScoreManager callback khi chuyển level
+    private void proceedToNextLevel() {
+        loadLevelNumber(currentLevel);
+        double resetX = paddle.getPosition().getX();
+        double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
+        ball.setPosition(new Vector2D(resetX, resetY));
+        ball.setVelocity(new Vector2D(0.0, 0.0));
+        ballAttachedToPaddle = true;
     }
 
     // Xử lý sự kiện phím bấm
     public void setLeftPressed(boolean pressed) {
-        this.leftPressed = pressed;
+        if (inputManager != null) {
+            inputManager.setLeftPressed(pressed);
+        }
     }
 
     // Xử lý sự kiện phím bấm
     public void setRightPressed(boolean pressed) {
-        this.rightPressed = pressed;
+        if (inputManager != null) {
+            inputManager.setRightPressed(pressed);
+        }
     }
 
     // Render game - Delegate cho RenderManager
@@ -404,12 +396,11 @@ public class GameEngine extends AnimationTimer {
 
     // Load level
     public void loadLevelNumber(int level) {
-        levelLabelRef.setText("Level: " + level);
-        this.lives = GameConstants.INITIAL_LIVES;
-        if (livesLabelRef != null) {
-            livesLabelRef.setText("Lives: " + this.lives);
-            livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
+        // Delegate load level cho ScoreManager để update UI
+        if (scoreManager != null) {
+            scoreManager.loadLevel(level);
         }
+        
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
         
@@ -456,9 +447,32 @@ public class GameEngine extends AnimationTimer {
     }
 
     public int getCurrentLevel() {
-        return currentLevel;
+        return scoreManager != null ? scoreManager.getCurrentLevel() : currentLevel;
     }
 
+    // Setup score callbacks cho ScoreManager
+    private void setupScoreCallbacks() {
+        // Callback khi game over
+        scoreManager.setGameOverCallback(finalScore -> {
+            setGameRunning(false);
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                Parent root = loader.load();
+                game.arkanoid.controllers.GameOverController controller = loader.getController();
+                controller.setFinalScore(finalScore);
+                Stage stage = (Stage) canvas.getScene().getWindow();
+                stage.setScene(new Scene(root, 800, 600));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        
+        // Callback khi hoàn thành level (chuyển level tiếp theo)
+        scoreManager.setLevelCompleteCallback(() -> {
+            proceedToNextLevel();
+        });
+    }
+        
     // Setup collision callbacks cho CollisionManager
     private void setupCollisionCallbacks() {
         // Callback khi ball rơi ra ngoài
@@ -478,18 +492,10 @@ public class GameEngine extends AnimationTimer {
     
     // Setup power-up callbacks cho PowerUpManager
     private void setupPowerUpCallbacks() {
-        // Callback khi extra life được activate
+        // Callback khi extra life được activate - Delegate cho ScoreManager
         powerUpManager.setOnExtraLife(() -> {
-            if (lives < GameConstants.MAX_LIVE) {
-                lives++;
-            }
-            if (livesLabelRef != null) {
-                livesLabelRef.setText("Lives: " + lives);
-                if (lives == GameConstants.MAX_LIVE) {
-                    livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
-                } else {
-                    livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
-                }
+            if (scoreManager != null) {
+                scoreManager.addLife();
             }
         });
         
@@ -503,10 +509,9 @@ public class GameEngine extends AnimationTimer {
     
     // Xử lý khi brick bị phá hủy
     private void handleBrickDestroyed(Brick brick, boolean anyBricksLeft) {
-        // Cộng điểm
-        score += brick.getPoints();
-        if (scoreLabelRef != null) {
-            scoreLabelRef.setText("Score: " + score);
+        // Delegate cộng điểm cho ScoreManager
+        if (scoreManager != null) {
+            scoreManager.addScore(brick.getPoints());
         }
         
         // 20% rơi power-up (nếu còn gạch khác)
@@ -527,33 +532,9 @@ public class GameEngine extends AnimationTimer {
         ball.setVelocity(new Vector2D(0.0, 0.0));
         ballAttachedToPaddle = true;
 
-        // Giảm mạng
-        lives = Math.max(0, lives - 1);
-        if (this.livesLabelRef != null) {
-            this.livesLabelRef.setText("Lives: " + lives);
-            if (lives == GameConstants.MAX_LIVE) {
-                livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
-            } else {
-                livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
-            }
-        }
-
-        // Check game over
-        if (lives <= 0) {
-            this.totalScore = this.score;
-            this.setGameRunning(false);
-            Platform.runLater(() -> {
-                try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
-                    Parent root = loader.load();
-                    game.arkanoid.controllers.GameOverController controller = loader.getController();
-                    controller.setFinalScore(totalScore);
-                    Stage stage = (Stage) canvas.getScene().getWindow();
-                    stage.setScene(new Scene(root, 800, 600));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+        // Delegate mất mạng cho ScoreManager (sẽ trigger game over callback nếu hết mạng)
+        if (scoreManager != null) {
+            scoreManager.loseLife();
         }
     }
     
@@ -566,18 +547,14 @@ public class GameEngine extends AnimationTimer {
     }
 
     public void handleSpacePressed() {
-        if (ballAttachedToPaddle) {
-            ballAttachedToPaddle = false;
-            chargePulse = 0;
-            chargeIncreasing = true;
-            double diag = GameConstants.BALL_SPEED / Math.sqrt(2.0);
-            double dir = 0;
-
-            if (leftPressed && !rightPressed) dir = -1;
-            else if (rightPressed && !leftPressed) dir = 1;
-            else dir = Math.random() < 0.5 ? -1 : 1; // nếu paddle đứng yên thì ngẫu nhiên
-
-            ball.setVelocity(new Vector2D(diag * dir, -diag));
+        if (inputManager != null) {
+            inputManager.handleSpacePressed(ball, ballAttachedToPaddle);
+            // Nếu bóng đã được phóng, cập nhật trạng thái
+            if (ballAttachedToPaddle && ball != null && !ball.getVelocity().equals(new Vector2D(0.0, 0.0))) {
+                ballAttachedToPaddle = false;
+                chargePulse = 0;
+                chargeIncreasing = true;
+            }
         }
     }
 }
