@@ -162,7 +162,7 @@ public class Ball extends GameObject {
 
             // Điều chỉnh vận tốc X dựa trên vị trí va chạm dọc paddle
             double hitPos = (position.getX() - rx) / hw; // -1 .. 1
-            double speed = Math.max(velocity.magnitude(), BALL_SPEED);
+            double speed = BALL_SPEED;
             double newVx = speed * hitPos * 0.8;
             this.velocity.setX(newVx);
             double vy = -Math.abs(Math.sqrt(Math.max(0, speed * speed - newVx * newVx)));

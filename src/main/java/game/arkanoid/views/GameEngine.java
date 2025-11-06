@@ -237,24 +237,39 @@ public class GameEngine extends AnimationTimer {
         gameRunning = true;
     }
 
-    // MULTI-BALL: clone all balls -> mỗi quả sinh thêm 2 clone
+    // MULTI-BALL: clone all balls -> mỗi quả sinh thêm 2 clone (với giới hạn MAX_BALLS)
     private void activateMultiBall() {
+        // Check nếu đã đạt max balls thì không spawn thêm
+        if (balls.size() >= GameConstants.MAX_BALLS) {
+            return; // Đã đủ số lượng bóng tối đa
+        }
+        
         List<Ball> snapshot = new ArrayList<>(balls);
         for (Ball original : snapshot) {
-            Ball b1 = cloneBall(original, +1.5);
-            Ball b2 = cloneBall(original, -1.5);
-            balls.add(b1);
-            balls.add(b2);
+            // Kiểm tra trước khi thêm mỗi clone
+            if (balls.size() >= GameConstants.MAX_BALLS) {
+                break; // Đã đạt limit
+            }
+            
+            Ball ball1 = cloneBall(original, +1.5);
+            balls.add(ball1);
+
+            if (balls.size() >= GameConstants.MAX_BALLS) {
+                break; // Đã đạt limit
+            }
+
+            Ball ball2 = cloneBall(original, -1.5);
+            balls.add(ball2);
         }
     }
 
     private Ball cloneBall(Ball base, double offsetVX) {
-        Ball b = new Ball(new Vector2D(base.getPosition().getX(), base.getPosition().getY()), base.getRadius());
+        Ball ball = new Ball(new Vector2D(base.getPosition().getX(), base.getPosition().getY()), base.getRadius());
         double vx = base.getVelocity().getX();
         double vy = base.getVelocity().getY();
-        b.setVelocity(new Vector2D(vx + offsetVX, vy));
-        b.setOriginal(false);
-        return b;
+        ball.setVelocity(new Vector2D(vx + offsetVX, vy));
+        ball.setOriginal(false);
+        return ball;
     }
 
     // Kiểm tra va chạm - Delegate cho CollisionManager
@@ -333,27 +348,8 @@ public class GameEngine extends AnimationTimer {
             double by = paddle.getPosition().getY() - paddle.getHeight() / 2.0 - mainBall.getRadius();
             mainBall.setPosition(new Vector2D(bx, by));
         } else {
+            // Update tất cả balls (bao gồm main ball và clone balls)
             for (Ball b : balls) b.update();
-        }
-        
-        if (mainBall != null) {
-            if (ballAttachedToPaddle) {
-                mainBall.getTrail().clear();
-                // charge aura
-                if (chargeIncreasing) {
-                    chargePulse += 0.01;
-                    if (chargePulse > 1.0) chargeIncreasing = false;
-                } else {
-                    chargePulse -= 0.01;
-                    if (chargePulse < 0.0) chargeIncreasing = true;
-                }
-                // Giữ bóng trên paddle
-                double bx = paddle.getPosition().getX();
-                double by = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - mainBall.getRadius();
-                mainBall.setPosition(new Vector2D(bx, by));
-            } else {
-                mainBall.update();
-            }
         }
         
         // Update bricks (cần thiết cho SecretBrick transform logic)
@@ -573,6 +569,7 @@ public class GameEngine extends AnimationTimer {
     }
 
     // Xử lý khi ball rơi ra ngoài màn hình
+    // Callback này chỉ được gọi khi TẤT CẢ balls đã rơi hết (logic trong CollisionManager)
     private void handleBallFallOut() {
         // Reset ball position
         double resetX = paddle.getPosition().getX();
@@ -584,6 +581,7 @@ public class GameEngine extends AnimationTimer {
 
         ballAttachedToPaddle = true;
 
+        // Clear và reset lại về 1 ball
         balls.clear();
         balls.add(newBall);
         mainBall = newBall;
