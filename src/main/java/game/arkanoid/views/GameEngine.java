@@ -333,11 +333,10 @@ public class GameEngine extends AnimationTimer {
     }
 
     private void handleLevelCompletion() {
-        // Xóa tất cả power-ups đang rơi
-        powerUps.clear();
-
-        // Xóa tất cả laser beams
-        laserBeams.clear();
+        if (powerUpManager != null) {
+            powerUpManager.clearPowerUps();
+            powerUpManager.clearLaserBeams();
+        }
 
         // Xóa shield nếu có
         shield = null;
@@ -472,7 +471,7 @@ public class GameEngine extends AnimationTimer {
             proceedToNextLevel();
         });
     }
-        
+
     // Setup collision callbacks cho CollisionManager
     private void setupCollisionCallbacks() {
         // Callback khi ball rơi ra ngoài
