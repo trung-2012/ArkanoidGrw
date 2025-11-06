@@ -78,9 +78,10 @@ public class GameEngine extends AnimationTimer {
     // Reload skin từ GameSettings (gọi khi user thay đổi trong Settings)
     public void reloadSkins() {
         try {
-            this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
-            this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
-            this.bulletImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBullet()));
+            GameSettings settings = GameSettings.getInstance();
+            this.ballImage = new Image(getClass().getResourceAsStream(settings.getSelectedBall()));
+            this.paddleImage = new Image(getClass().getResourceAsStream(settings.getSelectedPaddle()));
+            this.bulletImage = new Image(getClass().getResourceAsStream(settings.getSelectedBullet()));
             
             // Update images cho RenderManager
             if (renderManager != null) {
@@ -88,8 +89,12 @@ public class GameEngine extends AnimationTimer {
                 renderManager.setPaddleImage(paddleImage);
             }
             
-            System.out.println("Đã reload skins: Ball=" + GameSettings.getSelectedBall() + ", Paddle="
-                    + GameSettings.getSelectedPaddle() + ", Bullet=" + GameSettings.getSelectedBullet());
+            if (powerUpManager != null) {
+                powerUpManager.setBulletImage(bulletImage);
+            }
+            
+            System.out.println("Đã reload skins: Ball=" + settings.getSelectedBall() + ", Paddle="
+                    + settings.getSelectedPaddle() + ", Bullet=" + settings.getSelectedBullet());
         } catch (Exception e) {
             System.err.println("Lỗi khi reload skins: " + e.getMessage());
             e.printStackTrace();
@@ -121,9 +126,10 @@ public class GameEngine extends AnimationTimer {
 
         // Load ảnh Ball & Paddle theo skin đã chọn từ GameSettings
         try {
-            this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
-            this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
-            this.bulletImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBullet()));
+            GameSettings settings = GameSettings.getInstance();
+            this.ballImage = new Image(getClass().getResourceAsStream(settings.getSelectedBall()));
+            this.paddleImage = new Image(getClass().getResourceAsStream(settings.getSelectedPaddle()));
+            this.bulletImage = new Image(getClass().getResourceAsStream(settings.getSelectedBullet()));
             
             // Set images cho managers
             renderManager.setBallImage(ballImage);
@@ -244,6 +250,9 @@ public class GameEngine extends AnimationTimer {
         // Tất cả logic xử lý va chạm (cộng điểm, spawn power-up, level complete)
         // được handle thông qua callbacks
         collisionManager.checkAllCollisions();
+
+        // Sync lại shield (có thể đã null nếu broken)
+        shield = collisionManager.getShield();
     }
 
     // Xử lý nổ cho ExplodeBrick
