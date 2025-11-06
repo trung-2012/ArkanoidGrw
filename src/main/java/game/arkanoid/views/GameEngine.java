@@ -336,9 +336,9 @@ public class GameEngine extends AnimationTimer {
             for (Ball b : balls) b.update();
         }
         
-        if (ball != null) {
+        if (mainBall != null) {
             if (ballAttachedToPaddle) {
-                ball.getTrail().clear();
+                mainBall.getTrail().clear();
                 // charge aura
                 if (chargeIncreasing) {
                     chargePulse += 0.01;
@@ -349,10 +349,10 @@ public class GameEngine extends AnimationTimer {
                 }
                 // Giữ bóng trên paddle
                 double bx = paddle.getPosition().getX();
-                double by = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
-                ball.setPosition(new Vector2D(bx, by));
+                double by = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - mainBall.getRadius();
+                mainBall.setPosition(new Vector2D(bx, by));
             } else {
-                ball.update();
+                mainBall.update();
             }
         }
         
