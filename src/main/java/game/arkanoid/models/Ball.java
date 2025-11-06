@@ -29,6 +29,16 @@ public class Ball extends GameObject {
     /** Danh sách các vị trí trước đó để tạo trail effect */
     private final List<Vector2D> trail = new java.util.LinkedList<>();
 
+    private boolean original = true;
+
+    public boolean isOriginal() {
+        return original;
+    }
+    public void setOriginal(boolean value) {
+        this.original = value;
+    }
+    public long nextShieldBounceAllowed = 0;
+
     /**
      * Constructor khởi tạo Ball với vị trí và bán kính.
      * Vận tốc ban đầu hướng chéo lên trên bên phải.
