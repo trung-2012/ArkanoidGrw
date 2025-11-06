@@ -46,21 +46,21 @@ public class SecretBrick extends Brick {
     
     /**
      * Constructor khởi tạo SecretBrick.
-     * Tạo disguise brick ngẫu nhiên ban đầu và đồng bộ thuộc tính.
+     * Không tạo disguise brick ngay - chờ 10s đầu để hiển thị ảnh secret.
      * 
      * @param position Vị trí góc trên trái của gạch
      */
     public SecretBrick(Vector2D position) {
-        super(position, 1, 1); // Khởi tạo với giá trị tạm, sẽ đồng bộ từ disguise
+        super(position, 1000, 1); // Khởi tạo với giá trị tạm
         this.lastTransformTime = System.currentTimeMillis();
-        this.disguiseBrick = createRandomDisguise();
-        syncFromDisguise(); // Đồng bộ health/points từ disguise brick
+        this.disguiseBrick = null; // Chưa có disguise, sẽ tạo sau 10s
     }
     
     /**
      * Update logic: kiểm tra xem đã đến lúc transform chưa.
-     * Nếu đã qua 10 giây, tạo một disguise brick mới.
-     * Luôn đồng bộ trạng thái từ disguise brick.
+     * Lần đầu tiên (sau 10s) sẽ tạo disguise brick.
+     * Những lần sau sẽ transform sang gạch khác.
+     * Luôn đồng bộ trạng thái từ disguise brick nếu có.
      */
     @Override
     public void update() {
@@ -68,12 +68,12 @@ public class SecretBrick extends Brick {
         
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastTransformTime >= TRANSFORM_INTERVAL) {
-            // Transform sang gạch khác
+            // Transform sang gạch khác (hoặc tạo lần đầu nếu chưa có)
             transform();
             lastTransformTime = currentTime;
         }
         
-        // Update disguise brick nếu cần
+        // Update disguise brick nếu đã có
         if (disguiseBrick != null) {
             disguiseBrick.update();
             // Đồng bộ trạng thái từ disguise brick
@@ -82,16 +82,22 @@ public class SecretBrick extends Brick {
     }
     
     /**
-     * Render gạch: hiển thị hình ảnh của disguise brick.
-     * Người chơi thấy gạch đang ngụy trang.
+     * Render gạch: 
+     * - Nếu chưa có disguise (10s đầu): hiển thị ảnh BrickSecret.png
+     * - Nếu đã có disguise: hiển thị hình ảnh của disguise brick
      * 
      * @param gc GraphicsContext để vẽ
      */
     @Override
     public void render(GraphicsContext gc) {
-        if (active && disguiseBrick != null) {
-            // Render disguise brick thay vì SecretBrick
+        if (!active) return;
+        
+        if (disguiseBrick != null) {
+            // Đã transform - hiển thị disguise brick
             disguiseBrick.render(gc);
+        } else if (brickImage != null) {
+            // Chưa transform - hiển thị ảnh SecretBrick
+            gc.drawImage(brickImage, position.getX(), position.getY(), width, height);
         }
     }
     
@@ -109,19 +115,29 @@ public class SecretBrick extends Brick {
     }
     
     /**
-     * Xử lý khi bị damage: delegate hoàn toàn sang disguise brick.
-     * Disguise brick sẽ xử lý với logic của nó (bao gồm tính năng đặc biệt).
-     * Sau đó đồng bộ trạng thái về SecretBrick.
+     * Xử lý khi bị damage:
+     * - Nếu chưa có disguise (10s đầu): giảm health trực tiếp của SecretBrick
+     * - Nếu đã có disguise: delegate sang disguise brick và sync trạng thái
      */
     @Override
     public void takeDamage() {
-        if (!active || disguiseBrick == null) return;
+        if (!active) return;
         
-        // Delegate sang disguise brick (nó sẽ xử lý logic riêng của nó)
-        disguiseBrick.takeDamage();
-        
-        // Đồng bộ trạng thái từ disguise brick
-        syncFromDisguise();
+        if (disguiseBrick != null) {
+            // Đã có disguise - delegate sang disguise brick
+            disguiseBrick.takeDamage();
+            // Đồng bộ trạng thái từ disguise brick
+            syncFromDisguise();
+        } else {
+            // Chưa có disguise - xử lý như brick thường (health = 1)
+            this.health--;
+            onDamage();
+            
+            if (this.health <= 0) {
+                this.active = false;
+                onDestroyed();
+            }
+        }
     }
     
     /**
