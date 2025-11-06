@@ -1,6 +1,7 @@
 package game.arkanoid.views;
 
 import game.arkanoid.managers.CollisionManager;
+import game.arkanoid.managers.RenderManager;
 import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.GameSettings;
@@ -12,10 +13,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GameEngine extends AnimationTimer {
     // MANAGERS
     private CollisionManager collisionManager;
+    private RenderManager renderManager;
 
     // GAME OBJECTS
     // Thread-safe collections for concurrent access
@@ -62,7 +62,6 @@ public class GameEngine extends AnimationTimer {
     private game.arkanoid.controllers.MainController mainController;
 
     private Canvas canvas;
-    private GraphicsContext gc;
 
     // IMAGES
     private Image paddleImage;
@@ -93,6 +92,13 @@ public class GameEngine extends AnimationTimer {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
             this.bulletImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBullet()));
+            
+            // Update images cho RenderManager
+            if (renderManager != null) {
+                renderManager.setBallImage(ballImage);
+                renderManager.setPaddleImage(paddleImage);
+            }
+            
             System.out.println("Đã reload skins: Ball=" + GameSettings.getSelectedBall() + ", Paddle="
                     + GameSettings.getSelectedPaddle() + ", Bullet=" + GameSettings.getSelectedBullet());
         } catch (Exception e) {
@@ -103,19 +109,25 @@ public class GameEngine extends AnimationTimer {
 
     public void initializeGame(Canvas canvas, Label scoreLabel, Label livesLabel, Label levelLabel) {
         this.canvas = canvas;
-        this.gc = canvas.getGraphicsContext2D();
+        this.renderManager = new RenderManager(canvas);
 
         // Load ảnh Ball & Paddle theo skin đã chọn từ GameSettings
         try {
             this.ballImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBall()));
             this.paddleImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedPaddle()));
             this.bulletImage = new Image(getClass().getResourceAsStream(GameSettings.getSelectedBullet()));
+            
+            renderManager.setBallImage(ballImage);
+            renderManager.setPaddleImage(paddleImage);
         } catch (Exception e) {
             System.err.println("Không thể load skin đã chọn, dùng mặc định: " + e.getMessage());
             // Fallback về skin mặc định
             this.ballImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Ball.png"));
             this.paddleImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/Paddle.png"));
             this.bulletImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/bulletPaddle.png"));
+            
+            renderManager.setBallImage(ballImage);
+            renderManager.setPaddleImage(paddleImage);
         }
 
         try {
@@ -514,106 +526,24 @@ public class GameEngine extends AnimationTimer {
         this.rightPressed = pressed;
     }
 
-    // Vẽ lại khung cảnh game
+    // Render game - Delegate cho RenderManager
     public void render() {
-        if (gc == null)
-            return;
-        // clear canvas
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        // Vẽ bricks
-        for (Brick brick : bricks) {
-            if (!brick.isDestroyed()) {
-                brick.render(gc); // Polymorphic call - mỗi subclass tự render!
-            }
-        }
-
-        // vẽ paddle
-        double pw = paddle.getWidth();
-        double ph = paddle.getHeight();
-        double px = paddle.getPosition().getX() - pw / 2.0;
-        double py = paddle.getPosition().getY() - ph / 2.0;
-        if (paddleImage != null) {
-            gc.drawImage(paddleImage, px, py, pw, ph);
-        } else {
-            gc.setFill(Color.BLUE);
-            gc.fillRect(px, py, pw, ph);
-        }
-
-// echo laser trail (compact + behind ball)
-        List<Vector2D> t = ball.getTrail();
-        for (int i = 0; i < t.size(); i++) {
-            Vector2D p = t.get(i);
-
-            double progress = (double) i / t.size();  // 0 -> 1 (đuôi -> đầu)
-            double alpha = progress * 0.8;    // fade mạnh từ đầu
-            gc.setGlobalAlpha(alpha);
-
-            gc.setFill(Color.web("#a0cfff", alpha));
-
-            double trailSize = ball.getRadius() * 2;
-
-            gc.fillOval(
-                    p.getX() - trailSize / 2,
-                    p.getY() - trailSize / 2,
-                    trailSize,
-                    trailSize
-            );
-        }
-        gc.setGlobalAlpha(1.0);
-        // charge aura
-        if (ballAttachedToPaddle) {
-            double bx = ball.getPosition().getX();
-            double by = ball.getPosition().getY();
-            double r = ball.getRadius();
-
-            double auraSize = r * (2.2 + chargePulse * 1.5);
-            double alpha = 0.35 + chargePulse * 0.5;
-
-            gc.setGlobalAlpha(alpha);
-            gc.setFill(Color.web("#a6f6ff", alpha)); // neon magenta
-            gc.fillOval(
-                    bx - auraSize,
-                    by - auraSize,
-                    auraSize * 2,
-                    auraSize * 2
-            );
-            gc.setGlobalAlpha(1.0);
-
-        }
-        // vẽ ball
-        double bx = ball.getPosition().getX() - ball.getRadius();
-        double by = ball.getPosition().getY() - ball.getRadius();
-        double size = ball.getRadius() * 2;
-        if (ballImage != null) {
-            gc.drawImage(ballImage, bx, by, size, size);
-        } else {
-            gc.setFill(Color.WHITE);
-            gc.fillOval(bx, by, size, size);
-        }
-        // vẽ power up
-        for (PowerUp p : powerUps) {
-            Image img = p.getImage();
-            if (img != null) {
-                gc.drawImage(img, p.getX() - p.getSize() / 2, p.getY() - p.getSize() / 2, p.getSize(), p.getSize());
-            } else {
-                gc.setFill(Color.LIMEGREEN);
-                gc.fillOval(p.getX() - p.getSize() / 2, p.getY() - p.getSize() / 2, p.getSize(), p.getSize());
-            }
-        }
-        // vẽ laserBeam
-        for (LaserBeam beam : laserBeams) {
-            beam.render(gc);
-        }
-        // vẽ shield
-        if (shield != null) {
-            shield.draw(gc);
-        }
+        if (renderManager == null) return;
         
-        // vẽ hiệu ứng nổ
-        for (ExplosionEffect explosion : explosions) {
-            explosion.render(gc);
-        }
+        // Update charge pulse effect
+        renderManager.setChargePulse(chargePulse);
+        
+        // Delegate rendering cho RenderManager
+        renderManager.renderAll(
+            ball,
+            paddle,
+            bricks,
+            powerUps,
+            laserBeams,
+            shield,
+            explosions,
+            ballAttachedToPaddle
+        );
     }
 
     // Load level
