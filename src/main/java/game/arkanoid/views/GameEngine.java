@@ -1,5 +1,6 @@
 package game.arkanoid.views;
 
+import game.arkanoid.managers.CollisionManager;
 import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.GameSettings;
@@ -28,6 +29,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameEngine extends AnimationTimer {
+    // MANAGERS
+    private CollisionManager collisionManager;
+
+    // GAME OBJECTS
     // Thread-safe collections for concurrent access
     private final List<PowerUp> powerUps = new CopyOnWriteArrayList<>();
     private final List<LaserBeam> laserBeams = new CopyOnWriteArrayList<>();
@@ -37,6 +42,8 @@ public class GameEngine extends AnimationTimer {
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
+    
+    // GAME STATE
     private int currentLevel = 1;
     private boolean gameRunning;
     private int lives = GameConstants.INITIAL_LIVES;
@@ -48,6 +55,7 @@ public class GameEngine extends AnimationTimer {
     private Shield shield;
     private ScheduledExecutorService laserScheduler;
 
+    // UI REFERENCES
     private Label scoreLabelRef;
     private Label livesLabelRef;
     private Label levelLabelRef;
@@ -55,10 +63,14 @@ public class GameEngine extends AnimationTimer {
 
     private Canvas canvas;
     private GraphicsContext gc;
+
+    // IMAGES
     private Image paddleImage;
     private Image ballImage;
     private Image bulletImage;
     private Image explosionEffectImage;
+
+    // INPUT STATE
     private boolean leftPressed = false;
     private boolean rightPressed = false;
     private boolean ballAttachedToPaddle = true;
@@ -150,6 +162,11 @@ public class GameEngine extends AnimationTimer {
         this.ballAttachedToPaddle = true;
 
         loadLevelNumber(currentLevel);
+        
+        // Khởi tạo CollisionManager và setup callbacks
+        this.collisionManager = new CollisionManager(ball, paddle, bricks, canvas);
+        setupCollisionCallbacks();
+        
         this.gameRunning = true;
         this.start();
     }
@@ -173,6 +190,10 @@ public class GameEngine extends AnimationTimer {
         this.ball.setVelocity(new Vector2D(0.0, 0.0));
         this.ballAttachedToPaddle = true;
 
+        // Khởi tạo CollisionManager
+        this.collisionManager = new CollisionManager(ball, paddle, bricks, canvas);
+        setupCollisionCallbacks();
+
         // Xóa tất cả power-ups đang rơi
         powerUps.clear();
 
@@ -189,108 +210,19 @@ public class GameEngine extends AnimationTimer {
         this.gameRunning = true;
     }
 
-    // Kiểm tra va chạm
+    // Kiểm tra va chạm - Delegate cho CollisionManager
     public void checkCollisions() {
-        if (ball == null)
+        if (ball == null || collisionManager == null)
             return;
 
-        // Kiểm tra va chạm với tường
-        double w = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
-        double h = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
-        boolean out = ball.collideWithWall(w, h);
-        if (out) {
-            // Bóng rơi xuống đáy thì bay màu 1 mạng
-            // Đặt lại vị trí bóng trên paddle, chờ Space để bắn ra
-            double resetX = paddle.getPosition().getX();
-            double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
-            ball.setPosition(new Vector2D(resetX, resetY));
-            ball.setVelocity(new Vector2D(0.0, 0.0));
-            ballAttachedToPaddle = true;
-
-            // giảm mạng và cập nhật label
-            lives = Math.max(0, lives - 1);
-            if (this.livesLabelRef != null) {
-                this.livesLabelRef.setText("Lives: " + lives);
-                if (lives == GameConstants.MAX_LIVE) {
-                    livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
-                } else {
-                    livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
-                }
-            }
-
-            if (lives <= 0) {
-                // Game over
-                this.totalScore = this.score;
-                this.setGameRunning(false);
-                Platform.runLater(() -> {
-                    try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
-                        Parent root = loader.load();
-                        // truyền điểm vào controller
-                        game.arkanoid.controllers.GameOverController controller = loader.getController();
-                        controller.setFinalScore(totalScore);
-                        Stage stage = (Stage) canvas.getScene().getWindow();
-                        stage.setScene(new Scene(root, 800, 600));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-        }
-
-        // Kiểm tra va chạm với paddle
-        ball.collideWith(paddle);
-
-        // Kiểm tra va chạm với shield
-        if (shield != null && shield.collidesWith(ball)) {
-            ball.reverseVelocityY();
-            shield.hit();
-            if (shield.isBroken()) {
-                shield = null;
-            }
-        }
-
-        // Kiểm tra va chạm với bricks
-        for (Brick brick : bricks) {
-            if (!brick.isDestroyed()) {
-                if (ball.collideWith(brick)) {
-                    boolean anyLeft = false;
-                    for (Brick b : bricks) {
-                        if (!b.getDestroyed()) {
-                            anyLeft = true;
-                            break;
-                        }
-                    }
-                    // Sau khi va chạm, gạch chịu sát thương
-                    // Chỉ cộng điểm khi gạch bị phá hủy
-                    if (brick.isDestroyed()) {
-                        score += brick.getPoints();
-                        
-                        // 20% rơi power-up
-                        // nếu còn 1 viên gạch thì sẽ không rơi powerUp
-                        if (random.nextDouble() < GameConstants.POWER_UP_RATE && anyLeft) {
-                            PowerUpType type = getRandomPowerUpType();
-                            PowerUp powerUp = new PowerUp(brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2,
-                                    brick.getPosition().getY(), type);
-                            powerUps.add(powerUp);
-                        }
-                        if (this.scoreLabelRef != null)
-                            this.scoreLabelRef.setText("Score: " + score);
-                    }
-                    for (Brick b : bricks) {
-                        if (!b.getDestroyed()) {
-                            anyLeft = true;
-                            break;
-                        }
-                    }
-                    if (!anyLeft) {
-                        Platform.runLater(() -> handleLevelCompletion());
-                    }
-                    break; // Chỉ xử lý một va chạm mỗi frame
-                }
-            }
-        }
-
+        // Update collision manager với game state hiện tại
+        collisionManager.setBricks(bricks);
+        collisionManager.setShield(shield);
+        
+        // Delegate collision detection cho CollisionManager
+        // Tất cả logic xử lý va chạm (cộng điểm, spawn power-up, level complete)
+        // được handle thông qua callbacks
+        collisionManager.checkAllCollisions();
     }
 
     // Xử lý nổ cho ExplodeBrick
@@ -741,6 +673,83 @@ public class GameEngine extends AnimationTimer {
         return currentLevel;
     }
 
+    // Setup collision callbacks cho CollisionManager
+    private void setupCollisionCallbacks() {
+        // Callback khi ball rơi ra ngoài
+        collisionManager.setOnBallFallOut(() -> handleBallFallOut());
+        
+        // Callback khi brick bị phá hủy
+        collisionManager.setOnBrickDestroyed(data -> {
+            CollisionManager.BrickCollisionData brickData = (CollisionManager.BrickCollisionData) data;
+            handleBrickDestroyed(brickData.brick, brickData.anyBricksLeft);
+        });
+        
+        // Callback khi hoàn thành level
+        collisionManager.setOnLevelComplete(() -> {
+            Platform.runLater(() -> handleLevelCompletion());
+        });
+    }
+    
+    // Xử lý khi brick bị phá hủy
+    private void handleBrickDestroyed(Brick brick, boolean anyBricksLeft) {
+        // Cộng điểm
+        score += brick.getPoints();
+        if (scoreLabelRef != null) {
+            scoreLabelRef.setText("Score: " + score);
+        }
+        
+        // 20% rơi power-up (nếu còn gạch khác)
+        if (anyBricksLeft && random.nextDouble() < GameConstants.POWER_UP_RATE) {
+            PowerUpType type = getRandomPowerUpType();
+            PowerUp powerUp = new PowerUp(
+                brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2,
+                brick.getPosition().getY(), 
+                type
+            );
+            powerUps.add(powerUp);
+        }
+    }
+    
+    // Xử lý khi ball rơi ra ngoài màn hình
+    private void handleBallFallOut() {
+        // Reset ball position
+        double resetX = paddle.getPosition().getX();
+        double resetY = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
+        ball.setPosition(new Vector2D(resetX, resetY));
+        ball.setVelocity(new Vector2D(0.0, 0.0));
+        ballAttachedToPaddle = true;
+
+        // Giảm mạng
+        lives = Math.max(0, lives - 1);
+        if (this.livesLabelRef != null) {
+            this.livesLabelRef.setText("Lives: " + lives);
+            if (lives == GameConstants.MAX_LIVE) {
+                livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
+            } else {
+                livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
+            }
+        }
+
+        // Check game over
+        if (lives <= 0) {
+            this.totalScore = this.score;
+            this.setGameRunning(false);
+            Platform.runLater(() -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
+                    Parent root = loader.load();
+                    game.arkanoid.controllers.GameOverController controller = loader.getController();
+                    controller.setFinalScore(totalScore);
+                    Stage stage = (Stage) canvas.getScene().getWindow();
+                    stage.setScene(new Scene(root, 800, 600));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+    
+    //
     public void cleanup() {
         laserActive.set(false);
         if (laserScheduler != null && !laserScheduler.isShutdown()) {
