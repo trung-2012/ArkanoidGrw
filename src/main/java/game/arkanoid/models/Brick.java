@@ -4,51 +4,65 @@ import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public class Brick extends GameObject {
-    private BrickType type;
-    private int health;
+import javafx.scene.image.Image;
+public abstract class Brick extends GameObject {
+    protected int health;
+    protected int points;
 
-    // Constructor
-    public Brick(BrickType type, Vector2D position) {
+    /**
+     * Constructor cho Brick
+     * @param position Vị trí góc trên trái của gạch
+     * @param health Số máu của gạch
+     * @param points Điểm số khi phá hủy gạch
+     */
+    public Brick(Vector2D position, int health, int points) {
         super(position, GameConstants.BRICK_WIDTH, GameConstants.BRICK_HEIGHT);
-        this.type = type;
-        this.health = type.getHealth();
-        // active = true
+        this.health = health;
+        this.points = points;
     }
 
     @Override
     public void update() {
-        // Static obj k cần update
+        // Brick không cần update logic
     }
 
     @Override
-    public void render(GraphicsContext gc) {
-        // Render logic sẽ được xử lý bởi GameEngine với brickImage
-    }
+    public abstract void render(GraphicsContext gc);
 
-    // Xử lý sát thương và phá hủy
+    public abstract Image getBrickImage();
+
     public void takeDamage() {
         if (!active)
             return;
         this.health--;
+        onDamage();
         if (this.health <= 0) {
             this.active = false;
+            onDestroyed();
         }
     }
 
-    // Kiểm tra xem gạch đã bị phá hủy chưa
-    public boolean isDestroyed() {
-        return !active;
+    // Hook method - gọi khi bị damage
+    protected void onDamage() {
+    }
+
+    // Hook method - gọi khi bị phá hủy
+    protected void onDestroyed() {
     }
 
     // Getters & Setters
 
-    public BrickType getType() {
-        return type;
+    public boolean isDestroyed() {
+        return !active;
     }
 
+    public int getPoints() {
+        return points;
+    }
+
+    @Deprecated
     public int getPoint() {
-        return type.getPoint();
+        return points;
     }
 
     public int getHealth() {
@@ -59,15 +73,20 @@ public class Brick extends GameObject {
         return !active;
     }
 
-    public void setType(BrickType type) {
-        this.type = type;
-    }
-
     public void setHealth(int health) {
         this.health = health;
     }
 
     public void setDestroyed(boolean destroyed) {
         this.active = !destroyed;
+    }
+
+    @Deprecated
+    public BrickType getType() {
+        return null;
+    }
+
+    @Deprecated
+    public void setType(BrickType type) {
     }
 }
