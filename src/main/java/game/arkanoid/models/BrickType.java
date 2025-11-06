@@ -6,7 +6,8 @@ public enum BrickType {
     IRON(3),
     GOLD(4),
     EXPLODE(2),      // Gạch nổ
-    INSANE(100); // Hầu như không thể phá hủy
+    INSANE(100),     // Hầu như không thể phá hủy
+    SECRET(1000);    // Gạch bí mật - biến hình mỗi 10 giây
 
     // Số máu của loại gạch
     private final int health;
@@ -33,6 +34,8 @@ public enum BrickType {
                 return 30;
             case INSANE:
                 return 1000;
+            case SECRET:
+                return 1;
             case NORMAL:
             default:
                 return 10;

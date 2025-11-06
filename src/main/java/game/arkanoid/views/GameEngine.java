@@ -273,8 +273,28 @@ public class GameEngine extends AnimationTimer {
         // Sync lại shield (có thể đã null nếu broken)
         shield = collisionManager.getShield();
     }
+    
+    /**
+     * Setup explosion handler cho brick.
+     * Xử lý cả ExplodeBrick trực tiếp và ExplodeBrick bên trong SecretBrick.
+     */
+    private void setupExplosionHandler(Brick brick) {
+        if (brick instanceof ExplodeBrick) {
+            ((ExplodeBrick) brick).setExplosionHandler(this::handleExplosion);
+        } else if (brick instanceof SecretBrick) {
+            // SecretBrick có thể chứa ExplodeBrick bên trong
+            SecretBrick secretBrick = (SecretBrick) brick;
+            Brick disguise = secretBrick.getDisguiseBrick();
+            if (disguise instanceof ExplodeBrick) {
+                ((ExplodeBrick) disguise).setExplosionHandler(this::handleExplosion);
+            }
+        }
+    }
 
-    // Xử lý nổ cho ExplodeBrick
+    /**
+     * Xử lý nổ cho ExplodeBrick.
+     * Được gọi khi ExplodeBrick bị phá hủy.
+     */
     private void handleExplosion(ExplodeBrick explodedBrick) {
         explosions.add(new ExplosionEffect(explodedBrick.getPosition(), explosionEffectImage));
 
@@ -315,7 +335,38 @@ public class GameEngine extends AnimationTimer {
         } else {
             for (Ball b : balls) b.update();
         }
-
+        
+        if (ball != null) {
+            if (ballAttachedToPaddle) {
+                ball.getTrail().clear();
+                // charge aura
+                if (chargeIncreasing) {
+                    chargePulse += 0.01;
+                    if (chargePulse > 1.0) chargeIncreasing = false;
+                } else {
+                    chargePulse -= 0.01;
+                    if (chargePulse < 0.0) chargeIncreasing = true;
+                }
+                // Giữ bóng trên paddle
+                double bx = paddle.getPosition().getX();
+                double by = paddle.getPosition().getY() - (paddle.getHeight() / 2.0) - ball.getRadius();
+                ball.setPosition(new Vector2D(bx, by));
+            } else {
+                ball.update();
+            }
+        }
+        
+        // Update bricks (cần thiết cho SecretBrick transform logic)
+        for (Brick brick : bricks) {
+            if (!brick.isDestroyed()) {
+                brick.update();
+                // Re-setup explosion handler nếu SecretBrick transform thành ExplodeBrick
+                if (brick instanceof SecretBrick) {
+                    setupExplosionHandler(brick);
+                }
+            }
+        }
+        
         // Power-ups và lasers được handle bởi PowerUpManager
 
         // Cập nhật hiệu ứng nổ và xóa các explosion đã kết thúc
@@ -405,11 +456,10 @@ public class GameEngine extends AnimationTimer {
 
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
-
+        
+        // Setup explosion handlers cho ExplodeBricks (bao gồm cả trong SecretBrick)
         for (Brick brick : bricks) {
-            if (brick instanceof ExplodeBrick) {
-                ((ExplodeBrick) brick).setExplosionHandler(this::handleExplosion);
-            }
+            setupExplosionHandler(brick);
         }
 
         if (mainController != null) {
