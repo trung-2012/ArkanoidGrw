@@ -7,22 +7,47 @@ import javafx.scene.canvas.Canvas;
 
 import java.util.List;
 
+/**
+ * CollisionManager quản lý tất cả các va chạm trong game.
+ * Áp dụng Manager Pattern và Observer Pattern (callbacks).
+ * Xử lý collision giữa: Ball-Wall, Ball-Paddle, Ball-Brick, Ball-Shield, Laser-Brick, PowerUp-Paddle.
+ * 
+ * @author ArkanoidGrw
+ * @version 1.0
+ */
 public class CollisionManager {
     
-    // Game objects
+    /** Quả bóng trong game */
     private Ball ball;
+    
+    /** Thanh đỡ (paddle) trong game */
     private Paddle paddle;
+    
+    /** Danh sách các viên gạch */
     private List<Brick> bricks;
+    
+    /** Tấm khiên bảo vệ (nếu có) */
     private Shield shield;
+    
+    /** Canvas để lấy kích thước màn hình */
     private Canvas canvas;
     
-    // Collision callbacks
+    /** Callback khi bóng rơi ra ngoài (mất mạng) */
     private CollisionCallback onBallFallOut;
+    
+    /** Callback khi gạch bị phá hủy (với data) */
     private CollisionCallbackWithData onBrickDestroyed;
+    
+    /** Callback khi hoàn thành level */
     private CollisionCallback onLevelComplete;
     
     /**
-     * Constructor
+     * Constructor khởi tạo CollisionManager.
+     * 
+     * @param ball Quả bóng
+     * @param paddle Thanh đỡ
+     * @param bricks Danh sách gạch
+     * @param canvas Canvas game
      */
     public CollisionManager(Ball ball, Paddle paddle, List<Brick> bricks, Canvas canvas) {
         this.ball = ball;
@@ -31,7 +56,10 @@ public class CollisionManager {
         this.canvas = canvas;
     }
     
-    // Kiểm tra tất cả các va chạm
+    /**
+     * Kiểm tra tất cả các va chạm trong game mỗi frame.
+     * Gọi các sub-methods để check từng loại collision riêng biệt.
+     */
     public void checkAllCollisions() {
         if (ball == null) return;
         
@@ -51,7 +79,13 @@ public class CollisionManager {
         checkBallBrickCollision();
     }
     
-    // Check ball collision với walls
+    /**
+     * Kiểm tra va chạm giữa bóng và tường.
+     * Nếu bóng rơi ra ngoài đáy, trigger callback onBallFallOut.
+     * 
+     * @param screenWidth Chiều rộng màn hình
+     * @param screenHeight Chiều cao màn hình
+     */
     private void checkBallWallCollision(double screenWidth, double screenHeight) {
         boolean ballFallOut = ball.collideWithWall(screenWidth, screenHeight);
         
@@ -61,14 +95,20 @@ public class CollisionManager {
         }
     }
     
-    // Check ball collision với paddle
+    /**
+     * Kiểm tra va chạm giữa bóng và paddle.
+     * Bóng sẽ nảy lại khi chạm paddle.
+     */
     private void checkBallPaddleCollision() {
         if (paddle != null) {
             ball.collideWith(paddle);
         }
     }
     
-    // Check ball collision với shield
+    /**
+     * Kiểm tra va chạm giữa bóng và shield (tấm khiên).
+     * Shield sẽ bị damage và bóng nảy ngược lại.
+     */
     private void checkBallShieldCollision() {
         if (shield != null && shield.collidesWith(ball)) {
             ball.reverseVelocityY();
@@ -80,7 +120,11 @@ public class CollisionManager {
         }
     }
     
-    // Check ball collision với bricks
+    /**
+     * Kiểm tra va chạm giữa bóng và các gạch.
+     * Khi gạch bị phá hủy, trigger callback onBrickDestroyed.
+     * Nếu hết gạch, trigger callback onLevelComplete.
+     */
     private void checkBallBrickCollision() {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
@@ -107,7 +151,12 @@ public class CollisionManager {
         }
     }
     
-    // Check laser beam collision với bricks
+    /**
+     * Kiểm tra va chạm giữa laser beam và gạch.
+     * 
+     * @param beam Laser beam cần kiểm tra
+     * @return true nếu laser trúng gạch, false nếu không
+     */
     public boolean checkLaserBrickCollision(LaserBeam beam) {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed() && beam.intersects(brick)) {
@@ -130,7 +179,12 @@ public class CollisionManager {
         return false; // No hit
     }
     
-    // Check power-up collision với paddle
+    /**
+     * Kiểm tra va chạm giữa power-up và paddle.
+     * 
+     * @param powerUp Power-up cần kiểm tra
+     * @return true nếu power-up được thu thập, false nếu không
+     */
     public boolean checkPowerUpPaddleCollision(PowerUp powerUp) {
         if (paddle != null && powerUp.intersects(paddle)) {
             return true; // Collected
@@ -138,7 +192,11 @@ public class CollisionManager {
         return false;
     }
     
-    // Helper: Check xem còn gạch nào chưa bị phá không
+    /**
+     * Helper method kiểm tra còn gạch nào chưa bị phá không.
+     * 
+     * @return true nếu còn gạch, false nếu hết gạch
+     */
     private boolean checkAnyBricksLeft() {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
@@ -148,65 +206,125 @@ public class CollisionManager {
         return false;
     }
     
-    // Getters & Setters
+    // ==================== Getters & Setters ====================
     
+    /**
+     * Thiết lập ball mới.
+     * @param ball Ball mới
+     */
     public void setBall(Ball ball) {
         this.ball = ball;
     }
     
+    /**
+     * Thiết lập paddle mới.
+     * @param paddle Paddle mới
+     */
     public void setPaddle(Paddle paddle) {
         this.paddle = paddle;
     }
     
+    /**
+     * Thiết lập danh sách bricks mới.
+     * @param bricks Danh sách bricks mới
+     */
     public void setBricks(List<Brick> bricks) {
         this.bricks = bricks;
     }
     
+    /**
+     * Thiết lập shield mới.
+     * @param shield Shield mới
+     */
     public void setShield(Shield shield) {
         this.shield = shield;
     }
 
+    /**
+     * Lấy shield hiện tại.
+     * @return Shield đang active (có thể null)
+     */
     public Shield getShield() {
         return this.shield;
     }
     
+    /**
+     * Thiết lập canvas mới.
+     * @param canvas Canvas mới
+     */
     public void setCanvas(Canvas canvas) {
         this.canvas = canvas;
     }
     
-    // CALLBACKS
+    // ==================== CALLBACKS ====================
     
+    /**
+     * Thiết lập callback khi bóng rơi ra ngoài.
+     * @param callback Callback function
+     */
     public void setOnBallFallOut(CollisionCallback callback) {
         this.onBallFallOut = callback;
     }
     
+    /**
+     * Thiết lập callback khi gạch bị phá hủy.
+     * @param callback Callback function với data
+     */
     public void setOnBrickDestroyed(CollisionCallbackWithData callback) {
         this.onBrickDestroyed = callback;
     }
     
+    /**
+     * Thiết lập callback khi hoàn thành level.
+     * @param callback Callback function
+     */
     public void setOnLevelComplete(CollisionCallback callback) {
         this.onLevelComplete = callback;
     }
     
-    // CALLBACK INTERFACES
+    // ==================== CALLBACK INTERFACES ====================
     
-    // Generic collision callback (no parameter)
+    /**
+     * Functional interface cho collision callback không có tham số.
+     * Áp dụng Observer Pattern.
+     */
     @FunctionalInterface
     public interface CollisionCallback {
+        /**
+         * Được gọi khi collision xảy ra.
+         */
         void onCollision();
     }
     
-    // Callback với data parameter
+    /**
+     * Functional interface cho collision callback có data parameter.
+     * Áp dụng Observer Pattern.
+     */
     @FunctionalInterface
     public interface CollisionCallbackWithData {
+        /**
+         * Được gọi khi collision xảy ra với data.
+         * @param data Dữ liệu collision
+         */
         void onCollision(Object data);
     }
     
-    // Data class cho brick collision callback
+    /**
+     * Data class chứa thông tin brick collision.
+     * Sử dụng để truyền data cho callback.
+     */
     public static class BrickCollisionData {
+        /** Gạch bị phá hủy */
         public final Brick brick;
+        
+        /** Còn gạch nào không */
         public final boolean anyBricksLeft;
         
+        /**
+         * Constructor cho BrickCollisionData.
+         * @param brick Gạch bị phá hủy
+         * @param anyBricksLeft Còn gạch hay không
+         */
         public BrickCollisionData(Brick brick, boolean anyBricksLeft) {
             this.brick = brick;
             this.anyBricksLeft = anyBricksLeft;
