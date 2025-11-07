@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class GameEngine extends AnimationTimer {
     private final List<PowerUp> powerUps = new CopyOnWriteArrayList<>();
     private final List<LaserBeam> laserBeams = new CopyOnWriteArrayList<>();
     private final List<ExplosionEffect> explosions = new CopyOnWriteArrayList<>();
+    private final List<DebrisEffect> debrisEffects = new CopyOnWriteArrayList<>();
     private final List<Ball> balls = new CopyOnWriteArrayList<>();
 
     private Ball mainBall;
@@ -233,6 +235,9 @@ public class GameEngine extends AnimationTimer {
         setupPowerUpCallbacks();
         shield = null;
 
+        // Clear debris effects
+        debrisEffects.clear();
+
         int currentLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
         loadLevelNumber(currentLevel);
         gameRunning = true;
@@ -374,6 +379,14 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa các explosion đã kết thúc bằng removeIf()
         explosions.removeIf(ExplosionEffect::isFinished);
+        
+        // Cập nhật debris effects
+        for (DebrisEffect debris : debrisEffects) {
+            debris.update();
+        }
+        
+        // Xóa debris đã kết thúc
+        debrisEffects.removeIf(DebrisEffect::isFinished);
     }
 
     private void handleLevelCompletion() {
@@ -384,6 +397,9 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa shield nếu có
         shield = null;
+        
+        // Clear debris effects
+        debrisEffects.clear();
 
         // Delegate level completion cho ScoreManager (sẽ trigger callback)
         if (scoreManager != null) {
@@ -439,6 +455,7 @@ public class GameEngine extends AnimationTimer {
                 laserBeams,
                 shield,
                 explosions,
+                debrisEffects,
                 balls,
                 ballAttachedToPaddle
         );
@@ -560,6 +577,18 @@ public class GameEngine extends AnimationTimer {
             scoreManager.addScore(brick.getPoints());
         }
 
+        // Tạo debris effect (không áp dụng cho ExplodeBrick vì đã có explosion)
+        if (!(brick instanceof ExplodeBrick)) {
+            Color brickColor = getBrickColor(brick);
+            debrisEffects.add(new DebrisEffect(
+                new Vector2D(
+                    brick.getPosition().getX() + brick.getWidth() / 2.0,
+                    brick.getPosition().getY() + brick.getHeight() / 2.0
+                ),
+                brickColor
+            ));
+        }
+
         // 20% rơi power-up (nếu còn gạch khác)
         if (anyBricksLeft && Math.random() < GameConstants.POWER_UP_RATE) {
             powerUpManager.spawnPowerUp(
@@ -567,6 +596,26 @@ public class GameEngine extends AnimationTimer {
                     brick.getPosition().getY()
             );
         }
+    }
+    
+    /**
+     * Lấy màu sắc đại diện cho loại gạch.
+     */
+    private Color getBrickColor(Brick brick) {
+        if (brick instanceof NormalBrick) {
+            return Color.web("#FF6B6B"); // Đỏ nhạt
+        } else if (brick instanceof WoodBrick) {
+            return Color.web("#8B4513"); // Nâu gỗ
+        } else if (brick instanceof IronBrick) {
+            return Color.web("#708090"); // Xám thép
+        } else if (brick instanceof GoldBrick) {
+            return Color.web("#FFD700"); // Vàng
+        } else if (brick instanceof InsaneBrick) {
+            return Color.web("#4A4A4A"); // Xám đậm
+        } else if (brick instanceof SecretBrick) {
+            return Color.web("#9400D3"); // Tím
+        }
+        return Color.GRAY; // Mặc định
     }
 
     // Xử lý khi ball rơi ra ngoài màn hình

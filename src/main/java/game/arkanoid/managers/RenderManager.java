@@ -35,6 +35,7 @@ public class RenderManager {
             List<LaserBeam> laserBeams,
             Shield shield,
             List<ExplosionEffect> explosions,
+            List<DebrisEffect> debrisEffects,
             List<Ball> balls,
             boolean ballAttachedToPaddle
     ) {
@@ -54,6 +55,7 @@ public class RenderManager {
         renderLaserBeams(laserBeams);
         renderShield(shield);
         renderExplosions(explosions);
+        renderDebrisEffects(debrisEffects);
     }
 
     // Render bricks
@@ -171,6 +173,16 @@ public class RenderManager {
     private void renderExplosions(List<ExplosionEffect> explosions) {
         for (ExplosionEffect explosion : explosions) {
             explosion.render(gc);
+        }
+    }
+    
+    // Render debris effects
+    private void renderDebrisEffects(List<DebrisEffect> debrisEffects) {
+        if (debrisEffects == null) return;
+        for (DebrisEffect debris : debrisEffects) {
+            if (!debris.isFinished()) {
+                debris.render(gc);
+            }
         }
     }
 
