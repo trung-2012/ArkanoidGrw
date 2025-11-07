@@ -77,6 +77,27 @@ public class GameSettings {
         }
     }
     
+    /**
+     * Lấy màu trail cho laser dựa trên paddle đang dùng.
+     * paddle (nâu), paddle1 (tím), paddle2 (tím), paddle3 (xanh lam nhạt), 
+     * paddle4 (trắng), paddle5 (cam)
+     */
+    public String getLaserTrailColor() {
+        if (selectedPaddle.contains("Paddle1.png")) {
+            return "#b366ff"; // Tím
+        } else if (selectedPaddle.contains("Paddle2.png")) {
+            return "#cc99ff"; // Tím nhạt hơn
+        } else if (selectedPaddle.contains("Paddle3.png")) {
+            return "#66d9ff"; // Xanh lam nhạt
+        } else if (selectedPaddle.contains("Paddle4.png")) {
+            return "#e6f2ff"; // Trắng xanh nhạt
+        } else if (selectedPaddle.contains("Paddle5.png")) {
+            return "#ffb366"; // Cam
+        } else {
+            return "#a67c52"; // Nâu (default paddle)
+        }
+    }
+    
     // Reset method cho testing
     public void reset() {
         this.selectedBall = "/game/arkanoid/images/Ball.png";

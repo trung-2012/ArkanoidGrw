@@ -47,6 +47,7 @@ public class RenderManager {
         renderBricks(bricks);
         renderPaddle(paddle);
         renderTrailsForAll(balls);
+        renderLaserTrails(laserBeams);
         renderChargeAura(mainBall, ballAttachedToPaddle);
         for (Ball ball : balls) {
             renderBall(ball);
@@ -160,6 +161,30 @@ public class RenderManager {
         for (LaserBeam beam : laserBeams) {
             beam.render(gc);
         }
+    }
+
+    // Render trail cho các laser beam (fading vertical streaks với màu theo paddle)
+    private void renderLaserTrails(List<LaserBeam> laserBeams) {
+        if (laserBeams == null) return;
+        
+        // Lấy màu trail từ GameSettings dựa trên paddle hiện tại
+        String trailColor = game.arkanoid.utils.GameSettings.getInstance().getLaserTrailColor();
+        
+        for (LaserBeam beam : laserBeams) {
+            java.util.List<Vector2D> trail = beam.getTrail();
+            int size = trail.size();
+            for (int i = 0; i < size; i++) {
+                Vector2D p = trail.get(i);
+                double progress = (double) i / size; // 0 (cũ) -> 1 (mới nhất)
+                double alpha = progress * 0.6; // tăng độ sáng về phía đầu gần viên đạn
+                double w = beam.getWidth() * (0.5 + progress * 0.5); // nở nhẹ
+                double h = beam.getHeight() * 0.7; // làm mỏng để tạo cảm giác tia
+                gc.setGlobalAlpha(alpha);
+                gc.setFill(Color.web(trailColor, alpha));
+                gc.fillRoundRect(p.getX() - w / 2, p.getY() - h / 2, w, h, w * 0.3, h * 0.3);
+            }
+        }
+        gc.setGlobalAlpha(1.0);
     }
 
     // Render shield
