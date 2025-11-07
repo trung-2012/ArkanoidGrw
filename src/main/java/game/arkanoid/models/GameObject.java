@@ -105,7 +105,7 @@ public abstract class GameObject {
                position.getY() < 0 || position.getY() > maxHeight;
     }
 
-    // ==================== Getters & Setters ====================
+    // Getters & Setters
     
     /**
      * Lấy vị trí trung tâm của object.

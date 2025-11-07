@@ -242,7 +242,7 @@ public class Ball extends GameObject {
         return trail;
     }
 
-    // ==================== Getters & Setters ====================
+    // Getters & Setters
 
     /**
      * Lấy bán kính của bóng.

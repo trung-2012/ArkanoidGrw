@@ -17,7 +17,7 @@
     </ImageView>
 
     <VBox alignment="CENTER" spacing="20">
-        <Label fx:id="scoreLabel" style="-fx-font-size: 24; -fx-text-fill: white;" text="Final Score: 0"/>
+        <Label fx:id="scoreLabel" style="-fx-font-size: 24; -fx-text-fill: white; -fx-font-weight: bold;" text="Final Score: 0"/>
 
         <VBox alignment="CENTER" prefHeight="162.0" prefWidth="800.0" spacing="10">
 

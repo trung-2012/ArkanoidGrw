@@ -39,14 +39,11 @@ public class GameEngine extends AnimationTimer {
     private final List<ExplosionEffect> explosions = new CopyOnWriteArrayList<>();
     private final List<Ball> balls = new CopyOnWriteArrayList<>();
 
-    private final Random random = new Random();
-
-    private Ball mainBall;                 // bóng “chính” để bám paddle + aura
+    private Ball mainBall;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
 
     // GAME STATE
-    private int currentLevel = 1;
     private boolean gameRunning;
 
     private Shield shield;
@@ -146,11 +143,13 @@ public class GameEngine extends AnimationTimer {
 
         try {
             this.explosionEffectImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/ExplodeEffect.png"));
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("Warning: Could not load explosion effect image");
+        }
+        
         // canvas focus để nhận phím
-        try {
+        if (this.canvas != null) {
             this.canvas.requestFocus();
-        } catch (Exception ignored) {
         }
 
         startNewGame();
@@ -177,6 +176,7 @@ public class GameEngine extends AnimationTimer {
         balls.add(newBall);
         this.mainBall = newBall;
 
+        int currentLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
         loadLevelNumber(currentLevel);
 
         // Khởi tạo CollisionManager và setup callbackss
@@ -233,6 +233,7 @@ public class GameEngine extends AnimationTimer {
         setupPowerUpCallbacks();
         shield = null;
 
+        int currentLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
         loadLevelNumber(currentLevel);
         gameRunning = true;
     }
@@ -314,6 +315,7 @@ public class GameEngine extends AnimationTimer {
         explosions.add(new ExplosionEffect(explodedBrick.getPosition(), explosionEffectImage));
 
         // Random 50-50: nổ theo hàng (true) hoặc theo cột (false)
+        Random random = new Random();
         boolean explodeRow = random.nextBoolean();
         double ex = explodedBrick.getPosition().getX();
         double ey = explodedBrick.getPosition().getY();
@@ -383,8 +385,6 @@ public class GameEngine extends AnimationTimer {
         // Xóa shield nếu có
         shield = null;
 
-        currentLevel++;
-
         // Delegate level completion cho ScoreManager (sẽ trigger callback)
         if (scoreManager != null) {
             scoreManager.completeLevel();
@@ -393,7 +393,8 @@ public class GameEngine extends AnimationTimer {
 
     // Được gọi từ ScoreManager callback khi chuyển level
     private void proceedToNextLevel() {
-        loadLevelNumber(currentLevel);
+        int nextLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
+        loadLevelNumber(nextLevel);
 
         // reset main ball attach paddle
         double resetX = paddle.getPosition().getX();
@@ -494,7 +495,7 @@ public class GameEngine extends AnimationTimer {
     }
 
     public int getCurrentLevel() {
-        return scoreManager != null ? scoreManager.getCurrentLevel() : currentLevel;
+        return scoreManager != null ? scoreManager.getCurrentLevel() : 1;
     }
 
     // Setup score callbacks cho ScoreManager
@@ -560,7 +561,7 @@ public class GameEngine extends AnimationTimer {
         }
 
         // 20% rơi power-up (nếu còn gạch khác)
-        if (anyBricksLeft && random.nextDouble() < GameConstants.POWER_UP_RATE) {
+        if (anyBricksLeft && Math.random() < GameConstants.POWER_UP_RATE) {
             powerUpManager.spawnPowerUp(
                     brick.getPosition().getX() + GameConstants.BRICK_WIDTH / 2.0,
                     brick.getPosition().getY()
