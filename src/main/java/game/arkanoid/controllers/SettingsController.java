@@ -43,6 +43,9 @@ public class SettingsController {
     @FXML
     private ImageView confirmPaddleImageView;
 
+    @FXML
+    private ImageView previewButton;
+
     // Dsach Skins
     private final String[] ballSkins = {
             "/game/arkanoid/images/Ball.png",
@@ -76,8 +79,8 @@ public class SettingsController {
     // Xử lý sự kiện khi di chuột vào button
     @FXML
     private void onButtonMouseEntered(MouseEvent event) {
-        Button btn = (Button) event.getSource();
-        String id = btn.getId();
+        Node node = (Node) event.getSource();
+        String id = node.getId();
 
         switch (id) {
             case "saveButton":
@@ -108,14 +111,18 @@ public class SettingsController {
                 rightPaddleImageView.setImage(
                         new Image(getClass().getResource("/game/arkanoid/images/right c.png").toExternalForm()));
                 break;
+            case "previewButton":
+                previewButton.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/preview c.png").toExternalForm()));
+                break;
         }
     }
 
     // Xử lý sự kiện khi di chuột ra khỏi button
     @FXML
     private void onButtonMouseExited(MouseEvent event) {
-        Button btn = (Button) event.getSource();
-        String id = btn.getId();
+        Node node = (Node) event.getSource();
+        String id = node.getId();
 
         switch (id) {
             case "saveButton":
@@ -145,6 +152,10 @@ public class SettingsController {
             case "rightPaddleButton":
                 rightPaddleImageView.setImage(
                         new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
+                break;
+            case "previewButton":
+                previewButton.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/preview.png").toExternalForm()));
                 break;
         }
     }
@@ -233,6 +244,27 @@ public class SettingsController {
             e.printStackTrace();
         }
     }
+
+     //Triệu hồi cửa sổ Preview
+    @FXML
+    private void openPreview(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/Preview.fxml"));
+            Parent root = loader.load();
+
+            Stage popup = new Stage();
+            popup.setTitle("Preview");
+            popup.setScene(new Scene(root));
+            popup.setResizable(false);
+            popup.initOwner(((Node) event.getSource()).getScene().getWindow());
+            popup.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     // Cập nhật hình ảnh theo skin đã chọn
     private void updateBallImage() {

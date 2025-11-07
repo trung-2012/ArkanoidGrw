@@ -13,6 +13,19 @@
         </image>
     </ImageView>
 
+    <ImageView fx:id="previewButton"
+               layoutX="180.0"
+               layoutY="515.0"
+               fitWidth="120"
+               fitHeight="50"
+               preserveRatio="true"
+               onMouseClicked="#openPreview"
+               onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited">
+    <image>
+            <Image url="@../images/preview.png" />
+        </image>
+    </ImageView>
+
     <Button fx:id="leftPaddleButton" layoutX="74.0" layoutY="318.0" onAction="#prevPaddle" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="leftPaddleImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
@@ -87,7 +100,7 @@
     </Button>
 
 
-    <Button fx:id="saveButton" layoutX="334.0" layoutY="510.0" onAction="#saveSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
+    <Button fx:id="saveButton" layoutX="530.0" layoutY="510.0" onAction="#saveSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="saveImageView" fitHeight="50" fitWidth="120" preserveRatio="true">
                 <image>
