@@ -13,7 +13,7 @@ public class Main extends Application {
         // Load giao diện từ file FXML
         System.out.println(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
         Parent root = FXMLLoader.load(getClass().getResource(
-                "/game/arkanoid/fxml/StartMenu.fxml"));
+                "/game/arkanoid/fxml/LoginView.fxml"));
 
         Scene scene = new Scene(root, 800, 600);
         primaryStage.setTitle("Arkanoid Game");
