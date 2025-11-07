@@ -243,7 +243,7 @@ public class CollisionManager {
         return false;
     }
 
-    // ==================== Getters & Setters ====================
+    // Getters & Setters
 
     /**
      * Thiết lập ball mới.
@@ -294,7 +294,7 @@ public class CollisionManager {
         this.canvas = canvas;
     }
 
-    // ==================== CALLBACKS ====================
+    // Callback Setters
 
     /**
      * Thiết lập callback khi bóng rơi ra ngoài.
@@ -320,7 +320,7 @@ public class CollisionManager {
         this.onLevelComplete = callback;
     }
 
-    // ==================== CALLBACK INTERFACES ====================
+    // Callback Interfaces
 
     /**
      * Functional interface cho collision callback không có tham số.
