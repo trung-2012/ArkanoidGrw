@@ -17,6 +17,8 @@ public class StartMenuController {
     private javafx.scene.image.ImageView settingsImageView;
     @FXML
     private javafx.scene.image.ImageView exitImageView;
+    @FXML
+    private javafx.scene.image.ImageView logoutImageView;
 
     // Xử lý sự kiện khi di chuột vào button
     @FXML
@@ -100,5 +102,16 @@ public class StartMenuController {
     private void exitGame() {
         System.out.println("Exit game");
         System.exit(0);
+    }
+
+    @FXML
+    private void logout(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/LoginView.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
