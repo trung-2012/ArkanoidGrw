@@ -39,6 +39,8 @@ public class SettingsController {
     @FXML
     private ImageView saveImageView;
     @FXML
+    private ImageView previewImageView;
+    @FXML
     private ImageView confirmBallImageView;
     @FXML
     private ImageView confirmPaddleImageView;
@@ -66,11 +68,29 @@ public class SettingsController {
     // Setter để PauseController có thể truyền mainController vào
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
+        // Lưu vào GameSettings để giữ context khi navigate
+        GameSettings.getInstance().setCurrentMainController(mainController);
     }
 
     // Setter để PauseController có thể truyền settingsStage vào
     public void setSettingsStage(Stage settingsStage) {
         this.settingsStage = settingsStage;
+        // Lưu vào GameSettings để giữ context khi navigate
+        GameSettings.getInstance().setCurrentSettingsStage(settingsStage);
+    }
+    
+    @FXML
+    private void initialize() {
+        // Khôi phục context từ GameSettings khi controller được tạo lại
+        MainController savedMainController = GameSettings.getInstance().getCurrentMainController();
+        Stage savedSettingsStage = GameSettings.getInstance().getCurrentSettingsStage();
+        
+        if (savedMainController != null) {
+            this.mainController = savedMainController;
+        }
+        if (savedSettingsStage != null) {
+            this.settingsStage = savedSettingsStage;
+        }
     }
 
     // Xử lý sự kiện khi di chuột vào button
@@ -80,6 +100,10 @@ public class SettingsController {
         String id = btn.getId();
 
         switch (id) {
+            case "previewButton":
+                previewImageView.setImage(
+                        new Image(getClass().getResource("/game/arkanoid/images/preview c.png").toExternalForm()));
+                break;
             case "saveButton":
                 saveImageView.setImage(
                         new Image(getClass().getResource("/game/arkanoid/images/save c.png").toExternalForm()));
@@ -118,6 +142,10 @@ public class SettingsController {
         String id = btn.getId();
 
         switch (id) {
+            case "previewButton":
+                previewImageView.setImage(
+                    new Image(getClass().getResource("/game/arkanoid/images/preview.png").toExternalForm()));
+                break;
             case "saveButton":
                 saveImageView.setImage(
                         new Image(getClass().getResource("/game/arkanoid/images/save.png").toExternalForm()));
@@ -146,6 +174,18 @@ public class SettingsController {
                 rightPaddleImageView.setImage(
                         new Image(getClass().getResource("/game/arkanoid/images/right.png").toExternalForm()));
                 break;
+        }
+    }
+
+    // Mở màn hình preview level
+    @FXML
+    private void openPreview(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/PreviewGame.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -223,11 +263,15 @@ public class SettingsController {
             if (mainController != null && settingsStage != null) {
                 // Đóng Settings modal và quay lại PauseMenu
                 settingsStage.close();
+                // Clear context sau khi đóng
+                GameSettings.getInstance().clearNavigationContext();
             } else {
                 // Nếu được gọi từ StartMenu, chuyển Scene về StartMenu
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
                 stage.setScene(new Scene(root, 800, 600));
+                // Clear context khi về StartMenu
+                GameSettings.getInstance().clearNavigationContext();
             }
         } catch (IOException e) {
             e.printStackTrace();
