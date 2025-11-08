@@ -12,13 +12,14 @@
            fx:controller="game.arkanoid.controllers.StartMenuController"
            prefWidth="800" prefHeight="600">
 
+    <!-- Background -->
     <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
         <image>
             <Image url="@../images/StartMenu.png"/>
         </image>
     </ImageView>
 
-    <!-- Nickname góc trái trên -->
+    <!--  Nickname  -->
     <Label fx:id="nicknameLabel"
            text="Player: ???"
            style="-fx-text-fill: white;
@@ -28,9 +29,11 @@
            StackPane.alignment="TOP_LEFT"
            translateX="20" translateY="20"/>
 
+    <!-- Main Buttons -->
     <VBox alignment="CENTER" spacing="30">
         <VBox alignment="CENTER" spacing="15" translateY="80">
 
+            <!-- START BUTTON -->
             <Button fx:id="startButton"
                     text=""
                     onAction="#startGame"
@@ -48,6 +51,7 @@
                 </graphic>
             </Button>
 
+            <!-- SETTINGS BUTTON -->
             <Button fx:id="settingsButton"
                     text=""
                     onAction="#openSettings"
@@ -65,6 +69,7 @@
                 </graphic>
             </Button>
 
+            <!-- EXIT BUTTON -->
             <Button fx:id="exitButton"
                     text=""
                     onAction="#exitGame"
@@ -85,6 +90,7 @@
         </VBox>
     </VBox>
 
+    <!-- Logout Button (bottom right corner) -->
     <Button fx:id="logoutButton"
             onAction="#logout"
             StackPane.alignment="BOTTOM_RIGHT"
