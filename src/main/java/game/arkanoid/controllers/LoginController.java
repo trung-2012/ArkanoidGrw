@@ -215,16 +215,36 @@ public class LoginController {
         for (Player p : players) {
             if (p.getUsername().equals(username) && p.getPassword().equals(password)) {
                 try {
-                    Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
-                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                    stage.setScene(new Scene(root, 800, 600));
+                    if (p.getNickname() == null || p.getNickname().isEmpty()) {
+                        // Nếu chưa có nickname → chuyển sang màn hình đặt nickname
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/nickname.fxml"));
+                        Parent root = loader.load();
+
+                        // Gửi player hiện tại sang nickname controller
+                        NicknameController nicknameController = loader.getController();
+                        nicknameController.setPlayer(p);
+                        nicknameController.setPlayersList(players);
+
+                        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        stage.setScene(new Scene(root, 800, 600));
+                    } else {
+                        // Nếu đã có nickname → chuyển thẳng vào menu
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+                        Parent root = loader.load();
+
+                        StartMenuController controller = loader.getController();
+                        controller.setPlayer(p);
+
+                        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        stage.setScene(new Scene(root, 800, 600));
+
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return;
             }
         }
-
         messageLabel.setText("❌ Invalid username or password!");
     }
 }

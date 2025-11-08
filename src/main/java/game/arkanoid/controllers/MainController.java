@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.models.Player;
 import game.arkanoid.views.GameEngine;
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
@@ -27,6 +28,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
+
     @FXML
     private Button pauseButton;
     @FXML
@@ -37,6 +39,8 @@ public class MainController implements Initializable {
     private Label livesLabel;
     @FXML
     private Label levelLabel;
+    @FXML
+    private Label playerNameLabel;
     @FXML
     private Canvas gameCanvas;
     @FXML
@@ -52,24 +56,17 @@ public class MainController implements Initializable {
     @FXML
     private Rectangle pauseOverlay;
 
+    private Player player;
     private GameEngine engine;
     private Stage pauseStage;
 
     private boolean isPaused = false;
 
-    @FXML
-    private void onButtonMouseEntered(MouseEvent event) {
-        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm()));
-    }
-
-    @FXML
-    private void onButtonMouseExited(MouseEvent event) {
-        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm()));
-    }
-
-    public void updateBackgroundForLevel(int level) {
-        String imagePath = String.format("/game/arkanoid/images/MapLevel%d.png", level);
-        backgroundImageView.setImage(new Image(getClass().getResource(imagePath).toExternalForm()));
+    public void setPlayer(Player player) {
+        this.player = player;
+        if (playerNameLabel != null && player != null) {
+            playerNameLabel.setText(player.getNickname());
+        }
     }
 
     @Override
@@ -98,8 +95,6 @@ public class MainController implements Initializable {
                         case SPACE:
                             engine.handleSpacePressed();
                             break;
-                        default:
-                            break;
                     }
                 });
 
@@ -112,8 +107,6 @@ public class MainController implements Initializable {
                         case RIGHT:
                         case D:
                             engine.setRightPressed(false);
-                            break;
-                        default:
                             break;
                     }
                 });
@@ -131,27 +124,38 @@ public class MainController implements Initializable {
         });
     }
 
-    // Pause Game
+    @FXML
+    private void onButtonMouseEntered(MouseEvent event) {
+        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm()));
+    }
+
+    @FXML
+    private void onButtonMouseExited(MouseEvent event) {
+        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm()));
+    }
+
+    public void updateBackgroundForLevel(int level) {
+        String path = String.format("/game/arkanoid/images/MapLevel%d.png", level);
+        backgroundImageView.setImage(new Image(getClass().getResource(path).toExternalForm()));
+    }
+
     @FXML
     private void pauseGame(ActionEvent event) {
         if (!isPaused) {
             isPaused = true;
             engine.setGameRunning(false);
-
             applyPauseBlur();
             showPauseMenu();
         }
         gameCanvas.requestFocus();
     }
 
-    // Hàm gọi blur + overlay
     public void applyPauseBlur() {
         mainGamePane.setEffect(new GaussianBlur(10));
         pauseOverlay.setVisible(true);
         pauseOverlay.setOpacity(1);
     }
 
-    // Show pause menu
     public void showPauseMenu() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/PauseView.fxml"));
@@ -192,7 +196,6 @@ public class MainController implements Initializable {
         }
     }
 
-    // Resume Game
     public void resumeGame() {
         isPaused = false;
         engine.setGameRunning(true);
@@ -214,15 +217,14 @@ public class MainController implements Initializable {
     public void resetGameFromPause() {
         isPaused = false;
         engine.resetCurrentLevel();
-        
-        // Xóa blur và overlay
+
         mainGamePane.setEffect(null);
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), pauseOverlay);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);
         fadeOut.setOnFinished(ev -> pauseOverlay.setVisible(false));
         fadeOut.play();
-        
+
         gameCanvas.requestFocus();
     }
 
