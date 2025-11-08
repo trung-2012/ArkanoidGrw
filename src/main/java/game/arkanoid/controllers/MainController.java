@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -66,8 +67,12 @@ public class MainController implements Initializable {
     public void setPlayer(Player player) {
         this.player = player;
         if (playerNameLabel != null && player != null) {
-            playerNameLabel.setText("Player: " + player.getNickname());
+            playerNameLabel.setText(player.getNickname());
         }
+    }
+
+    public Player getCurrentPlayer() {
+        return this.player;
     }
 
     @Override
@@ -240,13 +245,16 @@ public class MainController implements Initializable {
     }
 
     public void returnToMenuFromPause() {
-        isPaused = false;
-        engine.setGameRunning(false);
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            Parent root = loader.load();
+
+            StartMenuController controller = loader.getController();
+            controller.setPlayer(player);
+
             Stage stage = (Stage) gameCanvas.getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

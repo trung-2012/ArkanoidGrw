@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.models.Player;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -26,6 +27,11 @@ public class PreviewGameController {
     private ImageView backImageView;
     @FXML
     private Label levelLabel;
+    private Player currentPlayer;
+
+    public void setPlayer(Player p) {
+        this.currentPlayer = p;
+    }
 
     private final String[] levelPreviews = {
             "/game/arkanoid/images/prev1.png",
@@ -82,7 +88,13 @@ public class PreviewGameController {
     @FXML
     private void backToSettings(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+            Parent root = loader.load();
+
+            SettingsController controller = loader.getController();
+
+            controller.setPlayer(currentPlayer);
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {

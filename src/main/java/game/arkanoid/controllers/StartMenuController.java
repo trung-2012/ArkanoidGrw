@@ -110,10 +110,17 @@ public class StartMenuController {
     @FXML
     private void openSettings(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(
+            FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+            Parent root = loader.load();
+
+            SettingsController settingsController = loader.getController();
+            settingsController.setMainController(null);   //  báo cho Settings biết là mở từ menu
+            settingsController.setPlayer(currentPlayer);  //  truyền Player vào SettingsController
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
