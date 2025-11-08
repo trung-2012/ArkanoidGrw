@@ -234,12 +234,17 @@ public class GameEngine extends AnimationTimer {
         powerUpManager.setPaddle(paddle);
         setupPowerUpCallbacks();
         shield = null;
+        
+        if (inputManager != null) {
+            inputManager.setPaddle(paddle);
+        }
 
         // Clear debris effects
         debrisEffects.clear();
 
         int currentLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
         loadLevelNumber(currentLevel);
+
         gameRunning = true;
     }
 
@@ -412,18 +417,25 @@ public class GameEngine extends AnimationTimer {
         int nextLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
         loadLevelNumber(nextLevel);
 
-        // reset main ball attach paddle
-        double resetX = paddle.getPosition().getX();
-        double resetY = paddle.getPosition().getY() - paddle.getHeight() / 2.0;
+        double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
+        double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
+        double px = canvasW / 2.0;
+        double py = canvasH - (GameConstants.PADDLE_HEIGHT / 2.0) - 10;
 
-        Ball newBall = new Ball(new Vector2D(resetX, resetY - GameConstants.BALL_SIZE / 2.0),
-                GameConstants.BALL_SIZE / 2.0);
+        this.paddle = new Paddle(new Vector2D(px, py));
+
+        double bx = px;
+        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0);
+        Ball newBall = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
         newBall.setVelocity(new Vector2D(0.0, 0.0));
         ballAttachedToPaddle = true;
 
         balls.clear();
         balls.add(newBall);
         mainBall = newBall;
+
+        if (inputManager != null) inputManager.setPaddle(paddle);
+        powerUpManager.setPaddle(paddle);
     }
     // Xử lý sự kiện phím bấm
     public void setLeftPressed(boolean pressed) {

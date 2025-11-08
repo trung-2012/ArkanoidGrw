@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.PreviewGameController">
+
+    <ImageView fx:id="backgroundImageView" fitHeight="600" fitWidth="800" preserveRatio="false">
+        <image>
+            <Image url="@../images/prevBackground.png" />
+        </image>
+    </ImageView>
+
+    <Label fx:id="levelLabel" layoutX="290.0" layoutY="44.0" style="-fx-text-fill: #3399ff; -fx-font-size: 72px; -fx-underline: true; -fx-effect: dropshadow(gaussian, #3399ff, 5, 0.8, 0, 0);" text="Level 1" />
+
+    <Button fx:id="leftButton" layoutX="60.0" layoutY="268.0" onAction="#prevLevel" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
+        <graphic>
+            <ImageView fx:id="leftImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
+                <image>
+                    <Image url="@../images/left.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <ImageView fx:id="previewImageView" fitHeight="300.0" fitWidth="480.0" layoutX="160.0" layoutY="150.0" preserveRatio="true">
+        <image>
+            <Image url="@../images/prev1.png" />
+        </image>
+    </ImageView>
+
+    <Button fx:id="rightButton" layoutX="684.0" layoutY="268.0" onAction="#nextLevel" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="40" prefWidth="40" style="-fx-background-color: transparent;">
+        <graphic>
+            <ImageView fx:id="rightImageView" fitHeight="40" fitWidth="40" preserveRatio="true">
+                <image>
+                    <Image url="@../images/right.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <Button fx:id="backButton" layoutX="333.0" layoutY="508.0" onAction="#backToSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
+        <graphic>
+            <ImageView fx:id="backImageView" fitHeight="50" fitWidth="120" preserveRatio="true">
+                <image>
+                    <Image url="@../images/back.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+</AnchorPane>

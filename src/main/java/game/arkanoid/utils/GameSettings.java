@@ -1,5 +1,8 @@
 package game.arkanoid.utils;
 
+import game.arkanoid.controllers.MainController;
+import javafx.stage.Stage;
+
 public class GameSettings {
     // Singleton instance - volatile để đảm bảo thread-safety
     private static volatile GameSettings instance;
@@ -8,6 +11,10 @@ public class GameSettings {
     private String selectedBall;
     private String selectedPaddle;
     private String selectedBullet;
+    
+    // Navigation context - để giữ context khi navigate Settings → Preview → Back
+    private MainController currentMainController;
+    private Stage currentSettingsStage;
     
     // Private constructor để ngăn chặn khởi tạo bên ngoài
     private GameSettings() {
@@ -103,5 +110,27 @@ public class GameSettings {
         this.selectedBall = "/game/arkanoid/images/Ball.png";
         this.selectedPaddle = "/game/arkanoid/images/Paddle.png";
         this.selectedBullet = "/game/arkanoid/images/bulletPaddle.png";
+    }
+    
+    // Getters & Setters
+    public MainController getCurrentMainController() {
+        return currentMainController;
+    }
+    
+    public void setCurrentMainController(MainController controller) {
+        this.currentMainController = controller;
+    }
+    
+    public Stage getCurrentSettingsStage() {
+        return currentSettingsStage;
+    }
+    
+    public void setCurrentSettingsStage(Stage stage) {
+        this.currentSettingsStage = stage;
+    }
+    
+    public void clearNavigationContext() {
+        this.currentMainController = null;
+        this.currentSettingsStage = null;
     }
 }

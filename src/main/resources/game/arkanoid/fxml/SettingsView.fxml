@@ -86,8 +86,17 @@
         </graphic>
     </Button>
 
+    <Button fx:id="previewButton" layoutX="211.0" layoutY="510.0" onAction="#openPreview" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
+        <graphic>
+            <ImageView fx:id="previewImageView" fitHeight="50" fitWidth="120" preserveRatio="true">
+                <image>
+                    <Image url="@../images/preview.png" />
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
 
-    <Button fx:id="saveButton" layoutX="334.0" layoutY="510.0" onAction="#saveSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
+    <Button fx:id="saveButton" layoutX="458.0" layoutY="510.0" onAction="#saveSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="saveImageView" fitHeight="50" fitWidth="120" preserveRatio="true">
                 <image>
