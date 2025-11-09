@@ -86,7 +86,13 @@ public class NicknameController {
 
         // back to StartMenu
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            Parent root = loader.load();
+            
+            // Truyền player vào StartMenuController
+            StartMenuController controller = loader.getController();
+            controller.setPlayer(currentPlayer);
+            
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {

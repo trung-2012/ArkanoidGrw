@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.models.Player;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,6 +19,8 @@ public class GameOverController {
     private javafx.scene.image.ImageView restartImageView;
     @FXML
     private javafx.scene.image.ImageView menuImageView;
+    
+    private Player currentPlayer;
 
     // Xử lý sự kiện khi di chuột vào button
     @FXML
@@ -65,8 +68,14 @@ public class GameOverController {
     @FXML
     private void restartGame(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/game/arkanoid/fxml/MainView.fxml"));
+            Parent root = loader.load();
+            
+            // Truyền player vào MainController
+            MainController controller = loader.getController();
+            controller.setPlayer(currentPlayer);
+            
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {
@@ -80,13 +89,24 @@ public class GameOverController {
             scoreLabel.setText("Final Score: " + score);
         }
     }
+    
+    // Thiết lập player
+    public void setPlayer(Player player) {
+        this.currentPlayer = player;
+    }
 
     // Trở về menu chính
     @FXML
     private void returnToMenu(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/game/arkanoid/fxml/StartMenu.fxml"));
+            Parent root = loader.load();
+            
+            // Truyền player vào StartMenuController
+            StartMenuController controller = loader.getController();
+            controller.setPlayer(currentPlayer);
+            
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {

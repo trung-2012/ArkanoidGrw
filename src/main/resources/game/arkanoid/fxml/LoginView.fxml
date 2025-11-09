@@ -27,7 +27,7 @@
                          -fx-border-width: 2;
                          -fx-border-radius: 15;
                          -fx-padding: 20;
-                         -fx-effect: dropshadow(gaussian, #00bfff, 25, 0.5);">
+                         -fx-effect: dropshadow(gaussian, #00bfff, 25, 0.5, 0, 0);">
 
                 <!-- TITLE -->
                 <Label fx:id="titleLabel"

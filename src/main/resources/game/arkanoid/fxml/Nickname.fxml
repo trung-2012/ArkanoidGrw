@@ -28,18 +28,15 @@
                          -fx-border-radius: 15;
                          -fx-padding: 20;">
 
-                <!-- TITLE -->
                 <Label text="NICKNAME"
                        style="-fx-font-size: 26;
                               -fx-text-fill: white;
                               -fx-font-weight: bold;
                               -fx-effect: dropshadow(gaussian, #00bfff, 10, 0.8, 0, 0);"/>
 
-                <!-- MESSAGE -->
                 <Label fx:id="messageLabel" text=""
                        style="-fx-text-fill: red;"/>
 
-                <!-- NICKNAME FIELD -->
                 <VBox alignment="CENTER_LEFT" spacing="5">
                     <Label text="Enter nickname:"
                            style="-fx-text-fill: white; -fx-font-size: 13;"/>
@@ -53,7 +50,6 @@
                                       -fx-prompt-text-fill: gray;"/>
                 </VBox>
 
-                <!-- BUTTON -->
                 <Button text="Continue"
                         onAction="#handleContinue"
                         prefWidth="130" prefHeight="32"

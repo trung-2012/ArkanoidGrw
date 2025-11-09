@@ -51,14 +51,54 @@ public class LoginController {
         loadPlayers();
 
         usernameField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (isRegisterMode) checkUsername(newVal);
+            if (isRegisterMode)
+                checkUsername(newVal);
+        });
+        
+        // Bind 2 chiều giữa passwordField và passwordFieldVisible
+        passwordField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (passwordField.isVisible()) {
+                passwordFieldVisible.setText(newVal);
+            }
+        });
+        
+        passwordFieldVisible.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (passwordFieldVisible.isVisible()) {
+                passwordField.setText(newVal);
+            }
+        });
+        
+        // Bind 2 chiều giữa confirmPasswordField và confirmPasswordFieldVisible
+        confirmPasswordField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (confirmPasswordField.isVisible()) {
+                confirmPasswordFieldVisible.setText(newVal);
+            }
+        });
+        
+        confirmPasswordFieldVisible.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (confirmPasswordFieldVisible.isVisible()) {
+                confirmPasswordField.setText(newVal);
+            }
         });
     }
 
+    @SuppressWarnings("unchecked")
     private void loadPlayers() {
+        File file = new File(FILE_PATH);
+        if (!file.exists()) {
+            players = new ArrayList<>();
+            return;
+        }
+
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH))) {
-            players = (ArrayList<Player>) ois.readObject();
-        } catch (Exception e) {
+            Object obj = ois.readObject();
+            if (obj instanceof ArrayList<?>) {
+                players = (ArrayList<Player>) obj;
+            } else {
+                players = new ArrayList<>();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading players: " + e.getMessage());
             players = new ArrayList<>();
         }
     }
@@ -76,7 +116,7 @@ public class LoginController {
         isRegisterMode = !isRegisterMode;
 
         if (isRegisterMode) {
-            titleLabel.setText("CREATE AN ACCOUNT");
+            titleLabel.setText("CREATE ACCOUNT");
             confirmBox.setVisible(true);
             confirmBox.setManaged(true);
             mainButton.setText("Register");
@@ -127,8 +167,6 @@ public class LoginController {
         passwordField.setVisible(false);
         passwordField.setManaged(false);
 
-        passwordFieldVisible.textProperty().addListener((o, oldV, newV) -> passwordField.setText(newV));
-
         // REGISTER CONFIRM PASSWORD
         if (isRegisterMode) {
             confirmPasswordFieldVisible.setText(confirmPasswordField.getText());
@@ -137,10 +175,6 @@ public class LoginController {
 
             confirmPasswordField.setVisible(false);
             confirmPasswordField.setManaged(false);
-
-            confirmPasswordFieldVisible.textProperty().addListener((o, oldV, newV) ->
-                    confirmPasswordField.setText(newV)
-            );
         }
     }
 
@@ -229,7 +263,8 @@ public class LoginController {
                         stage.setScene(new Scene(root, 800, 600));
                     } else {
                         // Nếu đã có nickname → chuyển thẳng vào menu
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
                         Parent root = loader.load();
 
                         StartMenuController controller = loader.getController();

@@ -537,6 +537,12 @@ public class GameEngine extends AnimationTimer {
                 Parent root = loader.load();
                 game.arkanoid.controllers.GameOverController controller = loader.getController();
                 controller.setFinalScore(finalScore);
+                
+                // Truyền player từ mainController
+                if (mainController != null && mainController.getCurrentPlayer() != null) {
+                    controller.setPlayer(mainController.getCurrentPlayer());
+                }
+                
                 Stage stage = (Stage) canvas.getScene().getWindow();
                 stage.setScene(new Scene(root, 800, 600));
             } catch (Exception e) {
