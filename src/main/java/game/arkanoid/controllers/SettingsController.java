@@ -2,6 +2,7 @@ package game.arkanoid.controllers;
 
 import game.arkanoid.player_manager.Player;
 import game.arkanoid.managers.SoundManager;
+import javafx.scene.control.Slider;
 import javafx.scene.control.CheckBox;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -49,19 +50,19 @@ public class SettingsController {
     @FXML
     private ImageView confirmPaddleImageView;
     @FXML
-    private CheckBox musicCheckBox;
+    private Slider musicSlider;
     @FXML
-    private ImageView musicIconView;
+    private ImageView musicVolumeIcon;
     @FXML
-    private CheckBox sfxCheckBox;
+    private Slider sfxSlider;
     @FXML
-    private ImageView sfxIconView;
+    private ImageView sfxVolumeIcon;
 
     // Tạo biến để giữ ảnh icon
-    private Image musicOnImage;
-    private Image musicOffImage;
-    private Image sfxOnImage;
-    private Image sfxOffImage;
+    private Image musicOnIcon;
+    private Image musicOffIcon;
+    private Image sfxOnIcon;
+    private Image sfxOffIcon;
 
     // Dsach Skins
     private final String[] ballSkins = {
@@ -111,63 +112,62 @@ public class SettingsController {
         }
 
         try {
-            musicOnImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/music_on.png"));
-            musicOffImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/music_off.png"));
-            sfxOnImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/sound_on.png"));
-            sfxOffImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/sound_off.png"));
+            musicOnIcon = new Image(getClass().getResourceAsStream("/game/arkanoid/images/music_on.png"));
+            musicOffIcon = new Image(getClass().getResourceAsStream("/game/arkanoid/images/music_off.png"));
+            sfxOnIcon = new Image(getClass().getResourceAsStream("/game/arkanoid/images/sound_on.png"));
+            sfxOffIcon = new Image(getClass().getResourceAsStream("/game/arkanoid/images/sound_off.png"));
         } catch (Exception e) {
             System.err.println("Lỗi: Không thể tải hình ảnh icon âm thanh!");
+            e.printStackTrace();
         }
 
         // Lấy instance duy nhất của SoundManager
         SoundManager soundManager = SoundManager.getInstance();
 
-        // Đặt trạng thái ban đầu cho CheckBox (dựa trên trạng thái của SoundManager)
-        // === 4. Cấu hình Music CheckBox ===
-        if (musicCheckBox != null && musicIconView != null) {
-            boolean isMusicEnabled = soundManager.isMusicEnabled();
-            musicCheckBox.setSelected(isMusicEnabled);
-
-            // Đặt hình ảnh ban đầu
-            musicIconView.setImage(isMusicEnabled ? musicOnImage : musicOffImage);
-
-            // Thêm "Listener" (quan trọng nhất)
-            // Đây chính là code "điều chỉnh ảnh trong Controller"
-            musicCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                // Khi click, gọi SoundManager
-                soundManager.setMusicEnabled(newValue);
-                // Và CẬP NHẬT hình ảnh
-                musicIconView.setImage(newValue ? musicOnImage : musicOffImage);
-            });
-        }
-        // === 5. Cấu hình SFX CheckBox ===
-        if (sfxCheckBox != null && sfxIconView != null) {
-            boolean isSfxEnabled = soundManager.isSfxEnabled();
-            sfxCheckBox.setSelected(isSfxEnabled);
-
-            // Đặt hình ảnh ban đầu
-            sfxIconView.setImage(isSfxEnabled ? sfxOnImage : sfxOffImage);
-
-            // Thêm "Listener"
-            sfxCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                // Khi click, gọi SoundManager
-                soundManager.setSfxEnabled(newValue);
-                // Và CẬP NHẬT hình ảnh
-                sfxIconView.setImage(newValue ? sfxOnImage : sfxOffImage);
+        // --- Cấu hình Music Slider ---
+        if (musicSlider != null) {
+            // Đặt giá trị ban đầu cho Slider
+            musicSlider.setValue(soundManager.getMusicVolume());
+            // Đặt icon ban đầu dựa trên âm lượng
+            updateMusicIcon(soundManager.getMusicVolume());
+            // Thêm Listener để cập nhật SoundManager khi kéo
+            musicSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                soundManager.setMusicVolume(newValue.doubleValue());
+                updateMusicIcon(newValue.doubleValue()); // Cập nhật icon khi kéo
             });
         }
 
-        // Thêm Listener để khi click vào CheckBox, SoundManager sẽ cập nhật ngay
-        if (musicCheckBox != null) {
-            musicCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                soundManager.setMusicEnabled(newValue);
+        // --- Cấu hình SFX Slider ---
+        if (sfxSlider != null) {
+            // Đặt giá trị ban đầu cho Slider
+            sfxSlider.setValue(soundManager.getSfxVolume());
+            // Đặt icon ban đầu dựa trên âm lượng
+            updateSfxIcon(soundManager.getSfxVolume());
+            // Thêm Listener để cập nhật SoundManager khi kéo
+            sfxSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                soundManager.setSfxVolume(newValue.doubleValue());
+                updateSfxIcon(newValue.doubleValue()); // Cập nhật icon khi kéo
             });
         }
+    }
 
-        if (sfxCheckBox != null) {
-            sfxCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                soundManager.setSfxEnabled(newValue);
-            });
+    private void updateMusicIcon(double volume) {
+        if (musicVolumeIcon != null) {
+            if (volume == 0.0) {
+                musicVolumeIcon.setImage(musicOffIcon);
+            } else {
+                musicVolumeIcon.setImage(musicOnIcon);
+            }
+        }
+    }
+
+    private void updateSfxIcon(double volume) {
+        if (sfxVolumeIcon != null) {
+            if (volume == 0.0) {
+                sfxVolumeIcon.setImage(sfxOffIcon);
+            } else {
+                sfxVolumeIcon.setImage(sfxOnIcon);
+            }
         }
     }
 

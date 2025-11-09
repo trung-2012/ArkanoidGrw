@@ -31,9 +31,7 @@ public class StartMenuController {
 
     @FXML
     private void initialize() {
-        SoundManager.getInstance().playBackgroundMusic(
-                "src/main/resources/game/arkanoid/sounds/menu_music.mp3", true
-        );
+        SoundManager.getInstance().resumeBackgroundMusic();
     }
 
     public void setPlayer(Player p) {
@@ -98,8 +96,6 @@ public class StartMenuController {
     // Bắt đầu trò chơi
     @FXML
     private void startGame(ActionEvent event) {
-        // Dùng nhạc menu trước khi vào game
-        SoundManager.getInstance().stopBackgroundMusic();
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/game/arkanoid/fxml/MainView.fxml"));

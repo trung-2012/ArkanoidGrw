@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -87,17 +88,20 @@
         </graphic>
     </Button>
 
-    <CheckBox fx:id="musicCheckBox" layoutX="18.0" layoutY="33.0" style="-fx-text-fill: white; -fx-font-weight: bold;" text="Bật Nhạc Nền">
+    <Label layoutX="45.0" layoutY="34.0" textFill="WHITE">
         <graphic>
-            <ImageView fx:id="musicIconView" fitHeight="32" fitWidth="32" />
+            <ImageView fx:id="musicVolumeIcon" fitHeight="32" fitWidth="32" preserveRatio="true" />
         </graphic>
-    </CheckBox>
+    </Label>
+    <Slider fx:id="musicSlider" layoutX="74.0" layoutY="38.0" max="1.0" min="0.0" prefWidth="150.0" value="1.0" />
 
-    <CheckBox fx:id="sfxCheckBox" layoutX="18.0" layoutY="71.0" style="-fx-text-fill: white; -fx-font-weight: bold;" text="Bật Hiệu Ứng (SFX)">
+    <Label layoutX="45.0" layoutY="78.0" textFill="WHITE">
         <graphic>
-            <ImageView fx:id="sfxIconView" fitHeight="32" fitWidth="32" />
+            <ImageView fx:id="sfxVolumeIcon" fitHeight="32" fitWidth="32" preserveRatio="true" />
         </graphic>
-    </CheckBox>
+    </Label>
+    <Slider fx:id="sfxSlider" layoutX="74.0" layoutY="82.0" max="1.0" min="0.0" prefWidth="150.0" value="1.0" />
+
     <Button fx:id="previewButton" layoutX="211.0" layoutY="510.0" onAction="#openPreview" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="previewImageView" fitHeight="50" fitWidth="120" preserveRatio="true">

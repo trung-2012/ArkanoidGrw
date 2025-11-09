@@ -4,11 +4,13 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 
 /**
- * Quản lý âm thanh cho ứng dụng JavaFX (Nâng cấp)
- * Hỗ trợ bật/tắt (Toggle) và áp dụng mẫu Singleton.
+ * Quản lý âm thanh
+ * Hỗ trợ điều chỉnh âm lượng (Slider 0.0 - 1.0) và áp dụng Singleton.
  */
 public class SoundManager {
 
@@ -19,8 +21,9 @@ public class SoundManager {
     private HashMap<String, AudioClip> soundEffects;
     private MediaPlayer backgroundMusicPlayer;
 
-    private boolean musicEnabled = true;
-    private boolean sfxEnabled = true;
+    private double musicVolume = 1.0; // Mặc định 100%
+    private double sfxVolume = 1.0;   // Mặc định 100%
+
 
     private String currentMusicPath = null;
     private boolean currentMusicLoop = false;
@@ -44,6 +47,22 @@ public class SoundManager {
     }
     // =======================================
 
+//    // === HÀM HELPER ĐỂ LẤY ĐƯỜNG DẪN CLASSPATH ===
+//    private String getResourceUrl(String classpathPath) {
+//        try {
+//            // Lấy URL tài nguyên từ classpath
+//            URL resourceUrl = getClass().getResource(classpathPath);
+//            if (resourceUrl == null) {
+//                throw new IOException("Không tìm thấy tài nguyên: " + classpathPath);
+//            }
+//            return resourceUrl.toExternalForm();
+//        } catch (Exception e) {
+//            System.err.println("Lỗi nghiêm trọng khi tải tài nguyên: " + classpathPath);
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+
     /**
      * Tải trước một hiệu ứng âm thanh (SFX)
      */
@@ -51,6 +70,7 @@ public class SoundManager {
         try {
             String uriString = new File(filePath).toURI().toString();
             AudioClip clip = new AudioClip(uriString);
+            clip.setVolume(this.sfxVolume);
             soundEffects.put(id, clip);
         } catch (Exception e) {
             System.err.println("Không thể tải hiệu ứng âm thanh: " + filePath);
@@ -62,7 +82,7 @@ public class SoundManager {
      * Phát một hiệu ứng âm thanh (SFX)
      */
     public void playSoundEffect(String id) {
-        if (!sfxEnabled) {
+        if (this.sfxVolume == 0.0) {
             return;
         }
         AudioClip clip = soundEffects.get(id);
@@ -80,7 +100,7 @@ public class SoundManager {
         this.currentMusicPath = filePath;
         this.currentMusicLoop = loop;
 
-        if (!musicEnabled) {
+        if (this.musicVolume == 0.0) {
             return;
         }
 
@@ -110,42 +130,74 @@ public class SoundManager {
         }
     }
 
+    public void pauseBackgroundMusic() {
+        if (backgroundMusicPlayer != null &&
+                backgroundMusicPlayer.getStatus() == MediaPlayer.Status.PLAYING)
+        {
+            backgroundMusicPlayer.pause();
+        }
+    }
+
+    public void resumeBackgroundMusic() {
+        // Chỉ tiếp tục nếu nhạc đang được bật (âm lượng > 0)
+        // và trình phát nhạc đang ở trạng thái TẠM DỪNG
+        if (musicVolume > 0 &&
+                backgroundMusicPlayer != null &&
+                backgroundMusicPlayer.getStatus() == MediaPlayer.Status.PAUSED)
+        {
+            backgroundMusicPlayer.play();
+        }
+    }
+
     /**
-     * Bật hoặc tắt nhạc nền (Music).
-     * @param enabled true để bật, false để tắt.
+     * Điều chỉnh âm lượng nhạc nền (Music).
+     * @param volume Giá trị từ 0.0 (tắt) đến 1.0 (tối đa).
      */
-    public void setMusicEnabled(boolean enabled) {
-        this.musicEnabled = enabled;
-        if (enabled) {
-            if (backgroundMusicPlayer == null && currentMusicPath != null) {
-                playBackgroundMusic(currentMusicPath, currentMusicLoop);
-            }
-        } else {
+    public void setMusicVolume(double volume) {
+        // Giới hạn giá trị trong khoảng 0.0 - 1.0
+        this.musicVolume = Math.max(0.0, Math.min(1.0, volume));
+
+        if (backgroundMusicPlayer != null) {
+            // Cập nhật âm lượng ngay lập tức
+            backgroundMusicPlayer.setVolume(this.musicVolume);
+        }
+
+        // Nếu người dùng kéo từ 0 lên và có nhạc đang chờ
+        if (this.musicVolume > 0 && backgroundMusicPlayer == null && currentMusicPath != null) {
+            playBackgroundMusic(currentMusicPath, currentMusicLoop);
+        }
+        // Nếu người dùng kéo về 0
+        else if (this.musicVolume == 0.0) {
             stopBackgroundMusic();
         }
     }
 
     /**
-     * Bật hoặc tắt hiệu ứng âm thanh (SFX).
-     * @param enabled true để bật, false để tắt.
+     * Điều chỉnh âm lượng hiệu ứng (SFX).
+     * @param volume Giá trị từ 0.0 (tắt) đến 1.0 (tối đa).
      */
-    public void setSfxEnabled(boolean enabled) {
-        this.sfxEnabled = enabled;
+    public void setSfxVolume(double volume) {
+        this.sfxVolume = Math.max(0.0, Math.min(1.0, volume));
+
+        // Cập nhật âm lượng cho TẤT CẢ các clip đã tải
+        for (AudioClip clip : soundEffects.values()) {
+            clip.setVolume(this.sfxVolume);
+        }
     }
 
     /**
-     * Lấy trạng thái hiện tại của nhạc nền.
-     * @return true nếu nhạc đang bật.
+     * Lấy mức âm lượng nhạc hiện tại.
+     * @return Âm lượng (0.0 - 1.0)
      */
-    public boolean isMusicEnabled() {
-        return musicEnabled;
+    public double getMusicVolume() {
+        return this.musicVolume;
     }
 
     /**
-     * Lấy trạng thái hiện tại của hiệu ứng âm thanh.
-     * @return true nếu SFX đang bật.
+     * Lấy mức âm lượng SFX hiện tại.
+     * @return Âm lượng (0.0 - 1.0)
      */
-    public boolean isSfxEnabled() {
-        return sfxEnabled;
+    public double getSfxVolume() {
+        return this.sfxVolume;
     }
 }

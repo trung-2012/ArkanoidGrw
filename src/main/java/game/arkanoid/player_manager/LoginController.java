@@ -1,5 +1,6 @@
 package game.arkanoid.player_manager;
 
+import game.arkanoid.managers.SoundManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -49,6 +50,9 @@ public class LoginController {
     @FXML
     public void initialize() {
         loadPlayers();
+        SoundManager.getInstance().playBackgroundMusic(
+                "src/main/resources/game/arkanoid/sounds/menu_music.mp3", true
+        );
 
         usernameField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (isRegisterMode)

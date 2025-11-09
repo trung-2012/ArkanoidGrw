@@ -44,6 +44,7 @@ public class CollisionManager {
 
     /** Callback cho âm thanh*/
     private CollisionCallback onPaddleHit;
+    private CollisionCallback onShieldHit;
 
     /**
      * Constructor khởi tạo CollisionManager.
@@ -147,6 +148,10 @@ public class CollisionManager {
 
                 //cooldown 120ms để tránh giật
                 b.nextShieldBounceAllowed = now + 120;
+
+                if (onShieldHit != null) {
+                    onShieldHit.onCollision();
+                }
 
                 // shield mất HP
                 shield.hit();
@@ -334,6 +339,10 @@ public class CollisionManager {
 
     public void setBallAttached(boolean attached) {
         this.ballAttachedToPaddle = attached;
+    }
+
+    public void setOnShieldHit(CollisionCallback callback) {
+        this.onShieldHit = callback;
     }
 
     // Callback Interfaces

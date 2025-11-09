@@ -124,6 +124,8 @@ public class GameEngine extends AnimationTimer {
             soundManager.loadSoundEffect("shield_up","src/main/resources/game/arkanoid/sounds/shield_up.mp3");
             soundManager.loadSoundEffect("multiball","src/main/resources/game/arkanoid/sounds/multiball.mp3");
             soundManager.loadSoundEffect("laser_fire","src/main/resources/game/arkanoid/sounds/laser_fire.mp3");
+            soundManager.loadSoundEffect("endgame","src/main/resources/game/arkanoid/sounds/endgame.mp3");
+            soundManager.loadSoundEffect("shield_hit","src/main/resources/game/arkanoid/sounds/shield_hit.mp3");
         } catch (Exception e) {
             System.err.println("Lỗi không thể tải file âm thanh" + e.getMessage());
         }
@@ -211,11 +213,6 @@ public class GameEngine extends AnimationTimer {
         // Update InputManager với paddle mới
         if (inputManager != null) {
             inputManager.setPaddle(paddle);
-        }
-
-        // Bắt đầu phát nhạc nền
-        if (soundManager != null) {
-            soundManager.playBackgroundMusic("src/main/resources/game/arkanoid/sounds/gameplay_music.mp3", true);
         }
 
         this.gameRunning = true;
@@ -578,7 +575,8 @@ public class GameEngine extends AnimationTimer {
             setGameRunning(false);
 
             if (soundManager != null) {
-                soundManager.stopBackgroundMusic();
+                soundManager.pauseBackgroundMusic();
+                soundManager.playSoundEffect("endgame");
             }
 
             try {
@@ -620,6 +618,13 @@ public class GameEngine extends AnimationTimer {
         // Âm thanh khi bóng chạm paddle
         collisionManager.setOnPaddleHit(() -> {
             if (soundManager != null) soundManager.playSoundEffect("hit_paddle");
+        });
+
+        // Âm thanh khi bóng chạm khiên
+        collisionManager.setOnShieldHit(() -> {
+            if (soundManager != null) {
+                soundManager.playSoundEffect("shield_hit");
+            }
         });
     }
 
