@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.models.Player;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,6 +21,7 @@ public class SettingsController {
 
     private MainController mainController; // Để biết có đang từ game hay không
     private Stage settingsStage; // Stage của Settings window
+    private Player currentPlayer;
 
     // Các ImageView trong Settings
     @FXML
@@ -181,7 +183,12 @@ public class SettingsController {
     @FXML
     private void openPreview(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/PreviewGame.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/PreviewGame.fxml"));
+            Parent root = loader.load();
+
+            PreviewGameController controller = loader.getController();
+            controller.setPlayer(currentPlayer);
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {
@@ -268,7 +275,16 @@ public class SettingsController {
             } else {
                 // Nếu được gọi từ StartMenu, chuyển Scene về StartMenu
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+                Parent root = loader.load();
+
+                StartMenuController controller = loader.getController();
+                if (mainController != null) {
+                    controller.setPlayer(mainController.getCurrentPlayer());
+                } else {
+                    controller.setPlayer(currentPlayer);
+                }
+
                 stage.setScene(new Scene(root, 800, 600));
                 // Clear context khi về StartMenu
                 GameSettings.getInstance().clearNavigationContext();
@@ -287,5 +303,9 @@ public class SettingsController {
     private void updatePaddleImage() {
         paddleImageView.setImage(
                 new Image(getClass().getResource(paddleSkins[paddleIndex]).toExternalForm()));
+    }
+
+    public void setPlayer(Player p) {
+        this.currentPlayer = p;
     }
 }

@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.models.Player;
 import game.arkanoid.views.GameEngine;
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
@@ -23,6 +24,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -37,6 +39,10 @@ public class MainController implements Initializable {
     private Label livesLabel;
     @FXML
     private Label levelLabel;
+
+    @FXML
+    private Label playerNameLabel;
+
     @FXML
     private Canvas gameCanvas;
     @FXML
@@ -52,24 +58,21 @@ public class MainController implements Initializable {
     @FXML
     private Rectangle pauseOverlay;
 
+    private Player player;
     private GameEngine engine;
     private Stage pauseStage;
 
     private boolean isPaused = false;
 
-    @FXML
-    private void onButtonMouseEntered(MouseEvent event) {
-        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm()));
+    public void setPlayer(Player player) {
+        this.player = player;
+        if (playerNameLabel != null && player != null) {
+            playerNameLabel.setText(player.getNickname());
+        }
     }
 
-    @FXML
-    private void onButtonMouseExited(MouseEvent event) {
-        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm()));
-    }
-
-    public void updateBackgroundForLevel(int level) {
-        String imagePath = String.format("/game/arkanoid/images/MapLevel%d.png", level);
-        backgroundImageView.setImage(new Image(getClass().getResource(imagePath).toExternalForm()));
+    public Player getCurrentPlayer() {
+        return this.player;
     }
 
     @Override
@@ -129,6 +132,21 @@ public class MainController implements Initializable {
                 });
             }
         });
+    }
+
+    @FXML
+    private void onButtonMouseEntered(MouseEvent event) {
+        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause c.png").toExternalForm()));
+    }
+
+    @FXML
+    private void onButtonMouseExited(MouseEvent event) {
+        pauseImageView.setImage(new Image(getClass().getResource("/game/arkanoid/images/pause.png").toExternalForm()));
+    }
+
+    public void updateBackgroundForLevel(int level) {
+        String imagePath = String.format("/game/arkanoid/images/MapLevel%d.png", level);
+        backgroundImageView.setImage(new Image(getClass().getResource(imagePath).toExternalForm()));
     }
 
     // Pause Game
@@ -214,7 +232,7 @@ public class MainController implements Initializable {
     public void resetGameFromPause() {
         isPaused = false;
         engine.resetCurrentLevel();
-        
+
         // Xóa blur và overlay
         mainGamePane.setEffect(null);
         FadeTransition fadeOut = new FadeTransition(Duration.millis(200), pauseOverlay);
@@ -222,18 +240,21 @@ public class MainController implements Initializable {
         fadeOut.setToValue(0);
         fadeOut.setOnFinished(ev -> pauseOverlay.setVisible(false));
         fadeOut.play();
-        
+
         gameCanvas.requestFocus();
     }
 
     public void returnToMenuFromPause() {
-        isPaused = false;
-        engine.setGameRunning(false);
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/StartMenu.fxml"));
+            Parent root = loader.load();
+
+            StartMenuController controller = loader.getController();
+            controller.setPlayer(player);
+
             Stage stage = (Stage) gameCanvas.getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

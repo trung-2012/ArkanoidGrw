@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.models.Player;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -7,16 +8,32 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.event.ActionEvent;
+import javafx.scene.control.Label;
 
 import java.io.IOException;
 
 public class StartMenuController {
+
     @FXML
     private javafx.scene.image.ImageView startImageView;
     @FXML
     private javafx.scene.image.ImageView settingsImageView;
     @FXML
     private javafx.scene.image.ImageView exitImageView;
+    @FXML
+    private javafx.scene.image.ImageView logoutImageView;
+
+    @FXML
+    private Label nicknameLabel;
+
+    private Player currentPlayer;
+
+    public void setPlayer(Player p) {
+        this.currentPlayer = p;
+        if (nicknameLabel != null && p != null) {
+            nicknameLabel.setText("Hi, " + p.getNickname());
+        }
+    }
 
     // Xử lý sự kiện khi di chuột vào button
     @FXML
@@ -74,8 +91,14 @@ public class StartMenuController {
     @FXML
     private void startGame(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(
-                    "/game/arkanoid/fxml/MainView.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/MainView.fxml"));
+            Parent root = loader.load();
+
+            // truyền player sang MainController
+            MainController controller = loader.getController();
+            controller.setPlayer(currentPlayer);
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {
@@ -87,9 +110,17 @@ public class StartMenuController {
     @FXML
     private void openSettings(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+            Parent root = loader.load();
+
+            SettingsController settingsController = loader.getController();
+            settingsController.setMainController(null);   //  báo cho Settings biết là mở từ menu
+            settingsController.setPlayer(currentPlayer);  //  truyền Player vào SettingsController
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,5 +131,17 @@ public class StartMenuController {
     private void exitGame() {
         System.out.println("Exit game");
         System.exit(0);
+    }
+
+    @FXML
+    private void logout(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/game/arkanoid/fxml/LoginView.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

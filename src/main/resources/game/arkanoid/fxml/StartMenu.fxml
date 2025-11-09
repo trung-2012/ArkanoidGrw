@@ -1,33 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.control.Label?>
 
-<StackPane xmlns="http://javafx.com/javafx/17"
-           xmlns:fx="http://javafx.com/fxml/1"
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/17"
            fx:controller="game.arkanoid.controllers.StartMenuController"
            prefWidth="800" prefHeight="600">
 
+    <!-- Background -->
     <ImageView fitWidth="800" fitHeight="600" preserveRatio="false">
         <image>
             <Image url="@../images/StartMenu.png"/>
         </image>
     </ImageView>
 
-    <VBox alignment="CENTER" spacing="30">
+    <!--  Nickname  -->
+    <Label fx:id="nicknameLabel"
+           text="Player: ???"
+           style="-fx-text-fill: white;
+                  -fx-font-size: 20;
+                  -fx-font-weight: bold;
+                  -fx-font-style: italic;"
+           StackPane.alignment="TOP_LEFT"
+           translateX="20" translateY="20"/>
 
+    <!-- Main Buttons -->
+    <VBox alignment="CENTER" spacing="30">
         <VBox alignment="CENTER" spacing="15" translateY="80">
 
-            <Button fx:id="startButton" text="" onAction="#startGame" onMouseEntered="#onButtonMouseEntered"
+            <!-- START BUTTON -->
+            <Button fx:id="startButton"
+                    text=""
+                    onAction="#startGame"
+                    onMouseEntered="#onButtonMouseEntered"
                     onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
+                    style="-fx-background-color: transparent;">
                 <graphic>
-                    <ImageView fx:id="startImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
+                    <ImageView fx:id="startImageView"
+                               fitWidth="210" fitHeight="70" preserveRatio="false">
                         <image>
                             <Image url="@../images/start.png"/>
                         </image>
@@ -35,12 +51,17 @@
                 </graphic>
             </Button>
 
-            <Button fx:id="settingsButton" text="" onAction="#openSettings" onMouseEntered="#onButtonMouseEntered"
+            <!-- SETTINGS BUTTON -->
+            <Button fx:id="settingsButton"
+                    text=""
+                    onAction="#openSettings"
+                    onMouseEntered="#onButtonMouseEntered"
                     onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
+                    style="-fx-background-color: transparent;">
                 <graphic>
-                    <ImageView fx:id="settingsImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
+                    <ImageView fx:id="settingsImageView"
+                               fitWidth="210" fitHeight="70" preserveRatio="false">
                         <image>
                             <Image url="@../images/settings.png"/>
                         </image>
@@ -48,12 +69,17 @@
                 </graphic>
             </Button>
 
-            <Button fx:id="exitButton" text="" onAction="#exitGame" onMouseEntered="#onButtonMouseEntered"
+            <!-- EXIT BUTTON -->
+            <Button fx:id="exitButton"
+                    text=""
+                    onAction="#exitGame"
+                    onMouseEntered="#onButtonMouseEntered"
                     onMouseExited="#onButtonMouseExited"
                     prefWidth="210" prefHeight="70"
-                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;">
+                    style="-fx-background-color: transparent;">
                 <graphic>
-                    <ImageView fx:id="exitImageView" fitWidth="210" fitHeight="70" preserveRatio="false">
+                    <ImageView fx:id="exitImageView"
+                               fitWidth="210" fitHeight="70" preserveRatio="false">
                         <image>
                             <Image url="@../images/exit.png"/>
                         </image>
@@ -63,5 +89,22 @@
 
         </VBox>
     </VBox>
+
+    <!-- Logout Button (bottom right corner) -->
+    <Button fx:id="logoutButton"
+            onAction="#logout"
+            StackPane.alignment="BOTTOM_RIGHT"
+            translateX="-20" translateY="-20"
+            style="-fx-background-color: transparent;">
+        <graphic>
+            <ImageView fx:id="logoutImageView"
+                       fitWidth="70" fitHeight="70"
+                       preserveRatio="true">
+                <image>
+                    <Image url="@../images/logout.png"/>
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
 
 </StackPane>
