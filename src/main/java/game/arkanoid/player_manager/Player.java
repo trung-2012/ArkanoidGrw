@@ -1,4 +1,4 @@
-package game.arkanoid.models;
+package game.arkanoid.player_manager;
 
 import java.io.Serializable;
 

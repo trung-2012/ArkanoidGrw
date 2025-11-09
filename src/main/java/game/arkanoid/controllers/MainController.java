@@ -1,6 +1,6 @@
 package game.arkanoid.controllers;
 
-import game.arkanoid.models.Player;
+import game.arkanoid.player_manager.Player;
 import game.arkanoid.views.GameEngine;
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;

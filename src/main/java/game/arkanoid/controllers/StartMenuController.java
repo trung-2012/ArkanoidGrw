@@ -1,6 +1,6 @@
 package game.arkanoid.controllers;
 
-import game.arkanoid.models.Player;
+import game.arkanoid.player_manager.Player;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

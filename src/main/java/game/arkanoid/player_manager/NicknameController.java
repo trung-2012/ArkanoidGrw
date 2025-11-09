@@ -1,6 +1,5 @@
-package game.arkanoid.controllers;
+package game.arkanoid.player_manager;
 
-import game.arkanoid.models.Player;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import game.arkanoid.controllers.StartMenuController;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
