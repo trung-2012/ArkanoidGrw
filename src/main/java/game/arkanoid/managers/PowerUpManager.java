@@ -3,6 +3,7 @@ package game.arkanoid.managers;
 import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
+import game.arkanoid.managers.SoundManager;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
@@ -26,6 +27,7 @@ public class PowerUpManager {
     private Paddle paddle;
     private Canvas canvas;
     private Image bulletImage;
+    private SoundManager soundManager;
 
     // Laser system
     private ScheduledExecutorService laserScheduler;
@@ -138,6 +140,10 @@ public class PowerUpManager {
 
                         laserBeams.add(new LaserBeam(new Vector2D(px - offset, py), bulletImage));
                         laserBeams.add(new LaserBeam(new Vector2D(px + offset, py), bulletImage));
+
+                        if (soundManager != null) {
+                            soundManager.playSoundEffect("laser_fire");
+                        }
                     }
                 });
                 try {
@@ -213,6 +219,10 @@ public class PowerUpManager {
 
     public void setOnShieldActivated(PowerUpCallbackWithData callback) {
         this.onShieldActivated = callback;
+    }
+
+    public void setSoundManager(SoundManager soundManager) {
+        this.soundManager = soundManager;
     }
 
     // Getters

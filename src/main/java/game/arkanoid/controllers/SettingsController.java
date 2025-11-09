@@ -1,6 +1,8 @@
 package game.arkanoid.controllers;
 
 import game.arkanoid.player_manager.Player;
+import game.arkanoid.managers.SoundManager;
+import javafx.scene.control.CheckBox;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -46,6 +48,20 @@ public class SettingsController {
     private ImageView confirmBallImageView;
     @FXML
     private ImageView confirmPaddleImageView;
+    @FXML
+    private CheckBox musicCheckBox;
+    @FXML
+    private ImageView musicIconView;
+    @FXML
+    private CheckBox sfxCheckBox;
+    @FXML
+    private ImageView sfxIconView;
+
+    // Tạo biến để giữ ảnh icon
+    private Image musicOnImage;
+    private Image musicOffImage;
+    private Image sfxOnImage;
+    private Image sfxOffImage;
 
     // Dsach Skins
     private final String[] ballSkins = {
@@ -92,6 +108,66 @@ public class SettingsController {
         }
         if (savedSettingsStage != null) {
             this.settingsStage = savedSettingsStage;
+        }
+
+        try {
+            musicOnImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/music_on.png"));
+            musicOffImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/music_off.png"));
+            sfxOnImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/sound_on.png"));
+            sfxOffImage = new Image(getClass().getResourceAsStream("/game/arkanoid/images/sound_off.png"));
+        } catch (Exception e) {
+            System.err.println("Lỗi: Không thể tải hình ảnh icon âm thanh!");
+        }
+
+        // Lấy instance duy nhất của SoundManager
+        SoundManager soundManager = SoundManager.getInstance();
+
+        // Đặt trạng thái ban đầu cho CheckBox (dựa trên trạng thái của SoundManager)
+        // === 4. Cấu hình Music CheckBox ===
+        if (musicCheckBox != null && musicIconView != null) {
+            boolean isMusicEnabled = soundManager.isMusicEnabled();
+            musicCheckBox.setSelected(isMusicEnabled);
+
+            // Đặt hình ảnh ban đầu
+            musicIconView.setImage(isMusicEnabled ? musicOnImage : musicOffImage);
+
+            // Thêm "Listener" (quan trọng nhất)
+            // Đây chính là code "điều chỉnh ảnh trong Controller"
+            musicCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                // Khi click, gọi SoundManager
+                soundManager.setMusicEnabled(newValue);
+                // Và CẬP NHẬT hình ảnh
+                musicIconView.setImage(newValue ? musicOnImage : musicOffImage);
+            });
+        }
+        // === 5. Cấu hình SFX CheckBox ===
+        if (sfxCheckBox != null && sfxIconView != null) {
+            boolean isSfxEnabled = soundManager.isSfxEnabled();
+            sfxCheckBox.setSelected(isSfxEnabled);
+
+            // Đặt hình ảnh ban đầu
+            sfxIconView.setImage(isSfxEnabled ? sfxOnImage : sfxOffImage);
+
+            // Thêm "Listener"
+            sfxCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                // Khi click, gọi SoundManager
+                soundManager.setSfxEnabled(newValue);
+                // Và CẬP NHẬT hình ảnh
+                sfxIconView.setImage(newValue ? sfxOnImage : sfxOffImage);
+            });
+        }
+
+        // Thêm Listener để khi click vào CheckBox, SoundManager sẽ cập nhật ngay
+        if (musicCheckBox != null) {
+            musicCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                soundManager.setMusicEnabled(newValue);
+            });
+        }
+
+        if (sfxCheckBox != null) {
+            sfxCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                soundManager.setSfxEnabled(newValue);
+            });
         }
     }
 

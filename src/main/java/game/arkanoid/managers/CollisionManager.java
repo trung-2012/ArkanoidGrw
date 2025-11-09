@@ -30,6 +30,9 @@ public class CollisionManager {
     /** Canvas để lấy kích thước màn hình */
     private Canvas canvas;
 
+    /** kiểm tra bóng dính vào paddle*/
+    private boolean ballAttachedToPaddle = false;
+
     /** Callback khi bóng rơi ra ngoài (mất mạng) */
     private CollisionCallback onBallFallOut;
 
@@ -38,6 +41,9 @@ public class CollisionManager {
 
     /** Callback khi hoàn thành level */
     private CollisionCallback onLevelComplete;
+
+    /** Callback cho âm thanh*/
+    private CollisionCallback onPaddleHit;
 
     /**
      * Constructor khởi tạo CollisionManager.
@@ -108,10 +114,14 @@ public class CollisionManager {
      * Bóng sẽ nảy lại khi chạm paddle.
      */
     private void checkBallPaddleCollision() {
-        if (paddle == null) return;
+        if (paddle == null || this.ballAttachedToPaddle) return;
 
         for (Ball b : balls) {
-            b.collideWith(paddle);
+            if(b.collideWith(paddle)) {
+                if(onPaddleHit != null) {
+                    onPaddleHit.onCollision();
+                }
+            }
         }
     }
 
@@ -318,6 +328,12 @@ public class CollisionManager {
      */
     public void setOnLevelComplete(CollisionCallback callback) {
         this.onLevelComplete = callback;
+    }
+
+    public void setOnPaddleHit(CollisionCallback callback) { this.onPaddleHit = callback; }
+
+    public void setBallAttached(boolean attached) {
+        this.ballAttachedToPaddle = attached;
     }
 
     // Callback Interfaces

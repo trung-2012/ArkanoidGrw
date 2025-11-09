@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.SettingsController">
+<AnchorPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.SettingsController">
 
     <ImageView fx:id="backgroundImageView" fitHeight="600" fitWidth="800" preserveRatio="false">
         <image>
@@ -86,6 +87,17 @@
         </graphic>
     </Button>
 
+    <CheckBox fx:id="musicCheckBox" layoutX="18.0" layoutY="33.0" style="-fx-text-fill: white; -fx-font-weight: bold;" text="Bật Nhạc Nền">
+        <graphic>
+            <ImageView fx:id="musicIconView" fitHeight="32" fitWidth="32" />
+        </graphic>
+    </CheckBox>
+
+    <CheckBox fx:id="sfxCheckBox" layoutX="18.0" layoutY="71.0" style="-fx-text-fill: white; -fx-font-weight: bold;" text="Bật Hiệu Ứng (SFX)">
+        <graphic>
+            <ImageView fx:id="sfxIconView" fitHeight="32" fitWidth="32" />
+        </graphic>
+    </CheckBox>
     <Button fx:id="previewButton" layoutX="211.0" layoutY="510.0" onAction="#openPreview" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
         <graphic>
             <ImageView fx:id="previewImageView" fitHeight="50" fitWidth="120" preserveRatio="true">
