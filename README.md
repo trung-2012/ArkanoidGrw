@@ -155,19 +155,19 @@ Demo hình ảnh
 ---
 
 ### Login
-![Login](src/main/resources/game/arkanoid/images/login_demo.png)
+![Login](src/main/resources/game/arkanoid/readme_images/login_demo.png)
 
 ### Start Menu
-![Start Menu](src/main/resources/game/arkanoid/images/StartMenu_demo.png)
+![Start Menu](src/main/resources/game/arkanoid/readme_images/StartMenu_demo.png)
 
 ### Gameplay
-<img src="src/main/resources/game/arkanoid/images/gameplay.png" width="500">
+<img src="src/main/resources/game/arkanoid/readme_images/gameplay.png" width="500">
 
 ### Power-ups
-![Power-ups](src/main/resources/game/arkanoid/images/powerups_demo.png)
+![Power-ups](src/main/resources/game/arkanoid/readme_images/powerups_demo.png)
 
 ### Leaderboard
-![Leaderboard](src/main/resources/game/arkanoid/images/leaderboard.png)
+![Leaderboard](src/main/resources/game/arkanoid/readme_images/leaderboard.png)
 
 Hướng phát triển trong tương lai
 ---
