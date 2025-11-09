@@ -15,7 +15,7 @@
         </image>
     </ImageView>
 
-    <Label fx:id="nicknameLabel" style="-fx-text-fill: white;                   -fx-font-size: 20;                   -fx-font-weight: bold;                   -fx-font-style: italic;" text="Player: ???" translateX="20" translateY="20" StackPane.alignment="TOP_LEFT" />
+    <Label fx:id="nicknameLabel" style="-fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: bold; -fx-font-style: italic; -fx-underline: true;" text="Player: ???" translateX="10.0" translateY="5.0" StackPane.alignment="TOP_LEFT" />
 
     <VBox alignment="CENTER" spacing="30">
         <VBox alignment="CENTER" spacing="15" translateY="80">

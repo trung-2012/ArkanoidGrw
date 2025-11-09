@@ -434,8 +434,15 @@ public class GameEngine extends AnimationTimer {
         balls.add(newBall);
         mainBall = newBall;
 
+        // Update các managers với paddle và balls mới
         if (inputManager != null) inputManager.setPaddle(paddle);
         powerUpManager.setPaddle(paddle);
+        
+        // QUAN TRỌNG: Update CollisionManager với paddle và balls mới!
+        if (collisionManager != null) {
+            collisionManager.setPaddle(paddle);
+            collisionManager.setBalls(balls);
+        }
     }
     // Xử lý sự kiện phím bấm
     public void setLeftPressed(boolean pressed) {
