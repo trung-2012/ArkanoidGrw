@@ -171,19 +171,22 @@ Demo hình ảnh
 
 Hướng phát triển trong tương lai
 ---
-**Các tính năng đã lên kế hoạch**
-**Thêm chế độ chơi**
+**Các tính năng đã lên kế hoạch**  
+
+**Thêm chế độ chơi**  
 + Time Attack
 + Endless Survival
 + Multiplayer
-**Cải thiện gameplay**
+
+**Cải thiện gameplay**  
 + Boss level
 + Thêm loại Power-up mới
 + Hệ thống Achievement
-**Nâng cấp kỹ thuật**
+
+**Nâng cấp kỹ thuật**  
 + Chuyển sang LibGDX / JavaFX nâng cao
 + Particle effects + animation đẹp hơn
-+ Kết nối leaderboard online
++ Kết nối leaderboard online  
 
 ### Công nghệ sử dụng
 ---
