@@ -27,6 +27,9 @@ public class StartMenuController {
     @FXML
     private Label nicknameLabel;
 
+    @FXML
+    private javafx.scene.image.ImageView leaderboardImageView;
+
     private Player currentPlayer;
 
     @FXML
@@ -64,6 +67,18 @@ public class StartMenuController {
                         getClass().getResource("/game/arkanoid/images/exit c.png").toExternalForm());
                 exitImageView.setImage(hoverImage);
                 break;
+            case "leaderboardButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/leaderboardDemo c.png").toExternalForm()
+                );
+                leaderboardImageView.setImage(hoverImage);
+                break;
+            case "logoutButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/logout c.png").toExternalForm()
+                );
+                logoutImageView.setImage(hoverImage);
+                break;
         }
     }
 
@@ -89,6 +104,16 @@ public class StartMenuController {
                 normalImage = new javafx.scene.image.Image(
                         getClass().getResource("/game/arkanoid/images/exit.png").toExternalForm());
                 exitImageView.setImage(normalImage);
+                break;
+            case "leaderboardButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/leaderboardDemo.png").toExternalForm());
+                leaderboardImageView.setImage(normalImage);
+                break;
+            case "logoutButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/logout.png").toExternalForm());
+                logoutImageView.setImage(normalImage);
                 break;
         }
     }
@@ -144,6 +169,25 @@ public class StartMenuController {
         try {
             Parent root = FXMLLoader.load(
                     getClass().getResource("/game/arkanoid/fxml/LoginView.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void openLeaderboard(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/Leaderboard.fxml")
+            );
+            Parent root = loader.load();
+
+            // truyền player vào LeaderboardController (nếu cần highlight rank)
+            game.arkanoid.player_manager.LeaderboardController controller = loader.getController();
+            controller.setCurrentPlayer(currentPlayer);
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {
