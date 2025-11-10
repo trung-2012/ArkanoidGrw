@@ -13,7 +13,7 @@
 
     <ImageView fitHeight="600" fitWidth="800" preserveRatio="false">
         <image>
-            <Image url="@../images/LoginView.png" />
+            <Image url="@../images/LoginView.png"/>
         </image>
     </ImageView>
 
@@ -31,8 +31,7 @@
                          -fx-border-color: #00bfff;
                          -fx-border-width: 2;
                          -fx-border-radius: 15;
-                         -fx-padding: 20;
-                         -fx-effect: dropshadow(gaussian, #00bfff, 25, 0.5, 0, 0);">
+                         -fx-padding: 20;">
 
                 <Label fx:id="titleLabel"
                        text="LOGIN"
@@ -79,6 +78,8 @@
                                       -fx-background-radius: 8;
                                       -fx-text-fill: white;
                                       -fx-prompt-text-fill: gray;"/>
+                    <Label fx:id="passwordHint" text="" style="-fx-font-size: 11; -fx-text-fill: #ff4d4d;"/>
+
                 </VBox>
 
                 <VBox fx:id="confirmBox" alignment="CENTER_LEFT" spacing="5"
