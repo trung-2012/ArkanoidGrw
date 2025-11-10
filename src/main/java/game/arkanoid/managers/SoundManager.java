@@ -122,9 +122,20 @@ public class SoundManager {
      */
     public void stopBackgroundMusic() {
         if (backgroundMusicPlayer != null) {
-            backgroundMusicPlayer.stop();
-            backgroundMusicPlayer.dispose();
-            backgroundMusicPlayer = null;
+            try {
+                // Dừng và dispose MediaPlayer
+                MediaPlayer.Status status = backgroundMusicPlayer.getStatus();
+               
+                if (status == MediaPlayer.Status.PLAYING || status == MediaPlayer.Status.PAUSED) {
+                    backgroundMusicPlayer.stop();
+                }
+                backgroundMusicPlayer.dispose();
+                backgroundMusicPlayer = null;
+                
+            } catch (Exception e) {
+                System.err.println("Error stopping music: " + e.getMessage());
+                backgroundMusicPlayer = null;
+            }
         }
     }
 

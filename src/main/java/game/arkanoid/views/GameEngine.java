@@ -446,6 +446,15 @@ public class GameEngine extends AnimationTimer {
         }
         
         // Power-ups và lasers được handle bởi PowerUpManager
+        
+        // Update shield (tự động damage sau mỗi 5 giây)
+        if (shield != null && !shield.isBroken()) {
+            shield.update();
+            // Kiểm tra nếu shield broken sau update
+            if (shield.isBroken()) {
+                shield = null;
+            }
+        }
 
         // Cập nhật hiệu ứng nổ và xóa các explosion đã kết thúc
         for (ExplosionEffect explosion : explosions) {
@@ -618,7 +627,6 @@ public class GameEngine extends AnimationTimer {
             setGameRunning(false);
             if (soundManager != null) {
                 soundManager.pauseBackgroundMusic();
-                soundManager.playSoundEffect("endgame");
             }
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));

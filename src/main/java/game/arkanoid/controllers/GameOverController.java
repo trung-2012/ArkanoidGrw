@@ -78,6 +78,9 @@ public class GameOverController {
     @FXML
     private void restartGame(ActionEvent event) {
         try {
+            // Dừng nhạc game over trước khi chuyển scene
+            SoundManager.getInstance().stopBackgroundMusic();
+            
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/game/arkanoid/fxml/MainView.fxml"));
             Parent root = loader.load();
@@ -126,6 +129,9 @@ public class GameOverController {
     @FXML
     private void returnToMenu(ActionEvent event) {
         try {
+            // Dừng nhạc game over trước khi chuyển scene
+            SoundManager.getInstance().stopBackgroundMusic();
+            
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/game/arkanoid/fxml/StartMenu.fxml"));
             Parent root = loader.load();

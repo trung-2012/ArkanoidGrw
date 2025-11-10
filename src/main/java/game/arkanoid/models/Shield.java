@@ -20,11 +20,17 @@ public class Shield extends GameObject {
     /** Thời gian glow effect (milliseconds) */
     private static final long GLOW_DURATION = 150;
     
+    /** Thời gian tự động mất máu (milliseconds) - 5 giây */
+    private static final long DAMAGE_INTERVAL = 5000;
+    
     /** Máu hiện tại của shield */
     private int health;
     
     /** Timer cho glow effect */
     private long glowTimer = 0;
+    
+    /** Timer cho tự động damage */
+    private long lastDamageTime = 0;
 
     /**
      * Constructor khởi tạo Shield.
@@ -37,14 +43,25 @@ public class Shield extends GameObject {
     public Shield(double x, double y, double width, double height) {
         super(new Vector2D(x + width/2, y + height/2), width, height);
         this.health = MAX_HEALTH;
+        this.lastDamageTime = System.currentTimeMillis();
     }
 
     /**
-     * Update shield (không cần logic đặc biệt).
+     * Update shield - kiểm tra tự động damage sau mỗi 5 giây.
      */
     @Override
     public void update() {
-        // Shield không cần update logic
+        // Kiểm tra tự động damage sau mỗi 5 giây
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastDamageTime >= DAMAGE_INTERVAL) {
+            health--;
+            lastDamageTime = currentTime; // Reset timer
+            glowTimer = currentTime; // Kích hoạt glow effect khi tự động damage
+            
+            if (health <= 0) {
+                this.active = false; // Deactivate khi hết health
+            }
+        }
     }
 
     /**
