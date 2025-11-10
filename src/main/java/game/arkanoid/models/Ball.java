@@ -32,6 +32,17 @@ public class Ball extends GameObject {
 
     private boolean original = true;
 
+    private double currentSpeed = BALL_SPEED;
+
+    public void setCurrentSpeed(double s) {
+        this.currentSpeed = s;
+    }
+
+    public double getCurrentSpeed() {
+        return currentSpeed;
+    }
+
+
     public boolean isOriginal() {
         return original;
     }
@@ -56,7 +67,7 @@ public class Ball extends GameObject {
         super(position, radius * 2, radius * 2);
         this.radius = radius;
         // Speed ban đầu chéo lên trên bên phải
-        double diag = BALL_SPEED / Math.sqrt(2.0);
+        double diag = currentSpeed / Math.sqrt(2.0);
         this.velocity = new Vector2D(diag, -diag);
     }
 
@@ -168,11 +179,20 @@ public class Ball extends GameObject {
 
             // Điều chỉnh vận tốc X dựa trên vị trí va chạm dọc paddle
             double hitPos = (position.getX() - rx) / hw; // -1 .. 1
-            double speed = BALL_SPEED;
+            double speed = currentSpeed;
+
             double newVx = speed * hitPos * 0.8;
-            this.velocity.setX(newVx);
-            double vy = -Math.abs(Math.sqrt(Math.max(0, speed * speed - newVx * newVx)));
-            this.velocity.setY(vy);
+            double newVy = -Math.abs(Math.sqrt(Math.max(0, speed * speed - newVx * newVx)));
+
+            velocity.setX(newVx);
+            velocity.setY(newVy);
+
+            double len = Math.sqrt(newVx * newVx + newVy * newVy);
+            if (len != 0) {
+                velocity.setX((newVx / len) * currentSpeed);
+                velocity.setY((newVy / len) * currentSpeed);
+            }
+
 
             return true;
         }

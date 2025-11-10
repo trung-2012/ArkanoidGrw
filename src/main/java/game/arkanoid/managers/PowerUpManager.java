@@ -6,6 +6,7 @@ import game.arkanoid.utils.Vector2D;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
+import game.arkanoid.views.GameEngine;
 
 import java.util.List;
 import java.util.Random;
@@ -36,6 +37,9 @@ public class PowerUpManager {
     private PowerUpCallback onExtraLife;
     private PowerUpCallbackWithData onShieldActivated;
     private PowerUpCallback onMultiBall;
+    private PowerUpCallback onWeakSpeed;
+    private PowerUpCallback onStrongSpeed;
+
 
     public PowerUpManager(List<PowerUp> powerUps, List<LaserBeam> laserBeams) {
         this.powerUps = powerUps;
@@ -57,13 +61,17 @@ public class PowerUpManager {
     private PowerUpType getRandomPowerUpType() {
         double rand = random.nextDouble();
         if (rand < 0.10)
-            return PowerUpType.EXTRA_LIFE; // 10%
-        else if (rand < 0.45)
-            return PowerUpType.LASER; // 35%
-        else if (rand < 0.75)
-            return PowerUpType.SHIELD; // 30%
+            return PowerUpType.WEAK;       // 10%
+        else if (rand < 0.20)
+            return PowerUpType.STRONG;     // 10%
+        else if (rand < 0.40)
+            return PowerUpType.EXTRA_LIFE; // 20%
+        else if (rand < 0.60)
+            return PowerUpType.LASER;      // 20%
+        else if (rand < 0.80)
+            return PowerUpType.SHIELD;     // 20%
         else
-            return PowerUpType.MULTI_BALL; // 25%
+            return PowerUpType.MULTI_BALL; // 20%
     }
 
     // Update tất cả power-ups (movement, collision detection)
@@ -113,6 +121,14 @@ public class PowerUpManager {
             case MULTI_BALL:
                 if (onMultiBall != null) onMultiBall.onActivate();
                 break;
+            case WEAK:
+                if (onWeakSpeed != null) onWeakSpeed.onActivate();
+                break;
+
+            case STRONG:
+                if (onStrongSpeed != null) onStrongSpeed.onActivate();
+                break;
+
         }
     }
 
@@ -243,6 +259,15 @@ public class PowerUpManager {
     public void setOnMultiBall(PowerUpCallback cb) {
         this.onMultiBall = cb;
     }
+
+    public void setOnWeakSpeed(PowerUpCallback cb) {
+        this.onWeakSpeed = cb;
+    }
+
+    public void setOnStrongSpeed(PowerUpCallback cb) {
+        this.onStrongSpeed = cb;
+    }
+
 
     // Callback interfaces
     @FunctionalInterface

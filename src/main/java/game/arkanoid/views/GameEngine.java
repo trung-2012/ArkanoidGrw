@@ -63,15 +63,21 @@ public class GameEngine extends AnimationTimer {
 
     // INPUT STATE
     private boolean ballAttachedToPaddle = true; // bóng chính đang dính paddle
+    private double currentBallSpeedLevel = 4.0;  // default = BALL_SPEED
+    private double currentBallSpeed = GameConstants.BALL_SPEED;
+
+    private static final double MIN_SPEED = 3.0;
+    private static final double MAX_SPEED = 7.0;
+
     private double chargePulse = 0;
     private boolean chargeIncreasing = true;
-    
+
     // SCREEN SHAKE EFFECT
     private double shakeOffsetX = 0;
     private double shakeOffsetY = 0;
     private int shakeFramesLeft = 0;
     private double shakeIntensity = 0;
-    
+
     // COUNTDOWN STATE
     private boolean countdownActive = false;
     private int countdownNumber = 3;
@@ -86,7 +92,7 @@ public class GameEngine extends AnimationTimer {
             renderCountdown();
             return;
         }
-        
+
         if (!gameRunning)
             return;
         updateGameState();
@@ -160,16 +166,17 @@ public class GameEngine extends AnimationTimer {
         // Khởi tạo InputManager (sẽ set paddle sau khi startNewGame)
         this.inputManager = new InputManager(paddle, canvas);
         this.inputManager.setSpaceCallback(() -> {
-            // khi Space: bung bóng chính ra
             ballAttachedToPaddle = false;
             chargePulse = 0;
             chargeIncreasing = true;
+
             if (mainBall != null && mainBall.getVelocity().getY() == 0.0) {
-                double diag = GameConstants.BALL_SPEED / Math.sqrt(2.0);
+                double diag = currentBallSpeedLevel / Math.sqrt(2.0);
                 double dir = Math.random() < 0.5 ? -1 : 1;
                 mainBall.setVelocity(new Vector2D(diag * dir, -diag));
             }
         });
+
 
         // Load ảnh Ball & Paddle theo skin đã chọn từ GameSettings
         try {
@@ -192,7 +199,7 @@ public class GameEngine extends AnimationTimer {
         } catch (Exception e) {
             System.err.println("Warning: Could not load explosion effect image");
         }
-        
+
         // canvas focus để nhận phím
         if (this.canvas != null) {
             this.canvas.requestFocus();
@@ -203,6 +210,7 @@ public class GameEngine extends AnimationTimer {
 
     // Bắt đầu game mới
     public void startNewGame() {
+        currentBallSpeedLevel = GameConstants.BALL_SPEED;
         double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
         double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
         double px = canvasW / 2.0;
@@ -280,7 +288,7 @@ public class GameEngine extends AnimationTimer {
         powerUpManager.setPaddle(paddle);
         setupPowerUpCallbacks();
         shield = null;
-        
+
         if (inputManager != null) {
             inputManager.setPaddle(paddle);
         }
@@ -294,20 +302,51 @@ public class GameEngine extends AnimationTimer {
         startCountdown();
     }
 
+    public void applyWeak() {
+        currentBallSpeedLevel = Math.max(3, currentBallSpeedLevel - 1);
+        currentBallSpeed = currentBallSpeedLevel;
+        updateBallVelocities();
+        if (soundManager != null) soundManager.playSoundEffect("slow");
+    }
+
+    public void applyStrong() {
+        currentBallSpeedLevel = Math.min(7, currentBallSpeedLevel + 1);
+        currentBallSpeed = currentBallSpeedLevel;
+        updateBallVelocities();
+        if (soundManager != null) soundManager.playSoundEffect("fast");
+    }
+
+    private void updateBallVelocities() {
+        for (Ball b : balls) {
+            b.setCurrentSpeed(currentBallSpeed);
+            Vector2D v = b.getVelocity();
+
+            if (ballAttachedToPaddle) continue;
+
+            double len = Math.sqrt(v.getX()*v.getX() + v.getY()*v.getY());
+            if (len == 0) continue;
+
+            double nx = v.getX() / len;
+            double ny = v.getY() / len;
+
+            b.setVelocity(new Vector2D(nx * currentBallSpeedLevel, ny * currentBallSpeedLevel));
+        }
+    }
+
     // MULTI-BALL: clone all balls -> mỗi quả sinh thêm 2 clone (với giới hạn MAX_BALLS)
     private void activateMultiBall() {
         // Check nếu đã đạt max balls thì không spawn thêm
         if (balls.size() >= GameConstants.MAX_BALLS) {
             return; // Đã đủ số lượng bóng tối đa
         }
-        
+
         List<Ball> snapshot = new ArrayList<>(balls);
         for (Ball original : snapshot) {
             // Kiểm tra trước khi thêm mỗi clone
             if (balls.size() >= GameConstants.MAX_BALLS) {
                 break; // Đã đạt limit
             }
-            
+
             Ball ball1 = cloneBall(original, +1.5);
             balls.add(ball1);
 
@@ -347,7 +386,7 @@ public class GameEngine extends AnimationTimer {
         // Sync lại shield (có thể đã null nếu broken)
         shield = collisionManager.getShield();
     }
-    
+
     /**
      * Setup explosion handler cho brick.
      * Xử lý cả ExplodeBrick trực tiếp và ExplodeBrick bên trong SecretBrick.
@@ -375,7 +414,7 @@ public class GameEngine extends AnimationTimer {
         if (soundManager != null) {
             soundManager.playSoundEffect("explosion");
         }
-        
+
         // Kích hoạt screen shake khi nổ
         startScreenShake(8.0, 15); // 8 pixels intensity, 15 frames (~0.25 seconds at 60fps)
 
@@ -400,7 +439,7 @@ public class GameEngine extends AnimationTimer {
             }
         }
     }
-    
+
     /**
      * Kích hoạt hiệu ứng rung màn hình
      * @param intensity Cường độ rung (pixels)
@@ -410,7 +449,7 @@ public class GameEngine extends AnimationTimer {
         this.shakeIntensity = intensity;
         this.shakeFramesLeft = frames;
     }
-    
+
     /**
      * Cập nhật hiệu ứng rung màn hình
      */
@@ -426,7 +465,7 @@ public class GameEngine extends AnimationTimer {
             shakeOffsetY = 0;
         }
     }
-    
+
     /**
      * Bắt đầu countdown
      */
@@ -436,17 +475,17 @@ public class GameEngine extends AnimationTimer {
         countdownStartTime = System.currentTimeMillis();
         gameRunning = false; // Tạm dừng game trong khi countdown
     }
-    
+
     /**
      * Cập nhật countdown
      */
     private void updateCountdown() {
         long elapsed = System.currentTimeMillis() - countdownStartTime;
-        
+
         if (elapsed >= COUNTDOWN_DURATION) {
             countdownNumber--;
             countdownStartTime = System.currentTimeMillis();
-            
+
             if (countdownNumber < 1) {
                 // Countdown kết thúc, bắt đầu game
                 countdownActive = false;
@@ -454,51 +493,51 @@ public class GameEngine extends AnimationTimer {
             }
         }
     }
-    
+
     /**
      * Render countdown lên màn hình
      */
     private void renderCountdown() {
         if (canvas == null) return;
-        
+
         var gc = canvas.getGraphicsContext2D();
-        
+
         // Clear canvas
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        
+
         // Render game objects (frozen)
         if (renderManager != null) {
             renderManager.setChargePulse(chargePulse);
             renderManager.setScreenShake(0, 0); // No shake during countdown
             renderManager.renderAll(
-                mainBall, paddle, bricks, powerUps, laserBeams,
-                shield, explosions, debrisEffects, balls, ballAttachedToPaddle
+                    mainBall, paddle, bricks, powerUps, laserBeams,
+                    shield, explosions, debrisEffects, balls, ballAttachedToPaddle
             );
         }
-        
+
         // Render countdown number ở giữa màn hình
         double centerX = canvas.getWidth() / 2;
         double centerY = canvas.getHeight() / 2;
-        
+
         String text = String.valueOf(countdownNumber);
-        
+
         // Font size lớn
         gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 120));
-        
+
         // Tính toán vị trí text (căn giữa)
         javafx.scene.text.Text tempText = new javafx.scene.text.Text(text);
         tempText.setFont(gc.getFont());
         double textWidth = tempText.getLayoutBounds().getWidth();
         double textHeight = tempText.getLayoutBounds().getHeight();
-        
+
         double x = centerX - textWidth / 2;
         double y = centerY + textHeight / 4;
-        
+
         // Stroke (viền xanh sáng)
         gc.setStroke(javafx.scene.paint.Color.rgb(0, 255, 255, 1.0)); // Cyan bright
         gc.setLineWidth(4);
         gc.strokeText(text, x, y);
-        
+
         // Fill (trắng đục)
         gc.setFill(javafx.scene.paint.Color.rgb(255, 255, 255, 0.7));
         gc.fillText(text, x, y);
@@ -507,7 +546,7 @@ public class GameEngine extends AnimationTimer {
     // Cập nhật trạng thái game
     public void updateGameState() {
         if (inputManager != null) inputManager.updatePaddleMovement();
-        
+
         // Cập nhật screen shake effect
         updateScreenShake();
 
@@ -524,7 +563,7 @@ public class GameEngine extends AnimationTimer {
             // Update tất cả balls (bao gồm main ball và clone balls)
             for (Ball b : balls) b.update();
         }
-        
+
         // Update bricks (cần thiết cho SecretBrick transform logic)
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
@@ -535,9 +574,9 @@ public class GameEngine extends AnimationTimer {
                 }
             }
         }
-        
+
         // Power-ups và lasers được handle bởi PowerUpManager
-        
+
         // Update shield (tự động damage sau mỗi 5 giây)
         if (shield != null && !shield.isBroken()) {
             shield.update();
@@ -554,12 +593,12 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa các explosion đã kết thúc bằng removeIf()
         explosions.removeIf(ExplosionEffect::isFinished);
-        
+
         // Cập nhật debris effects
         for (DebrisEffect debris : debrisEffects) {
             debris.update();
         }
-        
+
         // Xóa debris đã kết thúc
         debrisEffects.removeIf(DebrisEffect::isFinished);
     }
@@ -572,7 +611,7 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa shield nếu có
         shield = null;
-        
+
         // Clear debris effects
         debrisEffects.clear();
 
@@ -611,13 +650,13 @@ public class GameEngine extends AnimationTimer {
         // Update các managers với paddle và balls mới
         if (inputManager != null) inputManager.setPaddle(paddle);
         powerUpManager.setPaddle(paddle);
-        
+
         // QUAN TRỌNG: Update CollisionManager với paddle và balls mới!
         if (collisionManager != null) {
             collisionManager.setPaddle(paddle);
             collisionManager.setBalls(balls);
         }
-        
+
         // Bắt đầu countdown cho level mới
         startCountdown();
     }
@@ -641,7 +680,7 @@ public class GameEngine extends AnimationTimer {
 
         // Update charge pulse effect
         renderManager.setChargePulse(chargePulse);
-        
+
         // Update screen shake effect
         renderManager.setScreenShake(shakeOffsetX, shakeOffsetY);
 
@@ -669,7 +708,7 @@ public class GameEngine extends AnimationTimer {
 
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
-        
+
         // Setup explosion handlers cho ExplodeBricks (bao gồm cả trong SecretBrick)
         for (Brick brick : bricks) {
             setupExplosionHandler(brick);
@@ -726,15 +765,15 @@ public class GameEngine extends AnimationTimer {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
                 Parent root = loader.load();
                 game.arkanoid.controllers.GameOverController controller = loader.getController();
-                
+
                 // Truyền player từ mainController TRƯỚC KHI set final score
                 if (mainController != null && mainController.getCurrentPlayer() != null) {
                     controller.setPlayer(mainController.getCurrentPlayer());
                 }
-                
+
                 // Set final score (sẽ cập nhật high score nếu cần)
                 controller.setFinalScore(finalScore);
-                
+
                 Stage stage = (Stage) canvas.getScene().getWindow();
                 stage.setScene(new Scene(root, 800, 600));
             } catch (Exception e) {
@@ -797,6 +836,8 @@ public class GameEngine extends AnimationTimer {
             activateMultiBall();
             if (soundManager != null) soundManager.playSoundEffect("multiball");
         });
+        powerUpManager.setOnWeakSpeed(() -> applyWeak());
+        powerUpManager.setOnStrongSpeed(() -> applyStrong());
     }
 
     // Xử lý khi brick bị phá hủy
@@ -814,11 +855,11 @@ public class GameEngine extends AnimationTimer {
         if (!(brick instanceof ExplodeBrick)) {
             Color brickColor = getBrickColor(brick);
             debrisEffects.add(new DebrisEffect(
-                new Vector2D(
-                    brick.getPosition().getX() + brick.getWidth() / 2.0,
-                    brick.getPosition().getY() + brick.getHeight() / 2.0
-                ),
-                brickColor
+                    new Vector2D(
+                            brick.getPosition().getX() + brick.getWidth() / 2.0,
+                            brick.getPosition().getY() + brick.getHeight() / 2.0
+                    ),
+                    brickColor
             ));
         }
 
@@ -830,7 +871,7 @@ public class GameEngine extends AnimationTimer {
             );
         }
     }
-    
+
     /**
      * Lấy màu sắc đại diện cho loại gạch.
      */
