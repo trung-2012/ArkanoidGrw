@@ -95,18 +95,21 @@ public class SoundManager {
         this.currentMusicPath = filePath;
         this.currentMusicLoop = loop;
 
+        stopBackgroundMusic();
+
+        // Chỉ phát nhạc mới nếu volume > 0
         if (this.musicVolume == 0.0) {
             return;
         }
 
         try {
-            stopBackgroundMusic(); // Dừng nhạc cũ
             String uriString = new File(filePath).toURI().toString();
             Media media = new Media(uriString);
             backgroundMusicPlayer = new MediaPlayer(media);
             if (loop) {
                 backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
             }
+            backgroundMusicPlayer.setVolume(this.musicVolume);
             backgroundMusicPlayer.play();
         } catch (Exception e) {
             System.err.println("Lỗi khi phát nhạc nền: " + filePath);

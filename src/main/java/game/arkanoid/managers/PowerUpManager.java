@@ -67,15 +67,17 @@ public class PowerUpManager {
     }
 
     // Update tất cả power-ups (movement, collision detection)
-    public void updatePowerUps() {
+    public void updatePowerUps(boolean ballAttachedToPaddle) {
         if (paddle == null || canvas == null) return;
 
         for (PowerUp p : powerUps) p.update();
 
         powerUps.removeIf(p -> {
-            // collected
+            // collected - chỉ active khi bóng đang bay
             if (p.intersects(paddle)) {
-                activatePowerUp(p);
+                if (!ballAttachedToPaddle) {
+                    activatePowerUp(p);
+                }
                 return true;
             }
             // fell off screen

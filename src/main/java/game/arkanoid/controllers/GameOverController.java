@@ -2,6 +2,7 @@ package game.arkanoid.controllers;
 
 import game.arkanoid.managers.SoundManager;
 import game.arkanoid.player_manager.Player;
+import game.arkanoid.player_manager.PlayerData;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,6 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class GameOverController {
     @FXML
@@ -95,6 +97,23 @@ public class GameOverController {
     public void setFinalScore(int score) {
         if (scoreLabel != null) {
             scoreLabel.setText("Final Score: " + score);
+        }
+        
+        // Cập nhật high score nếu điểm mới cao hơn
+        if (currentPlayer != null && score > currentPlayer.getHighScore()) {
+            currentPlayer.setHighScore(score);
+            
+            // Lưu vào file
+            ArrayList<Player> players = PlayerData.loadPlayers();
+            for (int i = 0; i < players.size(); i++) {
+                if (players.get(i).getUsername().equals(currentPlayer.getUsername())) {
+                    players.set(i, currentPlayer);
+                    break;
+                }
+            }
+            PlayerData.savePlayers(players);
+            
+            System.out.println("New high score saved: " + score + " for player " + currentPlayer.getNickname());
         }
     }
     

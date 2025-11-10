@@ -78,7 +78,7 @@ public class GameEngine extends AnimationTimer {
             return;
         updateGameState();
         if (powerUpManager != null) {
-            powerUpManager.updatePowerUps();
+            powerUpManager.updatePowerUps(ballAttachedToPaddle);
             powerUpManager.updateLaserBeams(collisionManager);
         }
         checkCollisions();
@@ -624,12 +624,14 @@ public class GameEngine extends AnimationTimer {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
                 Parent root = loader.load();
                 game.arkanoid.controllers.GameOverController controller = loader.getController();
-                controller.setFinalScore(finalScore);
                 
-                // Truyền player từ mainController
+                // Truyền player từ mainController TRƯỚC KHI set final score
                 if (mainController != null && mainController.getCurrentPlayer() != null) {
                     controller.setPlayer(mainController.getCurrentPlayer());
                 }
+                
+                // Set final score (sẽ cập nhật high score nếu cần)
+                controller.setFinalScore(finalScore);
                 
                 Stage stage = (Stage) canvas.getScene().getWindow();
                 stage.setScene(new Scene(root, 800, 600));
