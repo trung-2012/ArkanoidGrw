@@ -71,9 +71,22 @@ public class GameEngine extends AnimationTimer {
     private double shakeOffsetY = 0;
     private int shakeFramesLeft = 0;
     private double shakeIntensity = 0;
+    
+    // COUNTDOWN STATE
+    private boolean countdownActive = false;
+    private int countdownNumber = 3;
+    private long countdownStartTime = 0;
+    private static final long COUNTDOWN_DURATION = 1000;
 
     @Override
     public void handle(long now) {
+        // Nếu đang countdown, chỉ update và render countdown
+        if (countdownActive) {
+            updateCountdown();
+            renderCountdown();
+            return;
+        }
+        
         if (!gameRunning)
             return;
         updateGameState();
@@ -226,8 +239,9 @@ public class GameEngine extends AnimationTimer {
             inputManager.setPaddle(paddle);
         }
 
-        this.gameRunning = true;
+        // Bắt đầu AnimationTimer và countdown
         this.start();
+        startCountdown();
     }
 
     // Reset lại màn chơi hiện tại
@@ -277,7 +291,7 @@ public class GameEngine extends AnimationTimer {
         int currentLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
         loadLevelNumber(currentLevel);
 
-        gameRunning = true;
+        startCountdown();
     }
 
     // MULTI-BALL: clone all balls -> mỗi quả sinh thêm 2 clone (với giới hạn MAX_BALLS)
@@ -412,6 +426,83 @@ public class GameEngine extends AnimationTimer {
             shakeOffsetY = 0;
         }
     }
+    
+    /**
+     * Bắt đầu countdown
+     */
+    private void startCountdown() {
+        countdownActive = true;
+        countdownNumber = 3;
+        countdownStartTime = System.currentTimeMillis();
+        gameRunning = false; // Tạm dừng game trong khi countdown
+    }
+    
+    /**
+     * Cập nhật countdown
+     */
+    private void updateCountdown() {
+        long elapsed = System.currentTimeMillis() - countdownStartTime;
+        
+        if (elapsed >= COUNTDOWN_DURATION) {
+            countdownNumber--;
+            countdownStartTime = System.currentTimeMillis();
+            
+            if (countdownNumber < 1) {
+                // Countdown kết thúc, bắt đầu game
+                countdownActive = false;
+                gameRunning = true;
+            }
+        }
+    }
+    
+    /**
+     * Render countdown lên màn hình
+     */
+    private void renderCountdown() {
+        if (canvas == null) return;
+        
+        var gc = canvas.getGraphicsContext2D();
+        
+        // Clear canvas
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        
+        // Render game objects (frozen)
+        if (renderManager != null) {
+            renderManager.setChargePulse(chargePulse);
+            renderManager.setScreenShake(0, 0); // No shake during countdown
+            renderManager.renderAll(
+                mainBall, paddle, bricks, powerUps, laserBeams,
+                shield, explosions, debrisEffects, balls, ballAttachedToPaddle
+            );
+        }
+        
+        // Render countdown number ở giữa màn hình
+        double centerX = canvas.getWidth() / 2;
+        double centerY = canvas.getHeight() / 2;
+        
+        String text = String.valueOf(countdownNumber);
+        
+        // Font size lớn
+        gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 120));
+        
+        // Tính toán vị trí text (căn giữa)
+        javafx.scene.text.Text tempText = new javafx.scene.text.Text(text);
+        tempText.setFont(gc.getFont());
+        double textWidth = tempText.getLayoutBounds().getWidth();
+        double textHeight = tempText.getLayoutBounds().getHeight();
+        
+        double x = centerX - textWidth / 2;
+        double y = centerY + textHeight / 4;
+        
+        // Stroke (viền xanh sáng)
+        gc.setStroke(javafx.scene.paint.Color.rgb(0, 255, 255, 1.0)); // Cyan bright
+        gc.setLineWidth(4);
+        gc.strokeText(text, x, y);
+        
+        // Fill (trắng đục)
+        gc.setFill(javafx.scene.paint.Color.rgb(255, 255, 255, 0.7));
+        gc.fillText(text, x, y);
+    }
 
     // Cập nhật trạng thái game
     public void updateGameState() {
@@ -526,6 +617,9 @@ public class GameEngine extends AnimationTimer {
             collisionManager.setPaddle(paddle);
             collisionManager.setBalls(balls);
         }
+        
+        // Bắt đầu countdown cho level mới
+        startCountdown();
     }
     // Xử lý sự kiện phím bấm
     public void setLeftPressed(boolean pressed) {
