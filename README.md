@@ -3,12 +3,12 @@ Arkanoid Game – Object-Oriented Programming Project
 
 Tác giả  
 Nhóm [Số nhóm] – Lớp [Mã lớp]  
-+ Lê Ngọc Phong – 2402  
++ Lê Ngọc Phong – 24021593  
 + Phạm Văn Trung – 24021649  
-+ Nguyễn Văn Tùng – 2402  
-+ Nguyễn Gia Vĩ – 2402
++ Nguyễn Văn Tùng – 24021665  
++ Nguyễn Gia Vĩ – 24021673
 
-**Giảng viên hướng dẫn**: Kiều Văn Tuyên 
+**Giảng viên hướng dẫn**: Kiều Văn Tuyên  
 **Học kì**: HK1 - năm học 2025-2026  
 
 Mô tả dự án
@@ -147,9 +147,6 @@ Các Power-up trong game
 | Explode | 2	|	30 |	
 | Insane | 100 | 1000	|
 | Secret | 1000 | 1	|
-
-Demo hình ảnh
----
 
 ## Demo hình ảnh
 ---
