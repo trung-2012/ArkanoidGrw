@@ -4,5 +4,7 @@ public enum PowerUpType {
     EXTRA_LIFE,
     LASER,
     SHIELD,
-    MULTI_BALL
+    MULTI_BALL,
+    PADDLE_GROW,
+    PADDLE_SHRINK
 }
