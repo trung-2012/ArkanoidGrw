@@ -78,15 +78,35 @@ public class GameEngine extends AnimationTimer {
     private long countdownStartTime = 0;
     private static final long COUNTDOWN_DURATION = 1000;
 
+    // START
+    private boolean introAnimationActive = false;
+    private long introStartTime = 0;
+    private static final long INTRO_DURATION = 3000; // s
+    // LEVEL CLEAR ANIMATION
+    private boolean levelClearAnimActive = false;
+    private long levelClearStartTime = 0;
+    private static final long LEVEL_CLEAR_DURATION = 2000; // s
+    private boolean startShown = false;
+    private long startShownTime = 0;
+
     @Override
     public void handle(long now) {
+        // Nếu intro đang chạy
+        if (introAnimationActive) {
+            renderIntroAnimation();
+            return;
+        }
+        if (levelClearAnimActive) {
+            renderLevelClearAnimation();
+            return;
+        }
         // Nếu đang countdown, chỉ update và render countdown
         if (countdownActive) {
             updateCountdown();
             renderCountdown();
             return;
         }
-        
+
         if (!gameRunning)
             return;
         updateGameState();
@@ -238,10 +258,11 @@ public class GameEngine extends AnimationTimer {
         if (inputManager != null) {
             inputManager.setPaddle(paddle);
         }
-
+        // Bắt đầu intro animation
+        introAnimationActive = true;
+        introStartTime = System.currentTimeMillis();
         // Bắt đầu AnimationTimer và countdown
         this.start();
-        startCountdown();
     }
 
     // Reset lại màn chơi hiện tại
@@ -291,6 +312,8 @@ public class GameEngine extends AnimationTimer {
         int currentLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
         loadLevelNumber(currentLevel);
 
+        introAnimationActive = true;
+        introStartTime = System.currentTimeMillis();
         startCountdown();
     }
 
@@ -442,66 +465,140 @@ public class GameEngine extends AnimationTimer {
      */
     private void updateCountdown() {
         long elapsed = System.currentTimeMillis() - countdownStartTime;
-        
-        if (elapsed >= COUNTDOWN_DURATION) {
-            countdownNumber--;
-            countdownStartTime = System.currentTimeMillis();
-            
-            if (countdownNumber < 1) {
-                // Countdown kết thúc, bắt đầu game
-                countdownActive = false;
-                gameRunning = true;
+        if (countdownNumber >= 1) {
+            if (elapsed >= COUNTDOWN_DURATION) {
+                countdownNumber--;
+                countdownStartTime = System.currentTimeMillis();
+
+                // chuyen sang start
+                if (countdownNumber < 1) {
+                    startShown = true;
+                    startShownTime = System.currentTimeMillis();
+                }
             }
+            return;
+        }
+
+        if (startShown) {
+            long showElapsed = System.currentTimeMillis() - startShownTime;
+
+            if (showElapsed < 800) {
+                return;
+            }
+
+            startShown = false;
+            countdownActive = false;
+            gameRunning = true;
         }
     }
+
     
     /**
      * Render countdown lên màn hình
      */
     private void renderCountdown() {
         if (canvas == null) return;
-        
+
         var gc = canvas.getGraphicsContext2D();
-        
-        // Clear canvas
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        
-        // Render game objects (frozen)
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+
+        gc.clearRect(0, 0, w, h);
         if (renderManager != null) {
             renderManager.setChargePulse(chargePulse);
-            renderManager.setScreenShake(0, 0); // No shake during countdown
+            renderManager.setScreenShake(0, 0);
             renderManager.renderAll(
-                mainBall, paddle, bricks, powerUps, laserBeams,
-                shield, explosions, debrisEffects, balls, ballAttachedToPaddle
+                    mainBall, paddle, bricks, powerUps, laserBeams,
+                    shield, explosions, debrisEffects, balls, ballAttachedToPaddle
             );
         }
-        
-        // Render countdown number ở giữa màn hình
-        double centerX = canvas.getWidth() / 2;
-        double centerY = canvas.getHeight() / 2;
-        
-        String text = String.valueOf(countdownNumber);
-        
-        // Font size lớn
-        gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 120));
-        
-        // Tính toán vị trí text (căn giữa)
-        javafx.scene.text.Text tempText = new javafx.scene.text.Text(text);
-        tempText.setFont(gc.getFont());
-        double textWidth = tempText.getLayoutBounds().getWidth();
-        double textHeight = tempText.getLayoutBounds().getHeight();
-        
-        double x = centerX - textWidth / 2;
-        double y = centerY + textHeight / 4;
-        
-        // Stroke (viền xanh sáng)
-        gc.setStroke(javafx.scene.paint.Color.rgb(0, 255, 255, 1.0)); // Cyan bright
-        gc.setLineWidth(4);
-        gc.strokeText(text, x, y);
-        
-        // Fill (trắng đục)
-        gc.setFill(javafx.scene.paint.Color.rgb(255, 255, 255, 0.7));
+
+        long elapsed = System.currentTimeMillis() - countdownStartTime;
+        double t = Math.min(1.0, elapsed / (double) COUNTDOWN_DURATION);
+
+        if (countdownNumber == 1) {
+            t = Math.pow(t, 0.45); // slow-motion easing
+        }
+
+        // text 3 2 1 start
+        String text = countdownNumber >= 1 ? String.valueOf(countdownNumber) : "START!";
+        boolean isStart = countdownNumber < 1;
+
+        // Font dynamic
+        double baseSize = isStart ? 110 : 160;
+        double scale = 1.0 + 0.28 * Math.sin(t * Math.PI);
+        gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.EXTRA_BOLD, baseSize * scale));
+
+        javafx.scene.text.Text tmp = new javafx.scene.text.Text(text);
+        tmp.setFont(gc.getFont());
+        double tw = tmp.getLayoutBounds().getWidth();
+        double th = tmp.getLayoutBounds().getHeight();
+
+        double x = w/2 - tw/2;
+        double y = h/2 + th/4;
+
+        double split = (1 - t) * 28;
+        gc.setGlobalAlpha(1.0);
+
+        gc.setFill(Color.rgb(255, 70, 150, 0.75)); // magenta glow
+        gc.fillText(text, x + split, y);
+
+        gc.setFill(Color.rgb(70, 255, 255, 0.75)); // cyan glow
+        gc.fillText(text, x - split, y);
+
+        gc.setFill(Color.WHITE); // main
         gc.fillText(text, x, y);
+
+        double ringAlpha = (1 - t) * 0.35;
+        double r = 160 + 180 * t;
+        gc.setFill(Color.rgb(0, 255, 255, ringAlpha));
+        gc.fillOval(w/2 - r, h/2 - r, r*2, r*2);
+
+        if (t < 0.15) {
+            double warpA = (0.15 - t) / 0.15;
+            gc.setFill(Color.rgb(0,0,0, warpA * 0.4));
+            gc.fillRect(0,0,w,h);
+
+            double sx = 1 + warpA * 0.25;
+            gc.save();
+            gc.translate(w/2, h/2);
+            gc.scale(sx, sx);
+            gc.translate(-w/2, -h/2);
+            gc.setFill(Color.WHITE);
+            gc.fillText(text, x, y);
+            gc.restore();
+        }
+
+        int particleCount = 22;
+        double orbitR = 120 + 25 * Math.sin(t * Math.PI);
+        for (int i = 0; i < particleCount; i++) {
+            double a = (i / (double) particleCount) * 2 * Math.PI;
+            double px = w/2 + Math.cos(a + t * 4) * orbitR;
+            double py = h/2 + Math.sin(a + t * 4) * orbitR;
+
+            gc.setFill(Color.rgb(0, 255, 255, 0.8 * (1 - t)));
+            gc.fillOval(px - 4, py - 4, 8, 8);
+        }
+
+        if (isStart) {
+            double tt = Math.min(1.0, t * 2.2);
+
+            // SWEEP BAR chạy ngang qua text
+            double sweepX = (w * 1.2) * tt - w * 0.1;
+            gc.setFill(Color.rgb(0, 255, 255, 0.35 * (1 - tt)));
+            gc.fillRect(sweepX - 140, 0, 140, h); // thanh sáng quét
+
+            // Holo fade-out
+            gc.setGlobalAlpha(1 - tt);
+            gc.setFill(Color.WHITE);
+            gc.fillText(text, x, y);
+
+            gc.setGlobalAlpha(0.4 * (1 - tt));
+            gc.setFill(Color.rgb(0, 255, 255));
+            gc.fillText(text, x + 3, y);
+
+            gc.setGlobalAlpha(1.0);
+        }
     }
 
     // Cập nhật trạng thái game
@@ -563,29 +660,6 @@ public class GameEngine extends AnimationTimer {
         // Xóa debris đã kết thúc
         debrisEffects.removeIf(DebrisEffect::isFinished);
     }
-
-    private void handleLevelCompletion() {
-        if (powerUpManager != null) {
-            powerUpManager.clearPowerUps();
-            powerUpManager.clearLaserBeams();
-        }
-
-        // Xóa shield nếu có
-        shield = null;
-        
-        // Clear debris effects
-        debrisEffects.clear();
-
-        if (soundManager != null) {
-            soundManager.playSoundEffect("level_complete");
-        }
-
-        // Delegate level completion cho ScoreManager (sẽ trigger callback)
-        if (scoreManager != null) {
-            scoreManager.completeLevel();
-        }
-    }
-
     // Được gọi từ ScoreManager callback khi chuyển level
     private void proceedToNextLevel() {
         int nextLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
@@ -617,7 +691,8 @@ public class GameEngine extends AnimationTimer {
             collisionManager.setPaddle(paddle);
             collisionManager.setBalls(balls);
         }
-        
+        introAnimationActive = true;
+        introStartTime = System.currentTimeMillis();
         // Bắt đầu countdown cho level mới
         startCountdown();
     }
@@ -693,9 +768,6 @@ public class GameEngine extends AnimationTimer {
 
     public void setGameRunning(boolean gameRunning) {
         this.gameRunning = gameRunning;
-        if (!gameRunning) {
-            cleanup();
-        }
     }
 
     public Ball getBall() {
@@ -726,15 +798,15 @@ public class GameEngine extends AnimationTimer {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
                 Parent root = loader.load();
                 game.arkanoid.controllers.GameOverController controller = loader.getController();
-                
+
                 // Truyền player từ mainController TRƯỚC KHI set final score
                 if (mainController != null && mainController.getCurrentPlayer() != null) {
                     controller.setPlayer(mainController.getCurrentPlayer());
                 }
-                
+
                 // Set final score (sẽ cập nhật high score nếu cần)
                 controller.setFinalScore(finalScore);
-                
+
                 Stage stage = (Stage) canvas.getScene().getWindow();
                 stage.setScene(new Scene(root, 800, 600));
             } catch (Exception e) {
@@ -896,6 +968,117 @@ public class GameEngine extends AnimationTimer {
             ballAttachedToPaddle = false;
             chargePulse = 0;
             chargeIncreasing = true;
+        }
+    }
+    private void renderIntroAnimation() {
+        if (canvas == null) return;
+
+        long elapsed = System.currentTimeMillis() - introStartTime;
+        double t = Math.min(1.0, elapsed / (double) INTRO_DURATION);
+
+        var gc = canvas.getGraphicsContext2D();
+
+        render();
+        gameRunning = false;
+
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+
+        double scanHeight = h * 0.15;
+        double scanY = -scanHeight + (h + scanHeight) * t;
+
+        gc.setFill(Color.rgb(0, 255, 255, 0.20 * (1 - t)));
+        gc.fillRect(0, scanY, w, scanHeight);
+
+        if (t < 0.6) {
+            double fade = (0.6 - t) / 0.6;
+            gc.setFill(Color.rgb(0, 0, 0, fade * 0.85));
+            gc.fillRect(0, 0, w, h);
+        }
+
+        int level = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
+        String txt = "LEVEL " + level;
+
+        gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.EXTRA_BOLD, 70));
+
+        javafx.scene.text.Text temp = new javafx.scene.text.Text(txt);
+        temp.setFont(gc.getFont());
+        double textW = temp.getLayoutBounds().getWidth();
+        double textH = temp.getLayoutBounds().getHeight();
+        double x = w/2 - textW/2;
+        double y = h/2 + textH/4;
+
+        double textAlpha = Math.min(1, t * 2);
+
+        // RGB split glitch
+        double offset = (Math.random() - 0.5) * (1 - t) * 20;
+
+        gc.setGlobalAlpha(textAlpha);
+
+        gc.setFill(Color.rgb(255, 60, 60));   // red ghost
+        gc.fillText(txt, x + offset, y);
+
+        gc.setFill(Color.rgb(60, 255, 255)); // cyan ghost
+        gc.fillText(txt, x - offset * 0.7, y);
+
+        gc.setFill(Color.WHITE);             // main text
+        gc.fillText(txt, x, y);
+
+        gc.setGlobalAlpha(1.0);
+
+        if (t >= 1.0) {
+            introAnimationActive = false;
+            startCountdown();
+        }
+    }
+
+    private void handleLevelCompletion() {
+        if (powerUpManager != null) {
+            powerUpManager.clearPowerUps();
+            powerUpManager.clearLaserBeams();
+        }
+
+        shield = null;
+        debrisEffects.clear();
+
+        if (soundManager != null) {
+            soundManager.playSoundEffect("level_complete");
+        }
+
+        startLevelClearAnimation();
+    }
+    private void startLevelClearAnimation() {
+        levelClearAnimActive = true;
+        levelClearStartTime = System.currentTimeMillis();
+        gameRunning = false; // freeze game
+    }
+    private void renderLevelClearAnimation() {
+        if (canvas == null) return;
+
+        long elapsed = System.currentTimeMillis() - levelClearStartTime;
+        double t = Math.min(1.0, elapsed / (double) LEVEL_CLEAR_DURATION);
+
+        var gc = canvas.getGraphicsContext2D();
+        render(); // render frame cuối
+
+        double burstAlpha = (1.0 - t);
+        gc.setFill(Color.rgb(255, 240, 120, burstAlpha * 0.8));
+        gc.fillOval(
+                canvas.getWidth() / 2 - 250 * t,
+                canvas.getHeight() / 2 - 250 * t,
+                500 * t,
+                500 * t
+        );
+
+        // Fade trang cuoi animation
+        gc.setFill(Color.rgb(255, 255, 255, t * 0.65));
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        // het animation -> next level
+        if (t >= 1.0) {
+            levelClearAnimActive = false;
+
+            if (scoreManager != null) scoreManager.completeLevel();
         }
     }
 }
