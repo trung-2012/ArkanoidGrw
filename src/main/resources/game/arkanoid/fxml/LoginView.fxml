@@ -68,6 +68,7 @@
                                           -fx-background-radius: 8;
                                           -fx-text-fill: white;
                                           -fx-prompt-text-fill: gray;"/>
+                    <Label fx:id="passwordHint" text="" style="-fx-font-size: 11; -fx-text-fill: #ff4d4d;"/>
 
                     <TextField fx:id="passwordFieldVisible"
                                promptText="Enter password"

@@ -1,12 +1,7 @@
 package game.arkanoid.views;
 
-import game.arkanoid.managers.CollisionManager;
-import game.arkanoid.managers.InputManager;
-import game.arkanoid.managers.PowerUpManager;
-import game.arkanoid.managers.RenderManager;
-import game.arkanoid.managers.ScoreManager;
+import game.arkanoid.managers.*;
 import game.arkanoid.models.*;
-import game.arkanoid.managers.SoundManager;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.GameSettings;
 import game.arkanoid.utils.LevelLoader;
@@ -28,13 +23,9 @@ import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameEngine extends AnimationTimer {
-    // MANAGERS
-    private CollisionManager collisionManager;
-    private RenderManager renderManager;
-    private PowerUpManager powerUpManager;
-    private InputManager inputManager;
-    private ScoreManager scoreManager;
-    private SoundManager soundManager;
+    private static final long COUNTDOWN_DURATION = 1000;
+    private static final long INTRO_DURATION = 3000; // s
+    private static final long LEVEL_CLEAR_DURATION = 2000; // s
     // GAME OBJECTS
     // Thread-safe collections for concurrent access
     private final List<PowerUp> powerUps = new CopyOnWriteArrayList<>();
@@ -42,50 +33,45 @@ public class GameEngine extends AnimationTimer {
     private final List<ExplosionEffect> explosions = new CopyOnWriteArrayList<>();
     private final List<DebrisEffect> debrisEffects = new CopyOnWriteArrayList<>();
     private final List<Ball> balls = new CopyOnWriteArrayList<>();
-
+    // MANAGERS
+    private CollisionManager collisionManager;
+    private RenderManager renderManager;
+    private PowerUpManager powerUpManager;
+    private InputManager inputManager;
+    private ScoreManager scoreManager;
+    private SoundManager soundManager;
     private Ball mainBall;
     private Paddle paddle;
     private List<Brick> bricks = new ArrayList<>();
-
     // GAME STATE
     private boolean gameRunning;
-
     private Shield shield;
     private game.arkanoid.controllers.MainController mainController;
-
     private Canvas canvas;
-
     // IMAGES
     private Image paddleImage;
     private Image ballImage;
     private Image bulletImage;
     private Image explosionEffectImage;
-
     // INPUT STATE
     private boolean ballAttachedToPaddle = true; // bóng chính đang dính paddle
     private double chargePulse = 0;
     private boolean chargeIncreasing = true;
-    
     // SCREEN SHAKE EFFECT
     private double shakeOffsetX = 0;
     private double shakeOffsetY = 0;
     private int shakeFramesLeft = 0;
     private double shakeIntensity = 0;
-    
     // COUNTDOWN STATE
     private boolean countdownActive = false;
     private int countdownNumber = 3;
     private long countdownStartTime = 0;
-    private static final long COUNTDOWN_DURATION = 1000;
-
     // START
     private boolean introAnimationActive = false;
     private long introStartTime = 0;
-    private static final long INTRO_DURATION = 3000; // s
     // LEVEL CLEAR ANIMATION
     private boolean levelClearAnimActive = false;
     private long levelClearStartTime = 0;
-    private static final long LEVEL_CLEAR_DURATION = 2000; // s
     private boolean startShown = false;
     private long startShownTime = 0;
 
@@ -171,7 +157,7 @@ public class GameEngine extends AnimationTimer {
             soundManager.loadSoundEffect("shield_up", "src/main/resources/game/arkanoid/sounds/shield_up.mp3");
             soundManager.loadSoundEffect("multiball", "src/main/resources/game/arkanoid/sounds/multiball.mp3");
             soundManager.loadSoundEffect("laser_fire", "src/main/resources/game/arkanoid/sounds/laser_fire.mp3");
-            soundManager.loadSoundEffect("wall_hit","src/main/resources/game/arkanoid/sounds/hit_paddle.wav");
+            soundManager.loadSoundEffect("wall_hit", "src/main/resources/game/arkanoid/sounds/hit_paddle.wav");
             soundManager.loadSoundEffect("endgame", "src/main/resources/game/arkanoid/sounds/endgame.mp3");
         } catch (Exception e) {
             System.err.println("Lỗi nghiêm trọng: Không thể tải file âm thanh. " + e.getMessage());
@@ -212,7 +198,7 @@ public class GameEngine extends AnimationTimer {
         } catch (Exception e) {
             System.err.println("Warning: Could not load explosion effect image");
         }
-        
+
         // canvas focus để nhận phím
         if (this.canvas != null) {
             this.canvas.requestFocus();
@@ -301,7 +287,7 @@ public class GameEngine extends AnimationTimer {
         powerUpManager.setPaddle(paddle);
         setupPowerUpCallbacks();
         shield = null;
-        
+
         if (inputManager != null) {
             inputManager.setPaddle(paddle);
         }
@@ -323,14 +309,14 @@ public class GameEngine extends AnimationTimer {
         if (balls.size() >= GameConstants.MAX_BALLS) {
             return; // Đã đủ số lượng bóng tối đa
         }
-        
+
         List<Ball> snapshot = new ArrayList<>(balls);
         for (Ball original : snapshot) {
             // Kiểm tra trước khi thêm mỗi clone
             if (balls.size() >= GameConstants.MAX_BALLS) {
                 break; // Đã đạt limit
             }
-            
+
             Ball ball1 = cloneBall(original, +1.5);
             balls.add(ball1);
 
@@ -370,7 +356,7 @@ public class GameEngine extends AnimationTimer {
         // Sync lại shield (có thể đã null nếu broken)
         shield = collisionManager.getShield();
     }
-    
+
     /**
      * Setup explosion handler cho brick.
      * Xử lý cả ExplodeBrick trực tiếp và ExplodeBrick bên trong SecretBrick.
@@ -378,9 +364,8 @@ public class GameEngine extends AnimationTimer {
     private void setupExplosionHandler(Brick brick) {
         if (brick instanceof ExplodeBrick) {
             ((ExplodeBrick) brick).setExplosionHandler(this::handleExplosion);
-        } else if (brick instanceof SecretBrick) {
+        } else if (brick instanceof SecretBrick secretBrick) {
             // SecretBrick có thể chứa ExplodeBrick bên trong
-            SecretBrick secretBrick = (SecretBrick) brick;
             Brick disguise = secretBrick.getDisguiseBrick();
             if (disguise instanceof ExplodeBrick) {
                 ((ExplodeBrick) disguise).setExplosionHandler(this::handleExplosion);
@@ -398,7 +383,7 @@ public class GameEngine extends AnimationTimer {
         if (soundManager != null) {
             soundManager.playSoundEffect("explosion");
         }
-        
+
         // Kích hoạt screen shake khi nổ
         startScreenShake(8.0, 15); // 8 pixels intensity, 15 frames (~0.25 seconds at 60fps)
 
@@ -423,17 +408,18 @@ public class GameEngine extends AnimationTimer {
             }
         }
     }
-    
+
     /**
      * Kích hoạt hiệu ứng rung màn hình
+     *
      * @param intensity Cường độ rung (pixels)
-     * @param frames Số frame rung
+     * @param frames    Số frame rung
      */
     private void startScreenShake(double intensity, int frames) {
         this.shakeIntensity = intensity;
         this.shakeFramesLeft = frames;
     }
-    
+
     /**
      * Cập nhật hiệu ứng rung màn hình
      */
@@ -449,7 +435,7 @@ public class GameEngine extends AnimationTimer {
             shakeOffsetY = 0;
         }
     }
-    
+
     /**
      * Bắt đầu countdown
      */
@@ -459,7 +445,7 @@ public class GameEngine extends AnimationTimer {
         countdownStartTime = System.currentTimeMillis();
         gameRunning = false; // Tạm dừng game trong khi countdown
     }
-    
+
     /**
      * Cập nhật countdown
      */
@@ -492,7 +478,7 @@ public class GameEngine extends AnimationTimer {
         }
     }
 
-    
+
     /**
      * Render countdown lên màn hình
      */
@@ -534,8 +520,8 @@ public class GameEngine extends AnimationTimer {
         double tw = tmp.getLayoutBounds().getWidth();
         double th = tmp.getLayoutBounds().getHeight();
 
-        double x = w/2 - tw/2;
-        double y = h/2 + th/4;
+        double x = w / 2 - tw / 2;
+        double y = h / 2 + th / 4;
 
         double split = (1 - t) * 28;
         gc.setGlobalAlpha(1.0);
@@ -552,18 +538,18 @@ public class GameEngine extends AnimationTimer {
         double ringAlpha = (1 - t) * 0.35;
         double r = 160 + 180 * t;
         gc.setFill(Color.rgb(0, 255, 255, ringAlpha));
-        gc.fillOval(w/2 - r, h/2 - r, r*2, r*2);
+        gc.fillOval(w / 2 - r, h / 2 - r, r * 2, r * 2);
 
         if (t < 0.15) {
             double warpA = (0.15 - t) / 0.15;
-            gc.setFill(Color.rgb(0,0,0, warpA * 0.4));
-            gc.fillRect(0,0,w,h);
+            gc.setFill(Color.rgb(0, 0, 0, warpA * 0.4));
+            gc.fillRect(0, 0, w, h);
 
             double sx = 1 + warpA * 0.25;
             gc.save();
-            gc.translate(w/2, h/2);
+            gc.translate(w / 2, h / 2);
             gc.scale(sx, sx);
-            gc.translate(-w/2, -h/2);
+            gc.translate(-w / 2, -h / 2);
             gc.setFill(Color.WHITE);
             gc.fillText(text, x, y);
             gc.restore();
@@ -573,8 +559,8 @@ public class GameEngine extends AnimationTimer {
         double orbitR = 120 + 25 * Math.sin(t * Math.PI);
         for (int i = 0; i < particleCount; i++) {
             double a = (i / (double) particleCount) * 2 * Math.PI;
-            double px = w/2 + Math.cos(a + t * 4) * orbitR;
-            double py = h/2 + Math.sin(a + t * 4) * orbitR;
+            double px = w / 2 + Math.cos(a + t * 4) * orbitR;
+            double py = h / 2 + Math.sin(a + t * 4) * orbitR;
 
             gc.setFill(Color.rgb(0, 255, 255, 0.8 * (1 - t)));
             gc.fillOval(px - 4, py - 4, 8, 8);
@@ -604,14 +590,19 @@ public class GameEngine extends AnimationTimer {
     // Cập nhật trạng thái game
     public void updateGameState() {
         if (inputManager != null) inputManager.updatePaddleMovement();
-        
+
         // Cập nhật screen shake effect
         updateScreenShake();
 
         if (ballAttachedToPaddle && mainBall != null) {
             // pulse aura
-            if (chargeIncreasing) { chargePulse += 0.01; if (chargePulse > 1.0) chargeIncreasing = false; }
-            else { chargePulse -= 0.01; if (chargePulse < 0.0) chargeIncreasing = true; }
+            if (chargeIncreasing) {
+                chargePulse += 0.01;
+                if (chargePulse > 1.0) chargeIncreasing = false;
+            } else {
+                chargePulse -= 0.01;
+                if (chargePulse < 0.0) chargeIncreasing = true;
+            }
 
             mainBall.getTrail().clear();
             double bx = paddle.getPosition().getX();
@@ -621,7 +612,7 @@ public class GameEngine extends AnimationTimer {
             // Update tất cả balls (bao gồm main ball và clone balls)
             for (Ball b : balls) b.update();
         }
-        
+
         // Update bricks (cần thiết cho SecretBrick transform logic)
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
@@ -632,9 +623,9 @@ public class GameEngine extends AnimationTimer {
                 }
             }
         }
-        
+
         // Power-ups và lasers được handle bởi PowerUpManager
-        
+
         // Update shield (tự động damage sau mỗi 5 giây)
         if (shield != null && !shield.isBroken()) {
             shield.update();
@@ -651,15 +642,16 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa các explosion đã kết thúc bằng removeIf()
         explosions.removeIf(ExplosionEffect::isFinished);
-        
+
         // Cập nhật debris effects
         for (DebrisEffect debris : debrisEffects) {
             debris.update();
         }
-        
+
         // Xóa debris đã kết thúc
         debrisEffects.removeIf(DebrisEffect::isFinished);
     }
+
     // Được gọi từ ScoreManager callback khi chuyển level
     private void proceedToNextLevel() {
         int nextLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
@@ -685,7 +677,7 @@ public class GameEngine extends AnimationTimer {
         // Update các managers với paddle và balls mới
         if (inputManager != null) inputManager.setPaddle(paddle);
         powerUpManager.setPaddle(paddle);
-        
+
         // QUAN TRỌNG: Update CollisionManager với paddle và balls mới!
         if (collisionManager != null) {
             collisionManager.setPaddle(paddle);
@@ -696,6 +688,7 @@ public class GameEngine extends AnimationTimer {
         // Bắt đầu countdown cho level mới
         startCountdown();
     }
+
     // Xử lý sự kiện phím bấm
     public void setLeftPressed(boolean pressed) {
         if (inputManager != null) {
@@ -716,7 +709,7 @@ public class GameEngine extends AnimationTimer {
 
         // Update charge pulse effect
         renderManager.setChargePulse(chargePulse);
-        
+
         // Update screen shake effect
         renderManager.setScreenShake(shakeOffsetX, shakeOffsetY);
 
@@ -744,7 +737,7 @@ public class GameEngine extends AnimationTimer {
 
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
-        
+
         // Setup explosion handlers cho ExplodeBricks (bao gồm cả trong SecretBrick)
         for (Brick brick : bricks) {
             setupExplosionHandler(brick);
@@ -886,11 +879,11 @@ public class GameEngine extends AnimationTimer {
         if (!(brick instanceof ExplodeBrick)) {
             Color brickColor = getBrickColor(brick);
             debrisEffects.add(new DebrisEffect(
-                new Vector2D(
-                    brick.getPosition().getX() + brick.getWidth() / 2.0,
-                    brick.getPosition().getY() + brick.getHeight() / 2.0
-                ),
-                brickColor
+                    new Vector2D(
+                            brick.getPosition().getX() + brick.getWidth() / 2.0,
+                            brick.getPosition().getY() + brick.getHeight() / 2.0
+                    ),
+                    brickColor
             ));
         }
 
@@ -902,7 +895,7 @@ public class GameEngine extends AnimationTimer {
             );
         }
     }
-    
+
     /**
      * Lấy màu sắc đại diện cho loại gạch.
      */
@@ -970,6 +963,7 @@ public class GameEngine extends AnimationTimer {
             chargeIncreasing = true;
         }
     }
+
     private void renderIntroAnimation() {
         if (canvas == null) return;
 
@@ -1005,8 +999,8 @@ public class GameEngine extends AnimationTimer {
         temp.setFont(gc.getFont());
         double textW = temp.getLayoutBounds().getWidth();
         double textH = temp.getLayoutBounds().getHeight();
-        double x = w/2 - textW/2;
-        double y = h/2 + textH/4;
+        double x = w / 2 - textW / 2;
+        double y = h / 2 + textH / 4;
 
         double textAlpha = Math.min(1, t * 2);
 
@@ -1047,11 +1041,13 @@ public class GameEngine extends AnimationTimer {
 
         startLevelClearAnimation();
     }
+
     private void startLevelClearAnimation() {
         levelClearAnimActive = true;
         levelClearStartTime = System.currentTimeMillis();
         gameRunning = false; // freeze game
     }
+
     private void renderLevelClearAnimation() {
         if (canvas == null) return;
 
