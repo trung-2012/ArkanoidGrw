@@ -7,44 +7,72 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.StartMenuController">
+<StackPane prefHeight="600" prefWidth="800"
+           xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="game.arkanoid.controllers.StartMenuController">
 
     <ImageView fitHeight="600" fitWidth="800" preserveRatio="false">
         <image>
-            <Image url="@../images/StartMenu.png" />
+            <Image url="@../images/StartMenu.png"/>
         </image>
     </ImageView>
 
-    <Label fx:id="nicknameLabel" style="-fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: bold; -fx-font-style: italic; -fx-underline: true;" text="Player: ???" translateX="10.0" translateY="5.0" StackPane.alignment="TOP_LEFT" />
+    <Label fx:id="nicknameLabel"
+           style="-fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: bold; -fx-font-style: italic; -fx-underline: true;"
+           text="Player: ???"
+           translateX="10.0" translateY="5.0"
+           StackPane.alignment="TOP_LEFT"/>
 
     <VBox alignment="CENTER" spacing="30">
         <VBox alignment="CENTER" spacing="15" translateY="80">
 
-            <Button fx:id="startButton" onAction="#startGame" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
+            <Button fx:id="startButton"
+                    onAction="#startGame"
+                    onMouseEntered="#onButtonMouseEntered"
+                    onMouseExited="#onButtonMouseExited"
+                    prefHeight="70" prefWidth="210"
+                    style="-fx-background-color: transparent;" text="">
                 <graphic>
-                    <ImageView fx:id="startImageView" fitHeight="70" fitWidth="210" preserveRatio="false">
+                    <ImageView fx:id="startImageView"
+                               fitHeight="70" fitWidth="210"
+                               preserveRatio="false">
                         <image>
-                            <Image url="@../images/start.png" />
+                            <Image url="@../images/start.png"/>
                         </image>
                     </ImageView>
                 </graphic>
             </Button>
 
-            <Button fx:id="settingsButton" onAction="#openSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
+            <Button fx:id="settingsButton"
+                    onAction="#openSettings"
+                    onMouseEntered="#onButtonMouseEntered"
+                    onMouseExited="#onButtonMouseExited"
+                    prefHeight="70" prefWidth="210"
+                    style="-fx-background-color: transparent;" text="">
                 <graphic>
-                    <ImageView fx:id="settingsImageView" fitHeight="70" fitWidth="210" preserveRatio="false">
+                    <ImageView fx:id="settingsImageView"
+                               fitHeight="70" fitWidth="210"
+                               preserveRatio="false">
                         <image>
-                            <Image url="@../images/settings.png" />
+                            <Image url="@../images/settings.png"/>
                         </image>
                     </ImageView>
                 </graphic>
             </Button>
 
-            <Button fx:id="exitButton" onAction="#exitGame" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
+            <Button fx:id="exitButton"
+                    onAction="#exitGame"
+                    onMouseEntered="#onButtonMouseEntered"
+                    onMouseExited="#onButtonMouseExited"
+                    prefHeight="70" prefWidth="210"
+                    style="-fx-background-color: transparent;" text="">
                 <graphic>
-                    <ImageView fx:id="exitImageView" fitHeight="70" fitWidth="210" preserveRatio="false">
+                    <ImageView fx:id="exitImageView"
+                               fitHeight="70" fitWidth="210"
+                               preserveRatio="false">
                         <image>
-                            <Image url="@../images/exit.png" />
+                            <Image url="@../images/exit.png"/>
                         </image>
                     </ImageView>
                 </graphic>
@@ -53,11 +81,37 @@
         </VBox>
     </VBox>
 
-       <Button fx:id="logoutButton" onAction="#logout" prefHeight="100.0" prefWidth="100.0" style="-fx-background-color: transparent;" StackPane.alignment="BOTTOM_RIGHT">
+    <!-- NÚT LEADERBOARD GÓC PHẢI TRÊN — ĐƯỢC MOVE XUỐNG ĐÂY -->
+    <Button fx:id="leaderboardButton"
+            onAction="#openLeaderboard"
+            prefWidth="80" prefHeight="80"
+            style="-fx-background-color: transparent;"
+            StackPane.alignment="TOP_RIGHT"
+            translateX="-10" translateY="10">
+
         <graphic>
-            <ImageView fx:id="logoutImageView" fitHeight="100.0" fitWidth="100.0" preserveRatio="true">
+            <ImageView fx:id="leaderboardImageView"
+                       fitWidth="60" fitHeight="60"
+                       preserveRatio="true">
                 <image>
-                    <Image url="@../images/logout.png" />
+                    <Image url="@../images/leaderboardDemo.png"/>
+                </image>
+            </ImageView>
+        </graphic>
+    </Button>
+
+    <Button fx:id="logoutButton"
+            onAction="#logout"
+            prefHeight="100.0" prefWidth="100.0"
+            style="-fx-background-color: transparent;"
+            StackPane.alignment="BOTTOM_RIGHT">
+
+        <graphic>
+            <ImageView fx:id="logoutImageView"
+                       fitHeight="100.0" fitWidth="100.0"
+                       preserveRatio="true">
+                <image>
+                    <Image url="@../images/logout.png"/>
                 </image>
             </ImageView>
         </graphic>
