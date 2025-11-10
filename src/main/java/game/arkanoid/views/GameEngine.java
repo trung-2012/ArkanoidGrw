@@ -133,6 +133,7 @@ public class GameEngine extends AnimationTimer {
             soundManager.loadSoundEffect("multiball", "src/main/resources/game/arkanoid/sounds/multiball.mp3");
             soundManager.loadSoundEffect("laser_fire", "src/main/resources/game/arkanoid/sounds/laser_fire.mp3");
             soundManager.loadSoundEffect("wall_hit","src/main/resources/game/arkanoid/sounds/hit_paddle.wav");
+            soundManager.loadSoundEffect("endgame", "src/main/resources/game/arkanoid/sounds/endgame.mp3");
         } catch (Exception e) {
             System.err.println("Lỗi nghiêm trọng: Không thể tải file âm thanh. " + e.getMessage());
         }
@@ -189,6 +190,7 @@ public class GameEngine extends AnimationTimer {
         double py = canvasH - (GameConstants.PADDLE_HEIGHT / 2.0) - 10;
 
         this.paddle = new Paddle(new Vector2D(px, py));
+        this.soundManager.resumeBackgroundMusic();
 
         double bx = px;
         double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0);

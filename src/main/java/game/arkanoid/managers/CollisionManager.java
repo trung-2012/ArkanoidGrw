@@ -93,8 +93,8 @@ public class CollisionManager {
         for (int i = 0; i < balls.size(); i++) {
             Ball b = balls.get(i);
 
-            double oldX = b.getPosition().getX();
-            double oldY = b.getPosition().getY();
+            double oldX = b.getVelocity().getX();
+            double oldY = b.getVelocity().getY();
             double radius = b.getRadius();
 
             boolean fallOut = b.collideWithWall(screenWidth, screenHeight);
@@ -115,8 +115,8 @@ public class CollisionManager {
             // Nếu bóng không rơi, chúng ta kiểm tra xem nó có vừa nảy không
             else if (onWallHit != null) {
                 // Lấy vị trí MỚI (sau khi Ball.java đã di chuyển nó)
-                double newX = b.getPosition().getX();
-                double newY = b.getPosition().getY();
+                double newX = b.getVelocity().getX();
+                double newY = b.getVelocity().getY();
 
                 // Nếu vị trí đã thay đổi (nghĩa là nó đã bị "đẩy" ra khỏi tường)
                 // hoặc nếu vận tốc vừa bị đảo ngược (do va chạm)
