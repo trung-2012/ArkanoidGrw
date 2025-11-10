@@ -205,7 +205,7 @@ License
 
 Ghi chú
 ---
-+ Đây là đồ án môn Lập trình Hướng Đối Tượng
++ Đây là dự án môn Lập trình Hướng Đối Tượng
 + Toàn bộ code được phát triển bởi các thành viên trong nhóm
 + Một số hình ảnh/âm thanh được sử dụng cho mục đích học thuật
 
