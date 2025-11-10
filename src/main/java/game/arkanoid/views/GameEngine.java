@@ -132,6 +132,7 @@ public class GameEngine extends AnimationTimer {
             soundManager.loadSoundEffect("shield_up", "src/main/resources/game/arkanoid/sounds/shield_up.mp3");
             soundManager.loadSoundEffect("multiball", "src/main/resources/game/arkanoid/sounds/multiball.mp3");
             soundManager.loadSoundEffect("laser_fire", "src/main/resources/game/arkanoid/sounds/laser_fire.mp3");
+            soundManager.loadSoundEffect("wall_hit","src/main/resources/game/arkanoid/sounds/hit_paddle.wav");
         } catch (Exception e) {
             System.err.println("Lỗi nghiêm trọng: Không thể tải file âm thanh. " + e.getMessage());
         }
@@ -618,6 +619,12 @@ public class GameEngine extends AnimationTimer {
 
         collisionManager.setOnShieldHit(() -> {
             if (soundManager != null) soundManager.playSoundEffect("shield_hit");
+        });
+
+        collisionManager.setOnWallHit(() -> {
+            if (soundManager != null) {
+                soundManager.playSoundEffect("hit_paddle");
+            }
         });
     }
 

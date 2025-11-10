@@ -45,6 +45,7 @@ public class CollisionManager {
     /** Callback cho âm thanh*/
     private CollisionCallback onPaddleHit;
     private CollisionCallback onShieldHit;
+    private CollisionCallback onWallHit;
 
     /**
      * Constructor khởi tạo CollisionManager.
@@ -92,6 +93,10 @@ public class CollisionManager {
         for (int i = 0; i < balls.size(); i++) {
             Ball b = balls.get(i);
 
+            double oldX = b.getPosition().getX();
+            double oldY = b.getPosition().getY();
+            double radius = b.getRadius();
+
             boolean fallOut = b.collideWithWall(screenWidth, screenHeight);
 
             if (fallOut) {
@@ -105,6 +110,21 @@ public class CollisionManager {
                 // Nếu đây là bóng cuối cùng → mất mạng
                 if (onBallFallOut != null) {
                     onBallFallOut.onCollision();
+                }
+            }
+            // Nếu bóng không rơi, chúng ta kiểm tra xem nó có vừa nảy không
+            else if (onWallHit != null) {
+                // Lấy vị trí MỚI (sau khi Ball.java đã di chuyển nó)
+                double newX = b.getPosition().getX();
+                double newY = b.getPosition().getY();
+
+                // Nếu vị trí đã thay đổi (nghĩa là nó đã bị "đẩy" ra khỏi tường)
+                // hoặc nếu vận tốc vừa bị đảo ngược (do va chạm)
+                boolean justHit = (newX != oldX || newY != oldY);
+
+                // Chỉ kích hoạt âm thanh nếu nó thực sự vừa nảy
+                if (justHit) {
+                    onWallHit.onCollision();
                 }
             }
         }
@@ -344,6 +364,8 @@ public class CollisionManager {
     public void setOnShieldHit(CollisionCallback callback) {
         this.onShieldHit = callback;
     }
+
+    public void setOnWallHit(CollisionCallback callback) { this.onWallHit = callback; }
 
     // Callback Interfaces
 
