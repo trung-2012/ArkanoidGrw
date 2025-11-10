@@ -58,12 +58,16 @@ public class PowerUpManager {
         double rand = random.nextDouble();
         if (rand < 0.10)
             return PowerUpType.EXTRA_LIFE; // 10%
-        else if (rand < 0.45)
+        else if (rand < 0.35)
             return PowerUpType.LASER; // 35%
-        else if (rand < 0.75)
-            return PowerUpType.SHIELD; // 30%
+        else if (rand < 0.55)
+            return PowerUpType.SHIELD;// 30%
+        else if (rand <0.70)
+            return PowerUpType.MULTI_BALL;// 15%
+        else if (rand < 0.85)
+            return PowerUpType.PADDLE_GROW; //15%
         else
-            return PowerUpType.MULTI_BALL; // 25%
+            return PowerUpType.PADDLE_SHRINK; //15%
     }
 
     // Update tất cả power-ups (movement, collision detection)
@@ -112,6 +116,15 @@ public class PowerUpManager {
 
             case MULTI_BALL:
                 if (onMultiBall != null) onMultiBall.onActivate();
+                break;
+
+            case PADDLE_GROW:
+                if (paddle != null) paddle.grow();
+                if (soundManager != null) soundManager.playSoundEffect("paddle_grow");
+                break;
+            case PADDLE_SHRINK:
+                if (paddle != null) paddle.shrink();
+                if (soundManager != null) soundManager.playSoundEffect("paddle_shrink");
                 break;
         }
     }
