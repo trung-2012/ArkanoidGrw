@@ -20,6 +20,10 @@ public class RenderManager {
 
     // Effect state
     private double chargePulse = 0.0;
+    
+    // Screen shake offset
+    private double shakeOffsetX = 0;
+    private double shakeOffsetY = 0;
 
     public RenderManager(Canvas canvas) {
         this.canvas = canvas;
@@ -41,9 +45,12 @@ public class RenderManager {
     ) {
         if (gc == null) return;
 
-        // Clear canvas
+        // Apply screen shake effect
+        gc.save(); // Lưu transform state
+        gc.translate(shakeOffsetX, shakeOffsetY);
 
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        // Clear canvas
+        gc.clearRect(-shakeOffsetX, -shakeOffsetY, canvas.getWidth(), canvas.getHeight());
         renderBricks(bricks);
         renderPaddle(paddle);
         renderTrailsForAll(balls);
@@ -57,6 +64,9 @@ public class RenderManager {
         renderShield(shield);
         renderExplosions(explosions);
         renderDebrisEffects(debrisEffects);
+        
+        // Restore transform state
+        gc.restore();
     }
 
     // Render bricks
@@ -228,6 +238,11 @@ public class RenderManager {
 
     public void setChargePulse(double chargePulse) {
         this.chargePulse = chargePulse;
+    }
+    
+    public void setScreenShake(double offsetX, double offsetY) {
+        this.shakeOffsetX = offsetX;
+        this.shakeOffsetY = offsetY;
     }
 
 

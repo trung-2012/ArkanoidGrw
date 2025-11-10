@@ -65,6 +65,12 @@ public class GameEngine extends AnimationTimer {
     private boolean ballAttachedToPaddle = true; // bóng chính đang dính paddle
     private double chargePulse = 0;
     private boolean chargeIncreasing = true;
+    
+    // SCREEN SHAKE EFFECT
+    private double shakeOffsetX = 0;
+    private double shakeOffsetY = 0;
+    private int shakeFramesLeft = 0;
+    private double shakeIntensity = 0;
 
     @Override
     public void handle(long now) {
@@ -355,6 +361,9 @@ public class GameEngine extends AnimationTimer {
         if (soundManager != null) {
             soundManager.playSoundEffect("explosion");
         }
+        
+        // Kích hoạt screen shake khi nổ
+        startScreenShake(8.0, 15); // 8 pixels intensity, 15 frames (~0.25 seconds at 60fps)
 
         // Random 50-50: nổ theo hàng (true) hoặc theo cột (false)
         Random random = new Random();
@@ -377,10 +386,39 @@ public class GameEngine extends AnimationTimer {
             }
         }
     }
+    
+    /**
+     * Kích hoạt hiệu ứng rung màn hình
+     * @param intensity Cường độ rung (pixels)
+     * @param frames Số frame rung
+     */
+    private void startScreenShake(double intensity, int frames) {
+        this.shakeIntensity = intensity;
+        this.shakeFramesLeft = frames;
+    }
+    
+    /**
+     * Cập nhật hiệu ứng rung màn hình
+     */
+    private void updateScreenShake() {
+        if (shakeFramesLeft > 0) {
+            Random random = new Random();
+            // Random offset trong phạm vi [-intensity, +intensity]
+            shakeOffsetX = (random.nextDouble() * 2 - 1) * shakeIntensity;
+            shakeOffsetY = (random.nextDouble() * 2 - 1) * shakeIntensity;
+            shakeFramesLeft--;
+        } else {
+            shakeOffsetX = 0;
+            shakeOffsetY = 0;
+        }
+    }
 
     // Cập nhật trạng thái game
     public void updateGameState() {
         if (inputManager != null) inputManager.updatePaddleMovement();
+        
+        // Cập nhật screen shake effect
+        updateScreenShake();
 
         if (ballAttachedToPaddle && mainBall != null) {
             // pulse aura
@@ -500,6 +538,9 @@ public class GameEngine extends AnimationTimer {
 
         // Update charge pulse effect
         renderManager.setChargePulse(chargePulse);
+        
+        // Update screen shake effect
+        renderManager.setScreenShake(shakeOffsetX, shakeOffsetY);
 
         // Delegate rendering cho RenderManager
         renderManager.renderAll(
