@@ -7,10 +7,17 @@ public class PlayerData {
 
     private static final String FILE_PATH = "players.dat";
 
+    @SuppressWarnings("unchecked")
     public static ArrayList<Player> loadPlayers() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH))) {
-            return (ArrayList<Player>) ois.readObject();
+            Object obj = ois.readObject();
+            if (obj instanceof ArrayList) {
+                return (ArrayList<Player>) obj;
+            } else {
+                return new ArrayList<>();
+            }
         } catch (Exception e) {
+            System.out.println("No existing player data found. Starting fresh.");
             return new ArrayList<>();
         }
     }

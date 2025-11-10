@@ -6,35 +6,32 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="game.arkanoid.player_manager.LeaderboardController"
            prefWidth="900" prefHeight="650"
-           stylesheets="@../styles/leaderboard.css"
            style="-fx-background-color: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);">
 
-    <!-- Background -->
     <ImageView fitWidth="900" fitHeight="650" opacity="0.25" preserveRatio="false">
         <image>
             <Image url="@../images/leaderBoardBackground.png" />
         </image>
     </ImageView>
 
-    <!-- Main layout -->
     <VBox alignment="TOP_CENTER" spacing="30">
         <padding>
             <Insets top="70" right="30" bottom="30" left="30"/>
         </padding>
 
-        <!-- Title -->
         <Label text="🏆 LEADERBOARD 🏆"
                style="-fx-font-size: 42px;
                       -fx-text-fill: linear-gradient(to bottom, #00ffff, #0099ff);
                       -fx-font-weight: bold;
                       -fx-effect: dropshadow(gaussian, rgba(0,255,255,0.8), 18, 0, 0, 0);" />
 
-        <!-- Top 3 -->
         <VBox fx:id="top3Box" alignment="CENTER" spacing="20"
               prefWidth="700"
               style="-fx-background-color: rgba(0, 0, 0, 0.55);
@@ -87,7 +84,6 @@
             </HBox>
         </VBox>
 
-        <!-- Your high score -->
         <HBox fx:id="yourHighBox" alignment="CENTER" spacing="10"
               maxWidth="400"
               style="-fx-background-color: rgba(0, 0, 0, 0.5);
@@ -108,26 +104,14 @@
             </ImageView>
         </HBox>
 
-        <!-- Back to menu box giống your high score -->
-        <HBox alignment="CENTER" spacing="10"
-              maxWidth="150"
-              style="-fx-background-color: rgba(0, 0, 0, 0.5);
-                     -fx-background-radius: 14;
-                     -fx-border-color: #00eaff;
-                     -fx-border-width: 2;
-                     -fx-border-radius: 14;
-                     -fx-padding: 8 16 8 16;
-                     -fx-effect: dropshadow(gaussian, rgba(0,255,255,0.4), 10, 0, 0, 0);">
-            <Button text="BACK"
-                    fx:id="backButton"
-                    onAction="#backToMenu"
-                    prefWidth="220" prefHeight="40"
-                    style="-fx-font-size: 20px;
-                           -fx-text-fill: white;
-                           -fx-background-color: transparent;
-                           -fx-font-weight: bold;
-                           -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.6), 8, 0, 0, 0);" />
-        </HBox>
-
+        <Button fx:id="backButton" layoutX="333.0" layoutY="508.0" onAction="#backToMenu" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
+            <graphic>
+                <ImageView fx:id="backImageView" fitHeight="50" fitWidth="120" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/back.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
     </VBox>
 </StackPane>

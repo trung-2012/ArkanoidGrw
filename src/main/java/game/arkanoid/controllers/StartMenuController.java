@@ -67,6 +67,12 @@ public class StartMenuController {
                 );
                 leaderboardImageView.setImage(hoverImage);
                 break;
+            case "logoutButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/logout c.png").toExternalForm()
+                );
+                logoutImageView.setImage(hoverImage);
+                break;
         }
     }
 
@@ -97,6 +103,11 @@ public class StartMenuController {
                 normalImage = new javafx.scene.image.Image(
                         getClass().getResource("/game/arkanoid/images/leaderboardDemo.png").toExternalForm());
                 leaderboardImageView.setImage(normalImage);
+                break;
+            case "logoutButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/logout.png").toExternalForm());
+                logoutImageView.setImage(normalImage);
                 break;
         }
     }
