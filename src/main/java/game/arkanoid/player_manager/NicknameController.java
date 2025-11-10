@@ -68,7 +68,7 @@ public class NicknameController {
         // check nickname duplicates
         for (Player p : players) {
             if (p.getNickname() != null &&
-                    p.getNickname().equalsIgnoreCase(nickname)) {
+                    p.getNickname().trim().equals(nickname)) {
 
                 messageLabel.setText("Nickname already exists!");
                 return;
