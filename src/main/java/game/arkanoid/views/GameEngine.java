@@ -6,8 +6,7 @@ import game.arkanoid.managers.PowerUpManager;
 import game.arkanoid.managers.RenderManager;
 import game.arkanoid.managers.ScoreManager;
 import game.arkanoid.models.*;
-import game.arkanoid.player_manager.Player;
-import game.arkanoid.player_manager.PlayerData;
+import game.arkanoid.managers.SoundManager;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.GameSettings;
 import game.arkanoid.utils.LevelLoader;
@@ -35,6 +34,7 @@ public class GameEngine extends AnimationTimer {
     private PowerUpManager powerUpManager;
     private InputManager inputManager;
     private ScoreManager scoreManager;
+    private SoundManager soundManager;
     // GAME OBJECTS
     // Thread-safe collections for concurrent access
     private final List<PowerUp> powerUps = new CopyOnWriteArrayList<>();
@@ -115,6 +115,27 @@ public class GameEngine extends AnimationTimer {
         this.powerUpManager = new PowerUpManager(powerUps, laserBeams);
         this.powerUpManager.setCanvas(canvas);
 
+        // 1. Khởi tạo SoundManager (Sử dụng Singleton)
+        this.soundManager = SoundManager.getInstance();
+        // 2. Cung cấp SoundManager cho PowerUpManager
+        if (this.soundManager != null) {
+            this.powerUpManager.setSoundManager(this.soundManager);
+        }
+        try {
+            soundManager.loadSoundEffect("brick_break", "src/main/resources/game/arkanoid/sounds/brick_break.wav");
+            soundManager.loadSoundEffect("lose_life", "src/main/resources/game/arkanoid/sounds/lose_life.wav");
+            soundManager.loadSoundEffect("hit_paddle", "src/main/resources/game/arkanoid/sounds/hit_paddle.wav");
+            soundManager.loadSoundEffect("shield_hit", "src/main/resources/game/arkanoid/sounds/shield_hit.mp3");
+            soundManager.loadSoundEffect("explosion", "src/main/resources/game/arkanoid/sounds/explosion.mp3");
+            soundManager.loadSoundEffect("level_complete", "src/main/resources/game/arkanoid/sounds/level_complete.mp3");
+            soundManager.loadSoundEffect("extra_life", "src/main/resources/game/arkanoid/sounds/extra_life.mp3");
+            soundManager.loadSoundEffect("shield_up", "src/main/resources/game/arkanoid/sounds/shield_up.mp3");
+            soundManager.loadSoundEffect("multiball", "src/main/resources/game/arkanoid/sounds/multiball.mp3");
+            soundManager.loadSoundEffect("laser_fire", "src/main/resources/game/arkanoid/sounds/laser_fire.mp3");
+        } catch (Exception e) {
+            System.err.println("Lỗi nghiêm trọng: Không thể tải file âm thanh. " + e.getMessage());
+        }
+
         // Khởi tạo InputManager (sẽ set paddle sau khi startNewGame)
         this.inputManager = new InputManager(paddle, canvas);
         this.inputManager.setSpaceCallback(() -> {
@@ -150,7 +171,7 @@ public class GameEngine extends AnimationTimer {
         } catch (Exception e) {
             System.err.println("Warning: Could not load explosion effect image");
         }
-
+        
         // canvas focus để nhận phím
         if (this.canvas != null) {
             this.canvas.requestFocus();
@@ -236,7 +257,7 @@ public class GameEngine extends AnimationTimer {
         powerUpManager.setPaddle(paddle);
         setupPowerUpCallbacks();
         shield = null;
-
+        
         if (inputManager != null) {
             inputManager.setPaddle(paddle);
         }
@@ -256,14 +277,14 @@ public class GameEngine extends AnimationTimer {
         if (balls.size() >= GameConstants.MAX_BALLS) {
             return; // Đã đủ số lượng bóng tối đa
         }
-
+        
         List<Ball> snapshot = new ArrayList<>(balls);
         for (Ball original : snapshot) {
             // Kiểm tra trước khi thêm mỗi clone
             if (balls.size() >= GameConstants.MAX_BALLS) {
                 break; // Đã đạt limit
             }
-
+            
             Ball ball1 = cloneBall(original, +1.5);
             balls.add(ball1);
 
@@ -293,6 +314,8 @@ public class GameEngine extends AnimationTimer {
         collisionManager.setBricks(bricks);
         collisionManager.setShield(shield);
 
+        collisionManager.setBallAttached(ballAttachedToPaddle);
+
         // Delegate collision detection cho CollisionManager
         // Tất cả logic xử lý va chạm (cộng điểm, spawn power-up, level complete)
         // được handle thông qua callbacks
@@ -301,7 +324,7 @@ public class GameEngine extends AnimationTimer {
         // Sync lại shield (có thể đã null nếu broken)
         shield = collisionManager.getShield();
     }
-
+    
     /**
      * Setup explosion handler cho brick.
      * Xử lý cả ExplodeBrick trực tiếp và ExplodeBrick bên trong SecretBrick.
@@ -325,6 +348,10 @@ public class GameEngine extends AnimationTimer {
      */
     private void handleExplosion(ExplodeBrick explodedBrick) {
         explosions.add(new ExplosionEffect(explodedBrick.getPosition(), explosionEffectImage));
+
+        if (soundManager != null) {
+            soundManager.playSoundEffect("explosion");
+        }
 
         // Random 50-50: nổ theo hàng (true) hoặc theo cột (false)
         Random random = new Random();
@@ -365,7 +392,7 @@ public class GameEngine extends AnimationTimer {
             // Update tất cả balls (bao gồm main ball và clone balls)
             for (Ball b : balls) b.update();
         }
-
+        
         // Update bricks (cần thiết cho SecretBrick transform logic)
         for (Brick brick : bricks) {
             if (!brick.isDestroyed()) {
@@ -376,7 +403,7 @@ public class GameEngine extends AnimationTimer {
                 }
             }
         }
-
+        
         // Power-ups và lasers được handle bởi PowerUpManager
 
         // Cập nhật hiệu ứng nổ và xóa các explosion đã kết thúc
@@ -386,12 +413,12 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa các explosion đã kết thúc bằng removeIf()
         explosions.removeIf(ExplosionEffect::isFinished);
-
+        
         // Cập nhật debris effects
         for (DebrisEffect debris : debrisEffects) {
             debris.update();
         }
-
+        
         // Xóa debris đã kết thúc
         debrisEffects.removeIf(DebrisEffect::isFinished);
     }
@@ -404,9 +431,13 @@ public class GameEngine extends AnimationTimer {
 
         // Xóa shield nếu có
         shield = null;
-
+        
         // Clear debris effects
         debrisEffects.clear();
+
+        if (soundManager != null) {
+            soundManager.playSoundEffect("level_complete");
+        }
 
         // Delegate level completion cho ScoreManager (sẽ trigger callback)
         if (scoreManager != null) {
@@ -439,7 +470,7 @@ public class GameEngine extends AnimationTimer {
         // Update các managers với paddle và balls mới
         if (inputManager != null) inputManager.setPaddle(paddle);
         powerUpManager.setPaddle(paddle);
-
+        
         // QUAN TRỌNG: Update CollisionManager với paddle và balls mới!
         if (collisionManager != null) {
             collisionManager.setPaddle(paddle);
@@ -491,7 +522,7 @@ public class GameEngine extends AnimationTimer {
 
         String file = "level" + level + ".txt";
         this.bricks = LevelLoader.loadLevel(file);
-
+        
         // Setup explosion handlers cho ExplodeBricks (bao gồm cả trong SecretBrick)
         for (Brick brick : bricks) {
             setupExplosionHandler(brick);
@@ -541,37 +572,21 @@ public class GameEngine extends AnimationTimer {
         // Callback khi game over
         scoreManager.setGameOverCallback(finalScore -> {
             setGameRunning(false);
-            if (mainController != null && mainController.getCurrentPlayer() != null) {
-
-                Player current = mainController.getCurrentPlayer();
-
-                // Load danh sách players hiện tại
-                ArrayList<Player> allPlayers = PlayerData.loadPlayers();
-
-                // Update high score
-                for (Player p : allPlayers) {
-                    if (p.getUsername().equals(current.getUsername())) {
-                        if (finalScore > p.getHighScore()) {
-                            p.setHighScore(finalScore);
-                        }
-                        break;
-                    }
-                }
-
-                // Lưu file lại
-                PlayerData.savePlayers(allPlayers);
+            if (soundManager != null) {
+                soundManager.pauseBackgroundMusic();
+                soundManager.playSoundEffect("endgame");
             }
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/fxml/GameOver.fxml"));
                 Parent root = loader.load();
                 game.arkanoid.controllers.GameOverController controller = loader.getController();
                 controller.setFinalScore(finalScore);
-
+                
                 // Truyền player từ mainController
                 if (mainController != null && mainController.getCurrentPlayer() != null) {
                     controller.setPlayer(mainController.getCurrentPlayer());
                 }
-
+                
                 Stage stage = (Stage) canvas.getScene().getWindow();
                 stage.setScene(new Scene(root, 800, 600));
             } catch (Exception e) {
@@ -596,6 +611,14 @@ public class GameEngine extends AnimationTimer {
 
         // Callback khi hoàn thành level
         collisionManager.setOnLevelComplete(() -> Platform.runLater(this::handleLevelCompletion));
+
+        collisionManager.setOnPaddleHit(() -> {
+            if (soundManager != null) soundManager.playSoundEffect("hit_paddle");
+        });
+
+        collisionManager.setOnShieldHit(() -> {
+            if (soundManager != null) soundManager.playSoundEffect("shield_hit");
+        });
     }
 
     // Setup power-up callbacks cho PowerUpManager
@@ -605,6 +628,7 @@ public class GameEngine extends AnimationTimer {
             if (scoreManager != null) {
                 scoreManager.addLife();
             }
+            if (soundManager != null) soundManager.playSoundEffect("extra_life");
         });
 
         // Callback khi shield được activate
@@ -612,9 +636,13 @@ public class GameEngine extends AnimationTimer {
             if (data instanceof Shield) {
                 shield = (Shield) data;
             }
+            if (soundManager != null) soundManager.playSoundEffect("shield_up");
         });
 
-        powerUpManager.setOnMultiBall(() -> activateMultiBall());
+        powerUpManager.setOnMultiBall(() -> {
+            activateMultiBall();
+            if (soundManager != null) soundManager.playSoundEffect("multiball");
+        });
     }
 
     // Xử lý khi brick bị phá hủy
@@ -622,6 +650,10 @@ public class GameEngine extends AnimationTimer {
         // Delegate cộng điểm cho ScoreManager
         if (scoreManager != null) {
             scoreManager.addScore(brick.getPoints());
+        }
+
+        if (soundManager != null && !(brick instanceof ExplodeBrick)) {
+            soundManager.playSoundEffect("brick_break");
         }
 
         // Tạo debris effect (không áp dụng cho ExplodeBrick vì đã có explosion)
@@ -644,7 +676,7 @@ public class GameEngine extends AnimationTimer {
             );
         }
     }
-
+    
     /**
      * Lấy màu sắc đại diện cho loại gạch.
      */
@@ -686,6 +718,10 @@ public class GameEngine extends AnimationTimer {
         // Delegate mất mạng cho ScoreManager (sẽ trigger game over callback nếu hết mạng)
         if (scoreManager != null) {
             scoreManager.loseLife();
+
+            if (soundManager != null) {
+                soundManager.playSoundEffect("lose_life");
+            }
         }
     }
 

@@ -1,6 +1,9 @@
 package game.arkanoid.controllers;
 
 import game.arkanoid.player_manager.Player;
+import game.arkanoid.managers.SoundManager;
+import javafx.scene.control.Slider;
+import javafx.scene.control.CheckBox;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -46,6 +49,20 @@ public class SettingsController {
     private ImageView confirmBallImageView;
     @FXML
     private ImageView confirmPaddleImageView;
+    @FXML
+    private Slider musicSlider;
+    @FXML
+    private ImageView musicVolumeIcon;
+    @FXML
+    private Slider sfxSlider;
+    @FXML
+    private ImageView sfxVolumeIcon;
+
+    // Tạo biến để giữ ảnh icon
+    private Image musicOnIcon;
+    private Image musicOffIcon;
+    private Image sfxOnIcon;
+    private Image sfxOffIcon;
 
     // Dsach Skins
     private final String[] ballSkins = {
@@ -92,6 +109,65 @@ public class SettingsController {
         }
         if (savedSettingsStage != null) {
             this.settingsStage = savedSettingsStage;
+        }
+
+        try {
+            musicOnIcon = new Image(getClass().getResourceAsStream("/game/arkanoid/images/music_on.png"));
+            musicOffIcon = new Image(getClass().getResourceAsStream("/game/arkanoid/images/music_off.png"));
+            sfxOnIcon = new Image(getClass().getResourceAsStream("/game/arkanoid/images/sound_on.png"));
+            sfxOffIcon = new Image(getClass().getResourceAsStream("/game/arkanoid/images/sound_off.png"));
+        } catch (Exception e) {
+            System.err.println("Lỗi: Không thể tải hình ảnh icon âm thanh!");
+            e.printStackTrace();
+        }
+
+        // Lấy instance duy nhất của SoundManager
+        SoundManager soundManager = SoundManager.getInstance();
+
+        // --- Cấu hình Music Slider ---
+        if (musicSlider != null) {
+            // Đặt giá trị ban đầu cho Slider
+            musicSlider.setValue(soundManager.getMusicVolume());
+            // Đặt icon ban đầu dựa trên âm lượng
+            updateMusicIcon(soundManager.getMusicVolume());
+            // Thêm Listener để cập nhật SoundManager khi kéo
+            musicSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                soundManager.setMusicVolume(newValue.doubleValue());
+                updateMusicIcon(newValue.doubleValue()); // Cập nhật icon khi kéo
+            });
+        }
+
+        // --- Cấu hình SFX Slider ---
+        if (sfxSlider != null) {
+            // Đặt giá trị ban đầu cho Slider
+            sfxSlider.setValue(soundManager.getSfxVolume());
+            // Đặt icon ban đầu dựa trên âm lượng
+            updateSfxIcon(soundManager.getSfxVolume());
+            // Thêm Listener để cập nhật SoundManager khi kéo
+            sfxSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                soundManager.setSfxVolume(newValue.doubleValue());
+                updateSfxIcon(newValue.doubleValue()); // Cập nhật icon khi kéo
+            });
+        }
+    }
+
+    private void updateMusicIcon(double volume) {
+        if (musicVolumeIcon != null) {
+            if (volume == 0.0) {
+                musicVolumeIcon.setImage(musicOffIcon);
+            } else {
+                musicVolumeIcon.setImage(musicOnIcon);
+            }
+        }
+    }
+
+    private void updateSfxIcon(double volume) {
+        if (sfxVolumeIcon != null) {
+            if (volume == 0.0) {
+                sfxVolumeIcon.setImage(sfxOffIcon);
+            } else {
+                sfxVolumeIcon.setImage(sfxOnIcon);
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package game.arkanoid.controllers;
 
 import game.arkanoid.player_manager.Player;
+import game.arkanoid.managers.SoundManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -30,6 +31,11 @@ public class StartMenuController {
     private javafx.scene.image.ImageView leaderboardImageView;
 
     private Player currentPlayer;
+
+    @FXML
+    private void initialize() {
+        SoundManager.getInstance().resumeBackgroundMusic();
+    }
 
     public void setPlayer(Player p) {
         this.currentPlayer = p;

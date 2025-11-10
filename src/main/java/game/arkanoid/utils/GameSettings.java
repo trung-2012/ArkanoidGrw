@@ -6,16 +6,16 @@ import javafx.stage.Stage;
 public class GameSettings {
     // Singleton instance - volatile để đảm bảo thread-safety
     private static volatile GameSettings instance;
-    
+
     // Instance fields 
     private String selectedBall;
     private String selectedPaddle;
     private String selectedBullet;
-    
+
     // Navigation context - để giữ context khi navigate Settings → Preview → Back
     private MainController currentMainController;
     private Stage currentSettingsStage;
-    
+
     // Private constructor để ngăn chặn khởi tạo bên ngoài
     private GameSettings() {
         // Khởi tạo giá trị mặc định
@@ -23,7 +23,7 @@ public class GameSettings {
         this.selectedPaddle = "/game/arkanoid/images/Paddle.png";
         this.selectedBullet = "/game/arkanoid/images/bulletPaddle.png";
     }
-    
+
     // Public method để lấy instance
     public static GameSettings getInstance() {
         if (instance == null) {
@@ -35,36 +35,36 @@ public class GameSettings {
         }
         return instance;
     }
-    
+
     // Getter và Setter cho selectedBall
     public String getSelectedBall() {
         return selectedBall;
     }
-    
+
     public void setSelectedBall(String path) {
         this.selectedBall = path;
     }
-    
+
     // Getter và Setter cho selectedPaddle
     public String getSelectedPaddle() {
         return selectedPaddle;
     }
-    
+
     public void setSelectedPaddle(String path) {
         this.selectedPaddle = path;
         // Tự động cập nhật bullet tương ứng với paddle
         updateBulletForPaddle(path);
     }
-    
+
     // Getter và Setter cho selectedBullet
     public String getSelectedBullet() {
         return selectedBullet;
     }
-    
+
     public void setSelectedBullet(String path) {
         this.selectedBullet = path;
     }
-    
+
     /**
      * Tự động chọn bullet phù hợp với paddle
      */
@@ -83,10 +83,10 @@ public class GameSettings {
             this.selectedBullet = "/game/arkanoid/images/bulletPaddle.png";
         }
     }
-    
+
     /**
      * Lấy màu trail cho laser dựa trên paddle đang dùng.
-     * paddle (nâu), paddle1 (tím), paddle2 (tím), paddle3 (xanh lam nhạt), 
+     * paddle (nâu), paddle1 (tím), paddle2 (tím), paddle3 (xanh lam nhạt),
      * paddle4 (trắng), paddle5 (cam)
      */
     public String getLaserTrailColor() {
@@ -104,31 +104,31 @@ public class GameSettings {
             return "#a67c52"; // Nâu (default paddle)
         }
     }
-    
+
     // Reset method cho testing
     public void reset() {
         this.selectedBall = "/game/arkanoid/images/Ball.png";
         this.selectedPaddle = "/game/arkanoid/images/Paddle.png";
         this.selectedBullet = "/game/arkanoid/images/bulletPaddle.png";
     }
-    
+
     // Getters & Setters
     public MainController getCurrentMainController() {
         return currentMainController;
     }
-    
+
     public void setCurrentMainController(MainController controller) {
         this.currentMainController = controller;
     }
-    
+
     public Stage getCurrentSettingsStage() {
         return currentSettingsStage;
     }
-    
+
     public void setCurrentSettingsStage(Stage stage) {
         this.currentSettingsStage = stage;
     }
-    
+
     public void clearNavigationContext() {
         this.currentMainController = null;
         this.currentSettingsStage = null;
