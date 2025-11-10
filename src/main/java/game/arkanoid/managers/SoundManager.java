@@ -4,8 +4,6 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 
 /**
@@ -14,27 +12,25 @@ import java.util.HashMap;
  */
 public class SoundManager {
 
-    // === 1. THÊM INSTANCE CHO SINGLETON ===
+    // instance của Singleton
     private static SoundManager instance;
-    // ======================================
 
     private HashMap<String, AudioClip> soundEffects;
     private MediaPlayer backgroundMusicPlayer;
 
-    private double musicVolume = 1.0; // Mặc định 100%
-    private double sfxVolume = 1.0;   // Mặc định 100%
+    // Default volumes
+    private double musicVolume = 0.5;
+    private double sfxVolume = 0.5;
 
 
     private String currentMusicPath = null;
     private boolean currentMusicLoop = false;
 
-    // === 2. CHUYỂN CONSTRUCTOR THÀNH PRIVATE ===
+    // private constructor cho Singleton
     private SoundManager() {
         soundEffects = new HashMap<>();
     }
-    // ========================================
 
-    // === 3. THÊM PHƯƠNG THỨC LẤY INSTANCE ===
     /**
      * Lấy instance duy nhất của SoundManager.
      * @return Instance của SoundManager
@@ -45,9 +41,8 @@ public class SoundManager {
         }
         return instance;
     }
-    // =======================================
 
-//    // === HÀM HELPER ĐỂ LẤY ĐƯỜNG DẪN CLASSPATH ===
+//    // method HELPER ĐỂ LẤY ĐƯỜNG DẪN CLASSPATH
 //    private String getResourceUrl(String classpathPath) {
 //        try {
 //            // Lấy URL tài nguyên từ classpath
@@ -154,19 +149,15 @@ public class SoundManager {
      * @param volume Giá trị từ 0.0 (tắt) đến 1.0 (tối đa).
      */
     public void setMusicVolume(double volume) {
-        // Giới hạn giá trị trong khoảng 0.0 - 1.0
         this.musicVolume = Math.max(0.0, Math.min(1.0, volume));
 
         if (backgroundMusicPlayer != null) {
-            // Cập nhật âm lượng ngay lập tức
             backgroundMusicPlayer.setVolume(this.musicVolume);
         }
 
-        // Nếu người dùng kéo từ 0 lên và có nhạc đang chờ
         if (this.musicVolume > 0 && backgroundMusicPlayer == null && currentMusicPath != null) {
             playBackgroundMusic(currentMusicPath, currentMusicLoop);
         }
-        // Nếu người dùng kéo về 0
         else if (this.musicVolume == 0.0) {
             stopBackgroundMusic();
         }
@@ -179,7 +170,6 @@ public class SoundManager {
     public void setSfxVolume(double volume) {
         this.sfxVolume = Math.max(0.0, Math.min(1.0, volume));
 
-        // Cập nhật âm lượng cho TẤT CẢ các clip đã tải
         for (AudioClip clip : soundEffects.values()) {
             clip.setVolume(this.sfxVolume);
         }

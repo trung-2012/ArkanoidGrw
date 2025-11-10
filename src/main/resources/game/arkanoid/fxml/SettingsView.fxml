@@ -7,7 +7,11 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.SettingsController">
+<AnchorPane prefHeight="600" prefWidth="800" 
+            stylesheets="@../css/slider-style.css" 
+            xmlns="http://javafx.com/javafx/17" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="game.arkanoid.controllers.SettingsController">
 
     <ImageView fx:id="backgroundImageView" fitHeight="600" fitWidth="800" preserveRatio="false">
         <image>
@@ -88,19 +92,11 @@
         </graphic>
     </Button>
 
-    <Label layoutX="45.0" layoutY="34.0" textFill="WHITE">
-        <graphic>
-            <ImageView fx:id="musicVolumeIcon" fitHeight="32" fitWidth="32" preserveRatio="true" />
-        </graphic>
-    </Label>
-    <Slider fx:id="musicSlider" layoutX="74.0" layoutY="38.0" max="1.0" min="0.0" prefWidth="150.0" value="1.0" />
+    <Label layoutX="45.0" layoutY="34.0" textFill="WHITE" />
+    <Slider fx:id="musicSlider" layoutX="518.0" layoutY="201.0" max="1.0" min="0.0" prefWidth="150.0" style="-fx-background-color: transparent; -fx-pref-height: 15;" value="1.0" />
 
-    <Label layoutX="45.0" layoutY="78.0" textFill="WHITE">
-        <graphic>
-            <ImageView fx:id="sfxVolumeIcon" fitHeight="32" fitWidth="32" preserveRatio="true" />
-        </graphic>
-    </Label>
-    <Slider fx:id="sfxSlider" layoutX="74.0" layoutY="82.0" max="1.0" min="0.0" prefWidth="150.0" value="1.0" />
+    <Label layoutX="149.0" layoutY="191.0" textFill="WHITE" />
+    <Slider fx:id="sfxSlider" layoutX="161.0" layoutY="201.0" max="1.0" min="0.0" prefWidth="150.0" style="-fx-background-color: transparent; -fx-pref-height: 15;" value="1.0" />
 
     <Button fx:id="previewButton" layoutX="211.0" layoutY="510.0" onAction="#openPreview" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="50" prefWidth="120" style="-fx-background-color: transparent;">
         <graphic>
@@ -121,5 +117,7 @@
             </ImageView>
         </graphic>
     </Button>
+      <ImageView fx:id="sfxVolumeIcon" fitHeight="48.0" fitWidth="48.0" layoutX="111.0" layoutY="187.0" preserveRatio="true" />
+      <ImageView fx:id="musicVolumeIcon" fitHeight="48.0" fitWidth="48.0" layoutX="466.0" layoutY="187.0" preserveRatio="true" />
 
 </AnchorPane>

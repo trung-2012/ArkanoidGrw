@@ -95,7 +95,7 @@ public class CollisionManager {
 
             double oldX = b.getVelocity().getX();
             double oldY = b.getVelocity().getY();
-            double radius = b.getRadius();
+            // double radius = b.getRadius();
 
             boolean fallOut = b.collideWithWall(screenWidth, screenHeight);
 

@@ -3,7 +3,6 @@ package game.arkanoid.managers;
 import game.arkanoid.models.*;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
-import game.arkanoid.managers.SoundManager;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;

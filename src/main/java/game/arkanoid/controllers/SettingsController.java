@@ -3,7 +3,6 @@ package game.arkanoid.controllers;
 import game.arkanoid.player_manager.Player;
 import game.arkanoid.managers.SoundManager;
 import javafx.scene.control.Slider;
-import javafx.scene.control.CheckBox;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

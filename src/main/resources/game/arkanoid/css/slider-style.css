@@ -1,0 +1,46 @@
+/* 
+ * JavaFX Slider Custom Styling
+ * Note: JavaFX uses -fx- prefix, not standard CSS properties
+ * Warnings about standard properties can be ignored
+ */
+
+/* Slider Track (Thanh trượt) */
+.slider .track {
+    -fx-background-color: linear-gradient(to right, #1a1a2e, #16213e);
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-border-color: #00bfff;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.5), 5, 0, 0, 2);
+}
+
+/* Slider Thumb (Nút kéo) */
+.slider .thumb {
+    -fx-background-color: linear-gradient(to bottom, #00eaff, #0099ff);
+    -fx-background-radius: 10;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,191,255,0.8), 8, 0.7, 0, 0);
+}
+
+/* Hover effect */
+.slider .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #00ffff, #00ccff);
+    -fx-effect: dropshadow(gaussian, rgba(0,255,255,1), 12, 0.9, 0, 0);
+    -fx-scale-x: 1.15;
+    -fx-scale-y: 1.15;
+}
+
+/* Pressed effect */
+.slider .thumb:pressed {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #00eaff);
+}
+
+/* Slider glow effect */
+.slider {
+    -fx-effect: dropshadow(gaussian, rgba(0,191,255,0.6), 10, 0.5, 0, 0);
+}
