@@ -34,7 +34,9 @@ public class StartMenuController {
 
     @FXML
     private void initialize() {
-        SoundManager.getInstance().resumeBackgroundMusic();
+        // Phát nhạc menu
+        SoundManager.getInstance().playBackgroundMusic(
+            "src/main/resources/game/arkanoid/sounds/menu_music.mp3", true);
     }
 
     public void setPlayer(Player p) {

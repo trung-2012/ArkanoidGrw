@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.managers.SoundManager;
 import game.arkanoid.player_manager.Player;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +22,13 @@ public class GameOverController {
     private javafx.scene.image.ImageView menuImageView;
     
     private Player currentPlayer;
+
+    @FXML
+    public void initialize() {
+        // Phát nhạc nền game over
+        SoundManager.getInstance().playBackgroundMusic(
+            "src/main/resources/game/arkanoid/sounds/endgame.mp3", false);
+    }
 
     // Xử lý sự kiện khi di chuột vào button
     @FXML

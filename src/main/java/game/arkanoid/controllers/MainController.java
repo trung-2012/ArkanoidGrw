@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.managers.SoundManager;
 import game.arkanoid.player_manager.Player;
 import game.arkanoid.views.GameEngine;
 import javafx.animation.FadeTransition;
@@ -82,6 +83,10 @@ public class MainController implements Initializable {
         engine.initializeGame(gameCanvas, scoreLabel, livesLabel, levelLabel);
         updateBackgroundForLevel(1);
         levelLabel.setText("Level: " + engine.getCurrentLevel());
+        
+        // Phát nhạc nền gameplay
+        SoundManager.getInstance().playBackgroundMusic(
+            "src/main/resources/game/arkanoid/sounds/gameplay_music.mp3", true);
 
         gameCanvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {

@@ -322,18 +322,10 @@ public class SettingsController {
     // Xác nhận thay đổi
     @FXML
     private void saveSettings(ActionEvent event) {
-        // Lưu settings
-        GameSettings.getInstance().setSelectedBall(ballSkins[ballIndex]);
-        GameSettings.getInstance().setSelectedPaddle(paddleSkins[paddleIndex]);
-
-        System.out.println(" Đã lưu:");
-        System.out.println("- Ball: " + ballSkins[ballIndex]);
-        System.out.println("- Paddle: " + paddleSkins[paddleIndex]);
-
-        // Nếu đang trong game, reload skin ngay lập tức
-        if (mainController != null) {
-            mainController.reloadGameSkins();
-        }
+        // Chỉ lưu volume settings (ball/paddle đã được lưu khi bấm confirm)
+        System.out.println("Đã lưu volume settings");
+        System.out.println("- Music Volume: " + musicSlider.getValue());
+        System.out.println("- SFX Volume: " + sfxSlider.getValue());
 
         goBack(event);
     }
