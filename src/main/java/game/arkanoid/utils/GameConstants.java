@@ -19,6 +19,9 @@ public class GameConstants {
     public static final int BALL_SIZE = 15;
     public static final double BALL_SPEED = 4.0;
     public static final int MAX_BALLS = 6;
+    public static final double MIN_BALL_SPEED = 3.0;
+    public static final double MAX_BALL_SPEED = 5.0;
+    public static final long BALL_SPEED_POWERUP_DURATION = 15000;
 
     // Thông số Brick
     public static final int BRICK_ROWS = 5;

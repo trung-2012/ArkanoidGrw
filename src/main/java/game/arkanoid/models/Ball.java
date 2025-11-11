@@ -33,6 +33,9 @@ public class Ball extends GameObject {
     private boolean original = true;
 
     private double currentSpeed = BALL_SPEED;
+    private double originalSpeed = BALL_SPEED; // Lưu tốc độ gốc
+    private PowerUpType currentSpeedPowerUp = null; // Trạng thái power-up tốc độ hiện tại
+    private long speedPowerUpEndTime = 0; // Mốc thời gian (ms) hết hạn
 
     public void setCurrentSpeed(double s) {
         this.currentSpeed = s;
@@ -48,6 +51,38 @@ public class Ball extends GameObject {
     }
     public void setOriginal(boolean value) {
         this.original = value;
+    }
+    
+    public void applyWeakSpeed() {
+        this.currentSpeed = GameConstants.MIN_BALL_SPEED;
+        this.currentSpeedPowerUp = PowerUpType.WEAK;
+        this.speedPowerUpEndTime = System.currentTimeMillis() + GameConstants.BALL_SPEED_POWERUP_DURATION;
+        updateVelocityMagnitude();
+    }
+    
+    public void applyStrongSpeed() {
+        this.currentSpeed = GameConstants.MAX_BALL_SPEED;
+        this.currentSpeedPowerUp = PowerUpType.STRONG;
+        this.speedPowerUpEndTime = System.currentTimeMillis() + GameConstants.BALL_SPEED_POWERUP_DURATION;
+        updateVelocityMagnitude();
+    }
+    
+    private void resetSpeed() {
+        this.currentSpeed = this.originalSpeed;
+        this.currentSpeedPowerUp = null;
+        this.speedPowerUpEndTime = 0;
+        updateVelocityMagnitude();
+    }
+    
+    // Cập nhật độ lớn của velocity vector dựa trên currentSpeed
+    private void updateVelocityMagnitude() {
+        if (velocity == null) return;
+        double len = Math.sqrt(velocity.getX() * velocity.getX() + velocity.getY() * velocity.getY());
+        if (len == 0) return;
+        double nx = velocity.getX() / len;
+        double ny = velocity.getY() / len;
+        velocity.setX(nx * currentSpeed);
+        velocity.setY(ny * currentSpeed);
     }
     
     /** Thời điểm sớm nhất cho phép va chạm shield tiếp theo (tránh spam bounce) */
@@ -77,6 +112,11 @@ public class Ball extends GameObject {
      */
     @Override
     public void update() {
+        // Kiểm tra hết hiệu lực power-up tốc độ
+        if (currentSpeedPowerUp != null && System.currentTimeMillis() > speedPowerUpEndTime) {
+            resetSpeed(); // Trở về tốc độ bình thường
+        }
+        
         position.add(velocity);
         // Thêm vị trí hiện tại vào trail
         trail.add(new Vector2D(position.getX(), position.getY()));
