@@ -591,6 +591,11 @@ public class GameEngine extends AnimationTimer {
     public void updateGameState() {
         if (inputManager != null) inputManager.updatePaddleMovement();
 
+        // Cập nhật paddle (kiểm tra power-up hết hạn)
+        if (paddle != null) {
+            paddle.update();
+        }
+        
         // Cập nhật screen shake effect
         updateScreenShake();
 

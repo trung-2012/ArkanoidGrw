@@ -9,6 +9,13 @@ import javafx.scene.paint.Color;
 
 import java.util.List;
 
+/**
+ * RenderManager quản lý tất cả rendering logic cho game Arkanoid.
+ * Tách biệt phần vẽ đồ họa khỏi game logic để dễ maintain và test.
+ * 
+ * @author ArkanoidGrw
+ * @version 1.0
+ */
 public class RenderManager {
 
     private Canvas canvas;
@@ -25,12 +32,31 @@ public class RenderManager {
     private double shakeOffsetX = 0;
     private double shakeOffsetY = 0;
 
+    /**
+     * Constructor khởi tạo RenderManager với canvas.
+     * 
+     * @param canvas Canvas để vẽ game
+     */
     public RenderManager(Canvas canvas) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
     }
 
-    // Render all game obj
+    /**
+     * Render tất cả game objects lên canvas.
+     * Thứ tự render: bricks → paddle → trails → aura → balls → powerups → lasers → shield → effects.
+     * 
+     * @param mainBall Bóng chính (để render charge aura)
+     * @param paddle Thanh paddle
+     * @param bricks Danh sách gạch
+     * @param powerUps Danh sách power-ups
+     * @param laserBeams Danh sách laser beams
+     * @param shield Shield (có thể null)
+     * @param explosions Danh sách hiệu ứng nổ
+     * @param debrisEffects Danh sách hiệu ứng mảnh vỡ
+     * @param balls Danh sách tất cả các bóng
+     * @param ballAttachedToPaddle true nếu bóng đang dính paddle
+     */
     public void renderAll(
             Ball mainBall,
             Paddle paddle,
@@ -46,7 +72,7 @@ public class RenderManager {
         if (gc == null) return;
 
         // Apply screen shake effect
-        gc.save(); // Lưu transform state
+        gc.save();
         gc.translate(shakeOffsetX, shakeOffsetY);
 
         // Clear canvas
@@ -65,7 +91,6 @@ public class RenderManager {
         renderExplosions(explosions);
         renderDebrisEffects(debrisEffects);
         
-        // Restore transform state
         gc.restore();
     }
 
@@ -245,7 +270,14 @@ public class RenderManager {
         this.shakeOffsetY = offsetY;
     }
     
-    // Render intro animation
+    /**
+     * Render intro animation khi bắt đầu level.
+     * Hiển thị "LEVEL X" với hiệu ứng RGB split glitch và scan line.
+     * 
+     * @param progress Tiến độ animation (0.0 - 1.0)
+     * @param currentLevel Số level hiện tại
+     * @param renderGameState Callback để render game state (có thể null)
+     */
     public void renderIntroAnimation(double progress, int currentLevel, Runnable renderGameState) {
         if (canvas == null) return;
         
@@ -303,7 +335,13 @@ public class RenderManager {
         gc.setGlobalAlpha(1.0);
     }
     
-    // Render level clear animation
+    /**
+     * Render level clear animation khi hoàn thành level.
+     * Hiển thị hiệu ứng burst và fade to white.
+     * 
+     * @param progress Tiến độ animation (0.0 - 1.0)
+     * @param renderGameState Callback để render game state (có thể null)
+     */
     public void renderLevelClearAnimation(double progress, Runnable renderGameState) {
         if (canvas == null) return;
         
@@ -331,7 +369,12 @@ public class RenderManager {
 
 
     // Getters
-
+    
+    /**
+     * Lấy GraphicsContext để vẽ trực tiếp (dùng cho countdown, v.v.).
+     * 
+     * @return GraphicsContext của canvas
+     */
     public GraphicsContext getGraphicsContext() {
         return gc;
     }

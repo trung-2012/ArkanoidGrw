@@ -41,13 +41,13 @@ public class LeaderboardController {
         List<Player> top3 = players.stream().limit(3).toList();
 
         rank1Label.setText(top3.size() > 0 ?
-                "1. " + top3.get(0).getNickname() + " — " + top3.get(0).getHighScore() : "1. ---");
+                "🏆 1. " + top3.get(0).getNickname() + " — " + top3.get(0).getHighScore() : "1. ---");
 
         rank2Label.setText(top3.size() > 1 ?
-                "2. " + top3.get(1).getNickname() + " — " + top3.get(1).getHighScore() : "2. ---");
+                "🏆 2. " + top3.get(1).getNickname() + " — " + top3.get(1).getHighScore() : "2. ---");
 
         rank3Label.setText(top3.size() > 2 ?
-                "3. " + top3.get(2).getNickname() + " — " + top3.get(2).getHighScore() : "3. ---");
+                "🏆 3. " + top3.get(2).getNickname() + " — " + top3.get(2).getHighScore() : "3. ---");
     }
 
     @FXML
