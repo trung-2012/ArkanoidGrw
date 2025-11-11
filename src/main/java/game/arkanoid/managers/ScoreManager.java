@@ -111,13 +111,25 @@ public class ScoreManager {
     // Cập nhật lives label trên UI
     private void updateLivesLabel() {
         if (livesLabelRef != null) {
-            livesLabelRef.setText("Lives: " + lives);
+            // Tạo chuỗi trái tim dựa trên số lives
+            StringBuilder heartsBuilder = new StringBuilder();
+            for (int i = 0; i < lives; i++) {
+                heartsBuilder.append("❤ ");
+            }
+            String hearts = heartsBuilder.toString().trim();
             
-            // Màu đỏ nếu đạt MAX_LIVE, trắng nếu không
-            if (lives == GameConstants.MAX_LIVE) {
-                livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 16; -fx-font-weight: bold;");
+            // Nếu không còn lives, hiển thị text
+            if (lives <= 0) {
+                livesLabelRef.setText("");
             } else {
-                livesLabelRef.setStyle("-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;");
+                livesLabelRef.setText(hearts);
+                
+                // Màu vàng nếu lives = MAX_LIVE (5), màu đỏ nếu lives < 5
+                if (lives == GameConstants.MAX_LIVE) {
+                    livesLabelRef.setStyle("-fx-text-fill: gold; -fx-font-size: 20; -fx-font-weight: bold;");
+                } else {
+                    livesLabelRef.setStyle("-fx-text-fill: red; -fx-font-size: 20; -fx-font-weight: bold;");
+                }
             }
         }
     }

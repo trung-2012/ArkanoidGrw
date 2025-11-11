@@ -28,11 +28,11 @@
 
                 <Region HBox.hgrow="ALWAYS" />
 
-                <Label fx:id="levelLabel" style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;" text="Level: 1" translateX="-300.0" />
+                <Label fx:id="levelLabel" minWidth="80" prefWidth="80" style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold; -fx-alignment: center-left;" text="Level: 1" translateX="-165.0" />
 
-                <Label fx:id="scoreLabel" style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;" text="Score: 0" translateX="-285.0" />
+                <Label fx:id="scoreLabel" minWidth="110" prefWidth="110" style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold; -fx-alignment: center-left;" text="Score: 0" translateX="-150.0" />
 
-                <Label fx:id="livesLabel" style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;" text="Lives: 3" translateX="-270.0" />
+                <Label fx:id="livesLabel" minWidth="140" prefWidth="140" style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold; -fx-alignment: center-left;" text="Lives: 3" translateX="-140.0" />
 
             </HBox>
         </top>
