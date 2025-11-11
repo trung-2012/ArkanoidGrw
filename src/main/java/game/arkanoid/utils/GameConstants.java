@@ -34,7 +34,7 @@ public class GameConstants {
     public static final int totalLevels = 4;
 
     // Thông số powerUp
-    public static final double POWER_UP_RATE = 1; // tỉ lệ rơi ra powerUp
+    public static final double POWER_UP_RATE = 0.2; // tỉ lệ rơi ra powerUp
     public static final int NUM_OF_BULLETS = 5; // số lượng đạn
     public static final int COOL_DOWN_TIME = 500;
     public static final int SHIELD_HEIGHT = 10;
