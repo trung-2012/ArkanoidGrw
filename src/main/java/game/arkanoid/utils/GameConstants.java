@@ -9,10 +9,10 @@ public class GameConstants {
     public static final int PADDLE_WIDTH = 100;
     public static final int PADDLE_HEIGHT = 20;
     public static final double PADDLE_SPEED = 10.0;
-    public static final double PADDLE_WIDTH_LARGE = PADDLE_WIDTH * 1.2;
-    public static final double PADDLE_WIDTH_SMALL = PADDLE_WIDTH * 0.8;
-    public static final double PADDLE_HEIGHT_LARGE = PADDLE_HEIGHT * 1.2;
-    public static final double PADDLE_HEIGHT_SMALL = PADDLE_HEIGHT * 0.8;
+    public static final double PADDLE_WIDTH_LARGE = PADDLE_WIDTH * 1.5;
+    public static final double PADDLE_WIDTH_SMALL = PADDLE_WIDTH * 0.7;
+    public static final double PADDLE_HEIGHT_LARGE = PADDLE_HEIGHT * 1.5;
+    public static final double PADDLE_HEIGHT_SMALL = PADDLE_HEIGHT * 0.7;
     public static final long POWERUP_DURATION = 20000;
 
     // Thông số Ball
