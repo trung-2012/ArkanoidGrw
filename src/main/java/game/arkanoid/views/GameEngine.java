@@ -168,8 +168,8 @@ public class GameEngine extends AnimationTimer {
             soundManager.loadSoundEffect("laser_fire", "src/main/resources/game/arkanoid/sounds/laser_fire.mp3");
             soundManager.loadSoundEffect("wall_hit", "src/main/resources/game/arkanoid/sounds/hit_paddle.wav");
             soundManager.loadSoundEffect("endgame", "src/main/resources/game/arkanoid/sounds/endgame.mp3");
-            // soundManager.loadSoundEffect("slow", "src/main/resources/game/arkanoid/sounds/slow.mp3");
-            // soundManager.loadSoundEffect("fast", "src/main/resources/game/arkanoid/sounds/fast.mp3");
+            soundManager.loadSoundEffect("slow", "src/main/resources/game/arkanoid/sounds/slow.mp3");
+            soundManager.loadSoundEffect("fast", "src/main/resources/game/arkanoid/sounds/fast.mp3");
             soundManager.loadSoundEffect("paddle_grow", "src/main/resources/game/arkanoid/sounds/paddle_grow.mp3");
             soundManager.loadSoundEffect("paddle_shrink", "src/main/resources/game/arkanoid/sounds/paddle_shrink.mp3");
         } catch (Exception e) {
