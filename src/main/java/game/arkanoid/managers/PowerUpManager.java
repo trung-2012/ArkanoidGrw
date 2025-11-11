@@ -6,7 +6,6 @@ import game.arkanoid.utils.Vector2D;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
-import game.arkanoid.views.GameEngine;
 
 import java.util.List;
 import java.util.Random;
