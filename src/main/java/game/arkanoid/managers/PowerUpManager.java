@@ -6,6 +6,7 @@ import game.arkanoid.utils.Vector2D;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
+import game.arkanoid.views.GameEngine;
 
 import java.util.List;
 import java.util.Random;
@@ -36,6 +37,9 @@ public class PowerUpManager {
     private PowerUpCallback onExtraLife;
     private PowerUpCallbackWithData onShieldActivated;
     private PowerUpCallback onMultiBall;
+    private PowerUpCallback onWeakSpeed;
+    private PowerUpCallback onStrongSpeed;
+
 
     public PowerUpManager(List<PowerUp> powerUps, List<LaserBeam> laserBeams) {
         this.powerUps = powerUps;
@@ -56,18 +60,22 @@ public class PowerUpManager {
     // Random power-up type
     private PowerUpType getRandomPowerUpType() {
         double rand = random.nextDouble();
-        if (rand < 0.10)
-            return PowerUpType.EXTRA_LIFE; // 10%
-        else if (rand < 0.35)
-            return PowerUpType.LASER; // 35%
-        else if (rand < 0.55)
-            return PowerUpType.SHIELD;// 30%
-        else if (rand <0.70)
-            return PowerUpType.MULTI_BALL;// 15%
-        else if (rand < 0.85)
-            return PowerUpType.PADDLE_GROW; //15%
+        if (rand < 0.08)
+            return PowerUpType.WEAK;         // 8%
+        else if (rand < 0.16)
+            return PowerUpType.STRONG;       // 8%
+        else if (rand < 0.26)
+            return PowerUpType.EXTRA_LIFE;   // 10%
+        else if (rand < 0.41)
+            return PowerUpType.LASER;        // 15%
+        else if (rand < 0.56)
+            return PowerUpType.SHIELD;       // 15%
+        else if (rand < 0.71)
+            return PowerUpType.MULTI_BALL;   // 15%
+        else if (rand < 0.86)
+            return PowerUpType.PADDLE_GROW;  // 15%
         else
-            return PowerUpType.PADDLE_SHRINK; //15%
+            return PowerUpType.PADDLE_SHRINK; // 14%
     }
 
     // Update tất cả power-ups (movement, collision detection)
@@ -117,6 +125,14 @@ public class PowerUpManager {
             case MULTI_BALL:
                 if (onMultiBall != null) onMultiBall.onActivate();
                 break;
+            case WEAK:
+                if (onWeakSpeed != null) onWeakSpeed.onActivate();
+                break;
+
+            case STRONG:
+                if (onStrongSpeed != null) onStrongSpeed.onActivate();
+                break;
+
 
             case PADDLE_GROW:
                 if (paddle != null) paddle.grow();
@@ -256,6 +272,15 @@ public class PowerUpManager {
     public void setOnMultiBall(PowerUpCallback cb) {
         this.onMultiBall = cb;
     }
+
+    public void setOnWeakSpeed(PowerUpCallback cb) {
+        this.onWeakSpeed = cb;
+    }
+
+    public void setOnStrongSpeed(PowerUpCallback cb) {
+        this.onStrongSpeed = cb;
+    }
+
 
     // Callback interfaces
     @FunctionalInterface

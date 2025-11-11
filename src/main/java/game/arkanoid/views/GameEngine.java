@@ -63,6 +63,12 @@ public class GameEngine extends AnimationTimer {
 
     // INPUT STATE
     private boolean ballAttachedToPaddle = true; // bóng chính đang dính paddle
+    private double currentBallSpeedLevel = 4.0;  // default = BALL_SPEED
+    private double currentBallSpeed = GameConstants.BALL_SPEED;
+
+    private static final double MIN_SPEED = 3.0;
+    private static final double MAX_SPEED = 7.0;
+
     private double chargePulse = 0;
     private boolean chargeIncreasing = true;
     
@@ -162,16 +168,17 @@ public class GameEngine extends AnimationTimer {
         // Khởi tạo InputManager (sẽ set paddle sau khi startNewGame)
         this.inputManager = new InputManager(paddle, canvas);
         this.inputManager.setSpaceCallback(() -> {
-            // khi Space: bung bóng chính ra
             ballAttachedToPaddle = false;
             chargePulse = 0;
             chargeIncreasing = true;
+
             if (mainBall != null && mainBall.getVelocity().getY() == 0.0) {
-                double diag = GameConstants.BALL_SPEED / Math.sqrt(2.0);
+                double diag = currentBallSpeedLevel / Math.sqrt(2.0);
                 double dir = Math.random() < 0.5 ? -1 : 1;
                 mainBall.setVelocity(new Vector2D(diag * dir, -diag));
             }
         });
+
 
         // Load ảnh Ball & Paddle theo skin đã chọn từ GameSettings
         try {
@@ -205,6 +212,7 @@ public class GameEngine extends AnimationTimer {
 
     // Bắt đầu game mới
     public void startNewGame() {
+        currentBallSpeedLevel = GameConstants.BALL_SPEED;
         double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
         double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
         double px = canvasW / 2.0;
@@ -294,6 +302,37 @@ public class GameEngine extends AnimationTimer {
         loadLevelNumber(currentLevel);
 
         startCountdown();
+    }
+
+    public void applyWeak() {
+        currentBallSpeedLevel = Math.max(3, currentBallSpeedLevel - 1);
+        currentBallSpeed = currentBallSpeedLevel;
+        updateBallVelocities();
+        if (soundManager != null) soundManager.playSoundEffect("slow");
+    }
+
+    public void applyStrong() {
+        currentBallSpeedLevel = Math.min(7, currentBallSpeedLevel + 1);
+        currentBallSpeed = currentBallSpeedLevel;
+        updateBallVelocities();
+        if (soundManager != null) soundManager.playSoundEffect("fast");
+    }
+
+    private void updateBallVelocities() {
+        for (Ball b : balls) {
+            b.setCurrentSpeed(currentBallSpeed);
+            Vector2D v = b.getVelocity();
+
+            if (ballAttachedToPaddle) continue;
+
+            double len = Math.sqrt(v.getX()*v.getX() + v.getY()*v.getY());
+            if (len == 0) continue;
+
+            double nx = v.getX() / len;
+            double ny = v.getY() / len;
+
+            b.setVelocity(new Vector2D(nx * currentBallSpeedLevel, ny * currentBallSpeedLevel));
+        }
     }
 
     // MULTI-BALL: clone all balls -> mỗi quả sinh thêm 2 clone (với giới hạn MAX_BALLS)
@@ -623,7 +662,9 @@ public class GameEngine extends AnimationTimer {
             collisionManager.setPaddle(paddle);
             collisionManager.setBalls(balls);
         }
-        
+
+        introAnimationActive = true;
+        introStartTime = System.currentTimeMillis();
         // Bắt đầu countdown cho level mới
         startCountdown();
     }
@@ -803,6 +844,8 @@ public class GameEngine extends AnimationTimer {
             activateMultiBall();
             if (soundManager != null) soundManager.playSoundEffect("multiball");
         });
+        powerUpManager.setOnWeakSpeed(() -> applyWeak());
+        powerUpManager.setOnStrongSpeed(() -> applyStrong());
     }
 
     // Xử lý khi brick bị phá hủy

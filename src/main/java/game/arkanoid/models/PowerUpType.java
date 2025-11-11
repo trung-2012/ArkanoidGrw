@@ -5,6 +5,8 @@ public enum PowerUpType {
     LASER,
     SHIELD,
     MULTI_BALL,
+    WEAK,
+    STRONG,
     PADDLE_GROW,
     PADDLE_SHRINK
 }
