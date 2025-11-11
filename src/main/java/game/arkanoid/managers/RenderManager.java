@@ -367,11 +367,119 @@ public class RenderManager {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
+    /**
+     * Render countdown animation (3, 2, 1, START!) trước khi bắt đầu chơi.
+     * Hiển thị số đếm ngược với hiệu ứng RGB split, ring expansion và particles.
+     * 
+     * @param progress Tiến độ của từng số (0.0 - 1.0)
+     * @param countdownNumber Số đang hiển thị (3, 2, 1, hoặc <1 cho "START!")
+     * @param renderGameState Callback để render game state (có thể null)
+     */
+    public void renderCountdownAnimation(double progress, int countdownNumber, Runnable renderGameState) {
+        if (canvas == null) return;
+
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+
+        gc.clearRect(0, 0, w, h);
+        
+        // Render game state first
+        if (renderGameState != null) {
+            renderGameState.run();
+        }
+
+        double t = Math.min(1.0, progress);
+
+        if (countdownNumber == 1) {
+            t = Math.pow(t, 0.45); // slow-motion easing
+        }
+
+        // text 3 2 1 start
+        String text = countdownNumber >= 1 ? String.valueOf(countdownNumber) : "START!";
+        boolean isStart = countdownNumber < 1;
+
+        // Font dynamic
+        double baseSize = isStart ? 110 : 160;
+        double scale = 1.0 + 0.28 * Math.sin(t * Math.PI);
+        gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.EXTRA_BOLD, baseSize * scale));
+
+        javafx.scene.text.Text tmp = new javafx.scene.text.Text(text);
+        tmp.setFont(gc.getFont());
+        double tw = tmp.getLayoutBounds().getWidth();
+        double th = tmp.getLayoutBounds().getHeight();
+
+        double x = w / 2 - tw / 2;
+        double y = h / 2 + th / 4;
+
+        double split = (1 - t) * 28;
+        gc.setGlobalAlpha(1.0);
+
+        gc.setFill(Color.rgb(255, 70, 150, 0.75)); // magenta glow
+        gc.fillText(text, x + split, y);
+
+        gc.setFill(Color.rgb(70, 255, 255, 0.75)); // cyan glow
+        gc.fillText(text, x - split, y);
+
+        gc.setFill(Color.WHITE); // main
+        gc.fillText(text, x, y);
+
+        double ringAlpha = (1 - t) * 0.35;
+        double r = 160 + 180 * t;
+        gc.setFill(Color.rgb(0, 255, 255, ringAlpha));
+        gc.fillOval(w / 2 - r, h / 2 - r, r * 2, r * 2);
+
+        if (t < 0.15) {
+            double warpA = (0.15 - t) / 0.15;
+            gc.setFill(Color.rgb(0, 0, 0, warpA * 0.4));
+            gc.fillRect(0, 0, w, h);
+
+            double sx = 1 + warpA * 0.25;
+            gc.save();
+            gc.translate(w / 2, h / 2);
+            gc.scale(sx, sx);
+            gc.translate(-w / 2, -h / 2);
+            gc.setFill(Color.WHITE);
+            gc.fillText(text, x, y);
+            gc.restore();
+        }
+
+        int particleCount = 22;
+        double orbitR = 120 + 25 * Math.sin(t * Math.PI);
+        for (int i = 0; i < particleCount; i++) {
+            double a = (i / (double) particleCount) * 2 * Math.PI;
+            double px = w / 2 + Math.cos(a + t * 4) * orbitR;
+            double py = h / 2 + Math.sin(a + t * 4) * orbitR;
+
+            gc.setFill(Color.rgb(0, 255, 255, 0.8 * (1 - t)));
+            gc.fillOval(px - 4, py - 4, 8, 8);
+        }
+
+        if (isStart) {
+            double tt = Math.min(1.0, t * 2.2);
+
+            // SWEEP BAR chạy ngang qua text
+            double sweepX = (w * 1.2) * tt - w * 0.1;
+            gc.setFill(Color.rgb(0, 255, 255, 0.35 * (1 - tt)));
+            gc.fillRect(sweepX - 140, 0, 140, h); // thanh sáng quét
+
+            // Holo fade-out
+            gc.setGlobalAlpha(1 - tt);
+            gc.setFill(Color.WHITE);
+            gc.fillText(text, x, y);
+
+            gc.setGlobalAlpha(0.4 * (1 - tt));
+            gc.setFill(Color.rgb(0, 255, 255));
+            gc.fillText(text, x + 3, y);
+
+            gc.setGlobalAlpha(1.0);
+        }
+    }
+
 
     // Getters
     
     /**
-     * Lấy GraphicsContext để vẽ trực tiếp (dùng cho countdown, v.v.).
+     * Lấy GraphicsContext để vẽ trực tiếp (dùng cho các trường hợp đặc biệt).
      * 
      * @return GraphicsContext của canvas
      */
