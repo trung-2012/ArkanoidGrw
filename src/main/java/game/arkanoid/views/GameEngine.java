@@ -862,6 +862,22 @@ public class GameEngine extends AnimationTimer {
             activateMultiBall();
             if (soundManager != null) soundManager.playSoundEffect("multiball");
         });
+        
+        // Callback cho WEAK speed power-up
+        powerUpManager.setOnWeakSpeed(() -> {
+            for (Ball b : balls) {
+                b.applyWeakSpeed();
+            }
+            if (soundManager != null) soundManager.playSoundEffect("slow");
+        });
+        
+        // Callback cho STRONG speed power-up
+        powerUpManager.setOnStrongSpeed(() -> {
+            for (Ball b : balls) {
+                b.applyStrongSpeed();
+            }
+            if (soundManager != null) soundManager.playSoundEffect("fast");
+        });
     }
 
     // Xử lý khi brick bị phá hủy
@@ -965,62 +981,16 @@ public class GameEngine extends AnimationTimer {
     }
 
     private void renderIntroAnimation() {
-        if (canvas == null) return;
+        if (canvas == null || renderManager == null) return;
 
         long elapsed = System.currentTimeMillis() - introStartTime;
-        double t = Math.min(1.0, elapsed / (double) INTRO_DURATION);
-
-        var gc = canvas.getGraphicsContext2D();
-
-        render();
-        gameRunning = false;
-
-        double w = canvas.getWidth();
-        double h = canvas.getHeight();
-
-        double scanHeight = h * 0.15;
-        double scanY = -scanHeight + (h + scanHeight) * t;
-
-        gc.setFill(Color.rgb(0, 255, 255, 0.20 * (1 - t)));
-        gc.fillRect(0, scanY, w, scanHeight);
-
-        if (t < 0.6) {
-            double fade = (0.6 - t) / 0.6;
-            gc.setFill(Color.rgb(0, 0, 0, fade * 0.85));
-            gc.fillRect(0, 0, w, h);
-        }
-
+        double progress = elapsed / (double) INTRO_DURATION;
+        
         int level = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
-        String txt = "LEVEL " + level;
-
-        gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.EXTRA_BOLD, 70));
-
-        javafx.scene.text.Text temp = new javafx.scene.text.Text(txt);
-        temp.setFont(gc.getFont());
-        double textW = temp.getLayoutBounds().getWidth();
-        double textH = temp.getLayoutBounds().getHeight();
-        double x = w / 2 - textW / 2;
-        double y = h / 2 + textH / 4;
-
-        double textAlpha = Math.min(1, t * 2);
-
-        // RGB split glitch
-        double offset = (Math.random() - 0.5) * (1 - t) * 20;
-
-        gc.setGlobalAlpha(textAlpha);
-
-        gc.setFill(Color.rgb(255, 60, 60));   // red ghost
-        gc.fillText(txt, x + offset, y);
-
-        gc.setFill(Color.rgb(60, 255, 255)); // cyan ghost
-        gc.fillText(txt, x - offset * 0.7, y);
-
-        gc.setFill(Color.WHITE);             // main text
-        gc.fillText(txt, x, y);
-
-        gc.setGlobalAlpha(1.0);
-
-        if (t >= 1.0) {
+        
+        renderManager.renderIntroAnimation(progress, level, this::render);
+        
+        if (progress >= 1.0) {
             introAnimationActive = false;
             startCountdown();
         }
@@ -1049,29 +1019,15 @@ public class GameEngine extends AnimationTimer {
     }
 
     private void renderLevelClearAnimation() {
-        if (canvas == null) return;
+        if (canvas == null || renderManager == null) return;
 
         long elapsed = System.currentTimeMillis() - levelClearStartTime;
-        double t = Math.min(1.0, elapsed / (double) LEVEL_CLEAR_DURATION);
+        double progress = elapsed / (double) LEVEL_CLEAR_DURATION;
+        
+        renderManager.renderLevelClearAnimation(progress, this::render);
 
-        var gc = canvas.getGraphicsContext2D();
-        render(); // render frame cuối
-
-        double burstAlpha = (1.0 - t);
-        gc.setFill(Color.rgb(255, 240, 120, burstAlpha * 0.8));
-        gc.fillOval(
-                canvas.getWidth() / 2 - 250 * t,
-                canvas.getHeight() / 2 - 250 * t,
-                500 * t,
-                500 * t
-        );
-
-        // Fade trang cuoi animation
-        gc.setFill(Color.rgb(255, 255, 255, t * 0.65));
-        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        // het animation -> next level
-        if (t >= 1.0) {
+        // Animation complete -> next level
+        if (progress >= 1.0) {
             levelClearAnimActive = false;
 
             if (scoreManager != null) scoreManager.completeLevel();

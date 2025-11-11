@@ -244,6 +244,90 @@ public class RenderManager {
         this.shakeOffsetX = offsetX;
         this.shakeOffsetY = offsetY;
     }
+    
+    // Render intro animation
+    public void renderIntroAnimation(double progress, int currentLevel, Runnable renderGameState) {
+        if (canvas == null) return;
+        
+        double t = Math.min(1.0, progress);
+        
+        // Render game state first
+        if (renderGameState != null) {
+            renderGameState.run();
+        }
+        
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+
+        // Scan line effect
+        double scanHeight = h * 0.15;
+        double scanY = -scanHeight + (h + scanHeight) * t;
+
+        gc.setFill(Color.rgb(0, 255, 255, 0.20 * (1 - t)));
+        gc.fillRect(0, scanY, w, scanHeight);
+
+        // Fade overlay
+        if (t < 0.6) {
+            double fade = (0.6 - t) / 0.6;
+            gc.setFill(Color.rgb(0, 0, 0, fade * 0.85));
+            gc.fillRect(0, 0, w, h);
+        }
+
+        // Level text
+        String txt = "LEVEL " + currentLevel;
+        gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.EXTRA_BOLD, 70));
+
+        javafx.scene.text.Text temp = new javafx.scene.text.Text(txt);
+        temp.setFont(gc.getFont());
+        double textW = temp.getLayoutBounds().getWidth();
+        double textH = temp.getLayoutBounds().getHeight();
+        double x = w / 2 - textW / 2;
+        double y = h / 2 + textH / 4;
+
+        double textAlpha = Math.min(1, t * 2);
+
+        // RGB split glitch
+        double offset = (Math.random() - 0.5) * (1 - t) * 20;
+
+        gc.setGlobalAlpha(textAlpha);
+
+        gc.setFill(Color.rgb(255, 60, 60));   // red ghost
+        gc.fillText(txt, x + offset, y);
+
+        gc.setFill(Color.rgb(60, 255, 255)); // cyan ghost
+        gc.fillText(txt, x - offset * 0.7, y);
+
+        gc.setFill(Color.WHITE);             // main text
+        gc.fillText(txt, x, y);
+
+        gc.setGlobalAlpha(1.0);
+    }
+    
+    // Render level clear animation
+    public void renderLevelClearAnimation(double progress, Runnable renderGameState) {
+        if (canvas == null) return;
+        
+        double t = Math.min(1.0, progress);
+        
+        // Render game state first
+        if (renderGameState != null) {
+            renderGameState.run();
+        }
+
+        // Burst effect
+        double burstAlpha = (1.0 - t);
+        gc.setFill(Color.rgb(255, 240, 120, burstAlpha * 0.8));
+        gc.fillOval(
+                canvas.getWidth() / 2 - 250 * t,
+                canvas.getHeight() / 2 - 250 * t,
+                500 * t,
+                500 * t
+        );
+
+        // Fade to white
+        gc.setFill(Color.rgb(255, 255, 255, t * 0.65));
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    }
 
 
     // Getters

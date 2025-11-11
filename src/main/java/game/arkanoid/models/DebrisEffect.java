@@ -12,7 +12,7 @@ import java.util.Random;
  * Các mảnh vụn sẽ rơi xuống dưới với trọng lực và độ trong suốt giảm dần.
  */
 public class DebrisEffect extends GameObject {
-    private static final int DEBRIS_COUNT = 15;
+    private static final int DEBRIS_COUNT = 30;
     private static final double GRAVITY = 0.5;
     private static final double INITIAL_VELOCITY_RANGE = 5.0;
     private static final int LIFETIME = 60;
