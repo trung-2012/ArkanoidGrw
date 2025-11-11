@@ -26,6 +26,7 @@ public class GameEngine extends AnimationTimer {
     private static final long COUNTDOWN_DURATION = 1000;
     private static final long INTRO_DURATION = 3000;
     private static final long LEVEL_CLEAR_DURATION = 2000;
+    private static final long LEVEL_CLEAR_DELAY = 1000;
     // GAME OBJECTS
     // Thread-safe collections for concurrent access
     private final List<PowerUp> powerUps = new CopyOnWriteArrayList<>();
@@ -73,6 +74,8 @@ public class GameEngine extends AnimationTimer {
     // LEVEL CLEAR ANIMATION
     private boolean levelClearAnimActive = false;
     private long levelClearStartTime = 0;
+    private boolean levelClearDelayActive = false;
+    private long levelClearDelayStartTime = 0;
     private boolean startShown = false;
     private long startShownTime = 0;
 
@@ -81,6 +84,11 @@ public class GameEngine extends AnimationTimer {
         // Nếu intro đang chạy
         if (introAnimationActive) {
             renderIntroAnimation();
+            return;
+        }
+        // Nếu đang trong delay trước level clear animation
+        if (levelClearDelayActive) {
+            updateLevelClearDelay();
             return;
         }
         if (levelClearAnimActive) {
@@ -929,7 +937,6 @@ public class GameEngine extends AnimationTimer {
         }
 
         shield = null;
-        debrisEffects.clear();
 
         if (soundManager != null) {
             soundManager.playSoundEffect("level_complete");
@@ -939,9 +946,43 @@ public class GameEngine extends AnimationTimer {
     }
 
     private void startLevelClearAnimation() {
-        levelClearAnimActive = true;
-        levelClearStartTime = System.currentTimeMillis();
+        levelClearDelayActive = true;
+        levelClearDelayStartTime = System.currentTimeMillis();
         gameRunning = false; // freeze game
+    }
+
+    /**
+     * Cập nhật delay trước khi bắt đầu level clear animation.
+     * Chờ 1 giây để explosion effects hoàn thành.
+     */
+    private void updateLevelClearDelay() {
+        long elapsed = System.currentTimeMillis() - levelClearDelayStartTime;
+        
+        // Cập nhật screen shake effect (quan trọng cho explosion)
+        updateScreenShake();
+        
+        // Quan trọng: Vẫn cập nhật hiệu ứng nổ và debris trong lúc delay
+        // Cập nhật hiệu ứng nổ và xóa các explosion đã kết thúc
+        for (ExplosionEffect explosion : explosions) {
+            explosion.update();
+        }
+        explosions.removeIf(ExplosionEffect::isFinished);
+        
+        // Cập nhật debris effects
+        for (DebrisEffect debris : debrisEffects) {
+            debris.update();
+        }
+        debrisEffects.removeIf(DebrisEffect::isFinished);
+        
+        // Render game state để hiển thị explosion/debris
+        render();
+        
+        // Sau 1 giây delay, bắt đầu animation
+        if (elapsed >= LEVEL_CLEAR_DELAY) {
+            levelClearDelayActive = false;
+            levelClearAnimActive = true;
+            levelClearStartTime = System.currentTimeMillis();
+        }
     }
 
     private void renderLevelClearAnimation() {
