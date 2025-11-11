@@ -23,14 +23,24 @@ Dự án thể hiện khả năng áp dụng các nguyên lý OOP, tổ chức c
 + Tổ chức code theo mô-đun rõ ràng gồm Controller – Manager – Model – View giúp dễ mở rộng và bảo trì.  
 + Áp dụng một số mẫu thiết kế (Design Patterns) như Singleton (GameSettings, SoundManager), Strategy/Factory cho các loại gạch & power-up, giúp game linh hoạt hơn.  
 + Sử dụng đa luồng gián tiếp thông qua JavaFX Application Thread để đảm bảo gameplay mượt mà và giao diện phản hồi nhanh.  
-+ Hệ thống hiệu ứng hình ảnh & âm thanh đầy đủ, bao gồm hiệu ứng nổ gạch, hiệu ứng debris, blur khi pause, fade animation, và âm thanh va chạm/nhạc nền.  
-+ Hệ thống Power-up phong phú, bao gồm Shield, LaserBeam, MultiBall.  
++ Hệ thống hiệu ứng hình ảnh & âm thanh đầy đủ, bao gồm hiệu ứng nổ gạch, hiệu ứng debris, blur khi pause, fade animation, và âm thanh va chạm/nhạc nền.
++ Sử dụng kéo thả để điều chỉnh âm thanh.
++ Hệ thống Power-up phong phú, bao gồm Shield, LaserBeam, MultiBall, Paddle_Grow, Paddle_Shrink, Weak, Strong  
 + Mỗi skin paddle đều có hiệu ứng Power_up laserBeam riêng.  
 + Hệ thống người chơi (Player Management) với đăng nhập, chọn nickname, lưu điểm và quản lý dữ liệu qua file.  
 + Tích hợp bảng xếp hạng (Leaderboard) cho phép người chơi xem và so sánh điểm số.  
-+ Màn hình Settings hoàn chỉnh hỗ trợ đổi skin bóng/paddle, xem trước (preview) và tự động áp dụng khi quay lại game.  
++ Màn hình Settings hoàn chỉnh hỗ trợ đổi skin bóng/paddle, xem trước (preview) và hoàn toàn có thể sử dụng khi chuyển sang pause_game.
 + Hỗ trợ nhiều màn chơi (levels) thông qua hệ thống LevelLoader đọc file .txt và tự cập nhật hình nền theo từng màn.  
-+ Ngoài các loại gạch cơ bản Game còn hỗ trợ loại gạch đặc biệt SecretBrick với khả năng biến hình sau mỗi 10 giây. SecretBrick không chỉ thay đổi ngoại hình mà còn chuyển đổi hoàn toàn hành vi sang loại gạch mới (Normal, Wood, Iron, Gold, Explode, Insane). Cơ chế này tạo ra tính bất ngờ trong gameplay vì sức bền, điểm số và tác động của viên gạch có thể thay đổi liên tục theo thời gian.  
++ Ngoài các loại gạch cơ bản Game còn hỗ trợ loại gạch đặc biệt SecretBrick với khả năng biến hình sau mỗi 10 giây. SecretBrick không chỉ thay đổi ngoại hình mà còn chuyển đổi hoàn toàn hành vi sang loại gạch mới (Normal, Wood, Iron, Gold, Explode, Insane). Cơ chế này tạo ra tính bất ngờ trong gameplay vì sức bền, điểm số và tác động của viên gạch có thể thay đổi liên tục theo thời gian.
+
+**Các hiệu ứng**  
++ Hiệu ứng mảnh vụn rơi khi gạch bị phá hủy. Các mảnh vụn sẽ rơi xuống dưới với trọng lực và độ trong suốt giảm dần.
++ Gạch nổ khi bị phá hủy sẽ trigger explosion effect.
++ InsaneBrick - Gạch siêu cứng : Có cơ chế đặc biệt: khi va chạm với ball hoặc laser, có 5% khả năng bị vỡ ngay lập tức bất kể health còn lại.
++ Render intro animation khi bắt đầu level. Hiển thị "LEVEL X" với hiệu ứng RGB split glitch và scan line.
++ Render level clear animation khi hoàn thành level. Hiển thị hiệu ứng burst và fade to white.
++ Render countdown animation (3, 2, 1, START!) trước khi bắt đầu chơi. Hiển thị số đếm ngược với hiệu ứng RGB split, ring expansion và particles.
++ Bóng có trail effect (hiệu ứng vệt đuôi) khi di chuyển.  
 
 **Cơ chế hoạt động trong game**
 + Điều khiển paddle để đánh bóng
@@ -122,8 +132,10 @@ Hướng dẫn chơi
 |------------|-----------|--------|
 | ![](src/main/resources/game/arkanoid/images/start.png) | Start Game | Bắt đầu trò chơi, chuyển sang màn MainView |
 | ![](src/main/resources/game/arkanoid/images/settings.png) | Settings | Mở màn hình cài đặt, đổi skin và tùy chỉnh game |
+| ![](src/main/resources/game/arkanoid/images/leaderboardDemo.png) | leaderboardDemo | Mở bảng xếp hạng |
+| ![](src/main/resources/game/arkanoid/images/logout.png) | log out | Đăng xuất |
 | ![](src/main/resources/game/arkanoid/images/pause.png) | Pause | Tạm dừng trò chơi và mở Pause Menu |
-| ![](src/main/resources/game/arkanoid/images/back.png) | Back to Menu | Trở về menu chính |
+| ![](src/main/resources/game/arkanoid/images/prev.png) | Preview | Xem trước các màn |
 | ![](src/main/resources/game/arkanoid/images/PlayAgain.png) | PlayAgain | Chơi lại |
 | ![](src/main/resources/game/arkanoid/images/backToMain.png) | Back to Menu | Trở về menu chính khi đang chơi |
 | ![](src/main/resources/game/arkanoid/images/resetCurrentLv.png) | PlayAgain | Chơi lại khi đang chơi dở |
@@ -136,6 +148,10 @@ Các Power-up trong game
 | ![](src/main/resources/game/arkanoid/images/laser.png) | LaserBeam | Bắn tia laser phá gạch 5 lần|
 | ![](src/main/resources/game/arkanoid/images/shield.png) | Shield | Chặn 3 lần |
 | ![](src/main/resources/game/arkanoid/images/extra_life.png) | Extra_life | Tăng số mạng lên 1 , giới hạn 5 |
+| ![](src/main/resources/game/arkanoid/images/paddle_grow.png) | Paddle_Grow | Tăng chiều dài và chiều rộng thanh paddle |
+| ![](src/main/resources/game/arkanoid/images/paddle_shrink.png) | Paddle_Shrink | Giảm chiều dài và chiều rộng thanh paddle |
+| ![](src/main/resources/game/arkanoid/images/Weak.png) | Weak | Giảm tốc độ bóng |
+| ![](src/main/resources/game/arkanoid/images/Strong.png) | Strong | Tăng tốc độ bóng |
 
 **Hệ thống tính điểm**
 | Loại gạch	| Máu (Health) | Điểm (Points) |
@@ -157,14 +173,27 @@ Các Power-up trong game
 ### Start Menu
 ![Start Menu](src/main/resources/game/arkanoid/readme_images/StartMenu_demo.png)
 
+### Option
+
+![Option](src/main/resources/game/arkanoid/readme_images/option_demo.png)
+
+### Preview
+
+![Preview](src/main/resources/game/arkanoid/readme_images/prev_demo.png)
+
 ### Gameplay
 <img src="src/main/resources/game/arkanoid/readme_images/gameplay.png" width="500">
 
-### Power-ups
-![Power-ups](src/main/resources/game/arkanoid/readme_images/powerups_demo.png)
+### Pause
+
+![Pause](src/main/resources/game/arkanoid/readme_images/pause_demo.png)
 
 ### Leaderboard
-![Leaderboard](src/main/resources/game/arkanoid/readme_images/leaderboard.png)
+![Leaderboard](src/main/resources/game/arkanoid/readme_images/leaderboard_demo.png)
+
+### EndGame
+
+![EndGame](src/main/resources/game/arkanoid/readme_images/end_demo.png)
 
 Hướng phát triển trong tương lai
 ---
@@ -208,4 +237,4 @@ Ghi chú
 
 ---
 
-*Cập nhật lần cuối: [Ngày/Tháng/Năm]*
+*Cập nhật lần cuối: [12/11/2025]*
