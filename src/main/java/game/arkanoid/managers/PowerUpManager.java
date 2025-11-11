@@ -60,18 +60,22 @@ public class PowerUpManager {
     // Random power-up type
     private PowerUpType getRandomPowerUpType() {
         double rand = random.nextDouble();
-        if (rand < 0.10)
-            return PowerUpType.WEAK;       // 10%
-        else if (rand < 0.20)
-            return PowerUpType.STRONG;     // 10%
-        else if (rand < 0.40)
-            return PowerUpType.EXTRA_LIFE; // 20%
-        else if (rand < 0.60)
-            return PowerUpType.LASER;      // 20%
-        else if (rand < 0.80)
-            return PowerUpType.SHIELD;     // 20%
+        if (rand < 0.08)
+            return PowerUpType.WEAK;         // 8%
+        else if (rand < 0.16)
+            return PowerUpType.STRONG;       // 8%
+        else if (rand < 0.26)
+            return PowerUpType.EXTRA_LIFE;   // 10%
+        else if (rand < 0.41)
+            return PowerUpType.LASER;        // 15%
+        else if (rand < 0.56)
+            return PowerUpType.SHIELD;       // 15%
+        else if (rand < 0.71)
+            return PowerUpType.MULTI_BALL;   // 15%
+        else if (rand < 0.86)
+            return PowerUpType.PADDLE_GROW;  // 15%
         else
-            return PowerUpType.MULTI_BALL; // 20%
+            return PowerUpType.PADDLE_SHRINK; // 14%
     }
 
     // Update tất cả power-ups (movement, collision detection)
@@ -129,6 +133,15 @@ public class PowerUpManager {
                 if (onStrongSpeed != null) onStrongSpeed.onActivate();
                 break;
 
+
+            case PADDLE_GROW:
+                if (paddle != null) paddle.grow();
+                if (soundManager != null) soundManager.playSoundEffect("paddle_grow");
+                break;
+            case PADDLE_SHRINK:
+                if (paddle != null) paddle.shrink();
+                if (soundManager != null) soundManager.playSoundEffect("paddle_shrink");
+                break;
         }
     }
 

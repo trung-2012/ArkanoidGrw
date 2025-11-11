@@ -6,5 +6,7 @@ public enum PowerUpType {
     SHIELD,
     MULTI_BALL,
     WEAK,
-    STRONG
+    STRONG,
+    PADDLE_GROW,
+    PADDLE_SHRINK
 }
