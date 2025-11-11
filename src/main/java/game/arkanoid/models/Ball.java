@@ -1,5 +1,6 @@
 package game.arkanoid.models;
 
+import game.arkanoid.powerup.PowerUpType;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
 import javafx.geometry.Rectangle2D;
@@ -32,27 +33,55 @@ public class Ball extends GameObject {
 
     private boolean original = true;
 
+    /** Tốc độ hiện tại của bóng */
     private double currentSpeed = BALL_SPEED;
-    private double originalSpeed = BALL_SPEED; // Lưu tốc độ gốc
-    private PowerUpType currentSpeedPowerUp = null; // Trạng thái power-up tốc độ hiện tại
-    private long speedPowerUpEndTime = 0; // Mốc thời gian (ms) hết hạn
+    /** Tốc độ gốc để reset sau khi power-up hết hạn */
+    private double originalSpeed = BALL_SPEED;
+    /** Loại power-up tốc độ đang active (null nếu không có) */
+    private PowerUpType currentSpeedPowerUp = null;
+    /** Thời điểm (ms) power-up tốc độ hết hạn */
+    private long speedPowerUpEndTime = 0;
 
+    /**
+     * Thiết lập tốc độ hiện tại của bóng.
+     * 
+     * @param s Tốc độ mới
+     */
     public void setCurrentSpeed(double s) {
         this.currentSpeed = s;
     }
 
+    /**
+     * Lấy tốc độ hiện tại của bóng.
+     * 
+     * @return Tốc độ hiện tại
+     */
     public double getCurrentSpeed() {
         return currentSpeed;
     }
 
-
+    /**
+     * Kiểm tra xem bóng có phải là bóng gốc (không phải clone từ multi-ball).
+     * 
+     * @return true nếu là bóng gốc, false nếu là clone
+     */
     public boolean isOriginal() {
         return original;
     }
+    
+    /**
+     * Thiết lập trạng thái bóng gốc.
+     * 
+     * @param value true nếu là bóng gốc, false nếu là clone
+     */
     public void setOriginal(boolean value) {
         this.original = value;
     }
     
+    /**
+     * Áp dụng hiệu ứng WEAK power-up (giảm tốc độ xuống MIN_BALL_SPEED).
+     * Tự động hết hạn sau BALL_SPEED_POWERUP_DURATION ms.
+     */
     public void applyWeakSpeed() {
         this.currentSpeed = GameConstants.MIN_BALL_SPEED;
         this.currentSpeedPowerUp = PowerUpType.WEAK;
@@ -60,6 +89,10 @@ public class Ball extends GameObject {
         updateVelocityMagnitude();
     }
     
+    /**
+     * Áp dụng hiệu ứng STRONG power-up (tăng tốc độ lên MAX_BALL_SPEED).
+     * Tự động hết hạn sau BALL_SPEED_POWERUP_DURATION ms.
+     */
     public void applyStrongSpeed() {
         this.currentSpeed = GameConstants.MAX_BALL_SPEED;
         this.currentSpeedPowerUp = PowerUpType.STRONG;
@@ -67,6 +100,10 @@ public class Ball extends GameObject {
         updateVelocityMagnitude();
     }
     
+    /**
+     * Reset tốc độ về giá trị gốc (originalSpeed).
+     * Được gọi tự động khi power-up hết hạn.
+     */
     private void resetSpeed() {
         this.currentSpeed = this.originalSpeed;
         this.currentSpeedPowerUp = null;
@@ -74,7 +111,10 @@ public class Ball extends GameObject {
         updateVelocityMagnitude();
     }
     
-    // Cập nhật độ lớn của velocity vector dựa trên currentSpeed
+    /**
+     * Cập nhật độ lớn (magnitude) của velocity vector dựa trên currentSpeed.
+     * Giữ nguyên hướng nhưng thay đổi độ lớn.
+     */
     private void updateVelocityMagnitude() {
         if (velocity == null) return;
         double len = Math.sqrt(velocity.getX() * velocity.getX() + velocity.getY() * velocity.getY());

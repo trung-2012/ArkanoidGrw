@@ -1,17 +1,34 @@
-package game.arkanoid.models;
+package game.arkanoid.powerup;
 
+import game.arkanoid.models.Ball;
+import game.arkanoid.models.GameObject;
 import game.arkanoid.utils.Vector2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 /**
- * Lớp Shield đại diện cho tấm khiên bảo vệ paddle.
- * Shield có 3 mạng và sẽ glow (sáng lên) khi bị hit.
- * Kế thừa từ GameObject.
+ * Lớp Shield đại diện cho tấm khiên bảo vệ paddle khi có SHIELD power-up.
+ * Shield có 3 mạng và sẽ glow (sáng lên) khi bị hit bởi bóng.
+ * Kế thừa từ GameObject và tự động mất máu sau mỗi 5 giây.
+ * 
+ * <p>Đặc điểm của Shield:</p>
+ * <ul>
+ *   <li>Health ban đầu: 3 (MAX_HEALTH)</li>
+ *   <li>Tự động mất 1 health sau mỗi 5 giây (DAMAGE_INTERVAL)</li>
+ *   <li>Mất 1 health khi bóng va chạm</li>
+ *   <li>Glow effect trong 150ms khi bị hit</li>
+ *   <li>Vết nứt xuất hiện khi health giảm (visual feedback)</li>
+ *   <li>Tự động bị phá hủy khi health = 0</li>
+ * </ul>
+ * 
+ * <p>Shield được tạo bên dưới paddle và có cùng chiều rộng.
+ * Màu sắc thay đổi từ cyan sáng → trắng khi glow effect hoạt động.</p>
  * 
  * @author ArkanoidGrw
  * @version 1.0
+ * @see PowerUpType#SHIELD
+ * @see GameObject
  */
 public class Shield extends GameObject {
     /** Số máu tối đa của shield */

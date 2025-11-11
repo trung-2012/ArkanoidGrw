@@ -12,9 +12,9 @@ import game.arkanoid.models.Ball;
 import game.arkanoid.models.Brick;
 import game.arkanoid.models.NormalBrick;
 import game.arkanoid.models.Paddle;
-import game.arkanoid.models.PowerUp;
-import game.arkanoid.models.PowerUpType;
-import game.arkanoid.models.Shield;
+import game.arkanoid.powerup.PowerUp;
+import game.arkanoid.powerup.PowerUpType;
+import game.arkanoid.powerup.Shield;
 import game.arkanoid.player_manager.Player;
 import game.arkanoid.utils.Vector2D;
 

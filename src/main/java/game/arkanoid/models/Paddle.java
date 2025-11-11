@@ -1,41 +1,70 @@
 package game.arkanoid.models;
 
+import game.arkanoid.powerup.PowerUpType;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.GameConstants;
 import javafx.scene.canvas.GraphicsContext;
 
 import static game.arkanoid.utils.GameConstants.*;
 
+/**
+ * Lớp Paddle đại diện cho thanh gỗ điều khiển trong game Arkanoid.
+ * Kế thừa từ GameObject và chứa logic di chuyển trái/phải, power-up thay đổi kích thước.
+ * 
+ * @author ArkanoidGrw
+ * @version 1.0
+ */
 public class Paddle extends GameObject {
+    /** Tốc độ di chuyển của paddle */
     private double moveSpeed;
-    private double originalWidth; // Lưu kích thước gốc
-    private double originalHeight; // Lưu chiều cao gốc
-    private PowerUpType currentSizePowerUp = null; // Trạng thái hiện tại
-    private long powerUpEndTime = 0; // Mốc thời gian (ms) hết hạn
+    /** Chiều rộng gốc để reset sau khi power-up hết hạn */
+    private double originalWidth;
+    /** Chiều cao gốc để reset sau khi power-up hết hạn */
+    private double originalHeight;
+    /** Loại power-up kích thước đang active (null nếu không có) */
+    private PowerUpType currentSizePowerUp = null;
+    /** Thời điểm (ms) power-up kích thước hết hạn */
+    private long powerUpEndTime = 0;
 
-    // Constructor
+    /**
+     * Constructor khởi tạo Paddle tại vị trí cho trước.
+     * 
+     * @param position Vị trí trung tâm của paddle
+     */
     public Paddle(Vector2D position) {
         super(position, PADDLE_WIDTH, PADDLE_HEIGHT);
         this.moveSpeed = PADDLE_SPEED;
-        this.originalWidth = PADDLE_WIDTH; // Lưu lại kích thước gốc
-        this.originalHeight = PADDLE_HEIGHT; // Lưu lại chiều cao gốc
+        this.originalWidth = PADDLE_WIDTH;
+        this.originalHeight = PADDLE_HEIGHT;
     }
 
+    /**
+     * Cập nhật trạng thái paddle.
+     * Kiểm tra và reset kích thước khi power-up hết hạn.
+     */
     @Override
     public void update() {
         if (currentSizePowerUp != null && System.currentTimeMillis() > powerUpEndTime) {
-            resetSize(); // Trở về kích thước bình thường
+            resetSize();
         }
     }
 
+    /**
+     * Render paddle lên canvas.
+     * Logic render được xử lý bởi RenderManager với paddleImage.
+     * 
+     * @param gc GraphicsContext để vẽ
+     */
     @Override
     public void render(GraphicsContext gc) {
-        // Render logic sẽ được xử lý bởi GameEngine với paddleImage
+        // Render logic sẽ được xử lý bởi RenderManager với paddleImage
     }
 
-    // Di chuyển paddle trái/phải với tốc độ cố định
+    /**
+     * Di chuyển paddle sang trái.
+     * Tự động giới hạn không cho paddle vượt ra ngoài màn hình.
+     */
     public void moveLeft() {
-        // Di chuyển paddle trái
         this.position.setX(this.position.getX() - this.moveSpeed);
         // Đảm bảo paddle không đi ra ngoài màn hình
         double half = this.width / 2.0;
@@ -43,27 +72,40 @@ public class Paddle extends GameObject {
             this.position.setX(half);
     }
 
+    /**
+     * Di chuyển paddle sang phải.
+     * Boundary check được xử lý bởi InputManager.
+     */
     public void moveRight() {
-        // Di chuyển paddle phải
         this.position.setX(this.position.getX() + this.moveSpeed);
     }
 
+    /**
+     * Áp dụng hiệu ứng GROW power-up (tăng kích thước paddle).
+     * Tự động hết hạn sau POWERUP_DURATION ms.
+     */
     public void grow() {
         this.width = GameConstants.PADDLE_WIDTH_LARGE;
         this.height = GameConstants.PADDLE_HEIGHT_LARGE;
         this.currentSizePowerUp = PowerUpType.PADDLE_GROW;
-        // Đặt lại thời gian hết hạn (sau 10 giây kể từ bây giờ)
         this.powerUpEndTime = System.currentTimeMillis() + GameConstants.POWERUP_DURATION;
     }
 
+    /**
+     * Áp dụng hiệu ứng SHRINK power-up (giảm kích thước paddle).
+     * Tự động hết hạn sau POWERUP_DURATION ms.
+     */
     public void shrink() {
         this.width = GameConstants.PADDLE_WIDTH_SMALL;
         this.height = GameConstants.PADDLE_HEIGHT_SMALL;
         this.currentSizePowerUp = PowerUpType.PADDLE_SHRINK;
-        // Đặt lại thời gian hết hạn
         this.powerUpEndTime = System.currentTimeMillis() + GameConstants.POWERUP_DURATION;
     }
 
+    /**
+     * Reset kích thước về giá trị gốc.
+     * Được gọi tự động khi power-up hết hạn.
+     */
     private void resetSize() {
         this.width = this.originalWidth;
         this.height = this.originalHeight;
@@ -72,18 +114,39 @@ public class Paddle extends GameObject {
     }
 
     // Getters & Setters
+    
+    /**
+     * Lấy tốc độ di chuyển của paddle.
+     * 
+     * @return Tốc độ di chuyển (pixels/frame)
+     */
     public double getMoveSpeed() {
         return moveSpeed;
     }
 
+    /**
+     * Thiết lập tốc độ di chuyển mới cho paddle.
+     * 
+     * @param moveSpeed Tốc độ di chuyển mới
+     */
     public void setMoveSpeed(double moveSpeed) {
         this.moveSpeed = moveSpeed;
     }
 
+    /**
+     * Thiết lập chiều rộng mới cho paddle.
+     * 
+     * @param width Chiều rộng mới
+     */
     public void setWidth(int width) {
         this.width = width;
     }
 
+    /**
+     * Thiết lập chiều cao mới cho paddle.
+     * 
+     * @param height Chiều cao mới
+     */
     public void setHeight(int height) {
         this.height = height;
     }
