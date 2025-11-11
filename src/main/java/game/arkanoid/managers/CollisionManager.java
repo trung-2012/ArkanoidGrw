@@ -1,6 +1,9 @@
 package game.arkanoid.managers;
 
 import game.arkanoid.models.*;
+import game.arkanoid.powerup.LaserBeam;
+import game.arkanoid.powerup.PowerUp;
+import game.arkanoid.powerup.Shield;
 import game.arkanoid.utils.GameConstants;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;

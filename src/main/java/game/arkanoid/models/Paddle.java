@@ -1,5 +1,6 @@
 package game.arkanoid.models;
 
+import game.arkanoid.powerup.PowerUpType;
 import game.arkanoid.utils.Vector2D;
 import game.arkanoid.utils.GameConstants;
 import javafx.scene.canvas.GraphicsContext;
