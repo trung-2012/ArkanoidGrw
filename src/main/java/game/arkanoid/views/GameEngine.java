@@ -2,6 +2,8 @@ package game.arkanoid.views;
 
 import game.arkanoid.managers.*;
 import game.arkanoid.models.*;
+import game.arkanoid.player_manager.GameDataManager;
+import game.arkanoid.player_manager.GameSaveData;
 import game.arkanoid.powerup.LaserBeam;
 import game.arkanoid.powerup.PowerUp;
 import game.arkanoid.powerup.Shield;
@@ -26,6 +28,7 @@ public class GameEngine extends AnimationTimer {
     private static final long COUNTDOWN_DURATION = 1000;
     private static final long INTRO_DURATION = 3000;
     private static final long LEVEL_CLEAR_DURATION = 2000;
+    private static final long LEVEL_CLEAR_DELAY = 1000;
     // GAME OBJECTS
     // Thread-safe collections for concurrent access
     private final List<PowerUp> powerUps = new CopyOnWriteArrayList<>();
@@ -73,6 +76,8 @@ public class GameEngine extends AnimationTimer {
     // LEVEL CLEAR ANIMATION
     private boolean levelClearAnimActive = false;
     private long levelClearStartTime = 0;
+    private boolean levelClearDelayActive = false;
+    private long levelClearDelayStartTime = 0;
     private boolean startShown = false;
     private long startShownTime = 0;
 
@@ -81,6 +86,11 @@ public class GameEngine extends AnimationTimer {
         // Nếu intro đang chạy
         if (introAnimationActive) {
             renderIntroAnimation();
+            return;
+        }
+        // Nếu đang trong delay trước level clear animation
+        if (levelClearDelayActive) {
+            updateLevelClearDelay();
             return;
         }
         if (levelClearAnimActive) {
@@ -160,8 +170,8 @@ public class GameEngine extends AnimationTimer {
             soundManager.loadSoundEffect("laser_fire", "src/main/resources/game/arkanoid/sounds/laser_fire.mp3");
             soundManager.loadSoundEffect("wall_hit", "src/main/resources/game/arkanoid/sounds/hit_paddle.wav");
             soundManager.loadSoundEffect("endgame", "src/main/resources/game/arkanoid/sounds/endgame.mp3");
-            // soundManager.loadSoundEffect("slow", "src/main/resources/game/arkanoid/sounds/slow.mp3");
-            // soundManager.loadSoundEffect("fast", "src/main/resources/game/arkanoid/sounds/fast.mp3");
+            soundManager.loadSoundEffect("slow", "src/main/resources/game/arkanoid/sounds/slow.mp3");
+            soundManager.loadSoundEffect("fast", "src/main/resources/game/arkanoid/sounds/fast.mp3");
             soundManager.loadSoundEffect("paddle_grow", "src/main/resources/game/arkanoid/sounds/paddle_grow.mp3");
             soundManager.loadSoundEffect("paddle_shrink", "src/main/resources/game/arkanoid/sounds/paddle_shrink.mp3");
         } catch (Exception e) {
@@ -929,7 +939,6 @@ public class GameEngine extends AnimationTimer {
         }
 
         shield = null;
-        debrisEffects.clear();
 
         if (soundManager != null) {
             soundManager.playSoundEffect("level_complete");
@@ -939,9 +948,43 @@ public class GameEngine extends AnimationTimer {
     }
 
     private void startLevelClearAnimation() {
-        levelClearAnimActive = true;
-        levelClearStartTime = System.currentTimeMillis();
+        levelClearDelayActive = true;
+        levelClearDelayStartTime = System.currentTimeMillis();
         gameRunning = false; // freeze game
+    }
+
+    /**
+     * Cập nhật delay trước khi bắt đầu level clear animation.
+     * Chờ 1 giây để explosion effects hoàn thành.
+     */
+    private void updateLevelClearDelay() {
+        long elapsed = System.currentTimeMillis() - levelClearDelayStartTime;
+        
+        // Cập nhật screen shake effect (quan trọng cho explosion)
+        updateScreenShake();
+        
+        // Quan trọng: Vẫn cập nhật hiệu ứng nổ và debris trong lúc delay
+        // Cập nhật hiệu ứng nổ và xóa các explosion đã kết thúc
+        for (ExplosionEffect explosion : explosions) {
+            explosion.update();
+        }
+        explosions.removeIf(ExplosionEffect::isFinished);
+        
+        // Cập nhật debris effects
+        for (DebrisEffect debris : debrisEffects) {
+            debris.update();
+        }
+        debrisEffects.removeIf(DebrisEffect::isFinished);
+        
+        // Render game state để hiển thị explosion/debris
+        render();
+        
+        // Sau 1 giây delay, bắt đầu animation
+        if (elapsed >= LEVEL_CLEAR_DELAY) {
+            levelClearDelayActive = false;
+            levelClearAnimActive = true;
+            levelClearStartTime = System.currentTimeMillis();
+        }
     }
 
     private void renderLevelClearAnimation() {
@@ -958,5 +1001,181 @@ public class GameEngine extends AnimationTimer {
 
             if (scoreManager != null) scoreManager.completeLevel();
         }
+    }
+
+    /**
+     * Lưu trạng thái game hiện tại.
+     * Chỉ lưu: Ball, Paddle, Bricks, Level, Score, Lives
+     * Không lưu: Power-ups đang active
+     */
+    public void saveCurrentGame(String username) {
+        if (mainBall == null || paddle == null || bricks == null) {
+            System.err.println("Cannot save game: game state is invalid.");
+            return;
+        }
+
+        GameSaveData saveData = new GameSaveData();
+        saveData.setUsername(username);
+
+        // Save ball data (main ball only)
+        saveData.setBallPosition(new Vector2D(mainBall.getPosition().getX(), mainBall.getPosition().getY()));
+        saveData.setBallVelocity(new Vector2D(mainBall.getVelocity().getX(), mainBall.getVelocity().getY()));
+        saveData.setBallRadius(mainBall.getRadius());
+
+        // Save paddle data (không lưu power-up, sẽ reset về kích thước gốc)
+        saveData.setPaddlePosition(new Vector2D(paddle.getPosition().getX(), paddle.getPosition().getY()));
+
+        // Save bricks data
+        List<GameSaveData.BrickData> brickDataList = new ArrayList<>();
+        for (Brick brick : bricks) {
+            String brickType = brick.getClass().getSimpleName();
+            GameSaveData.BrickData brickData = new GameSaveData.BrickData(
+                    brickType,
+                    new Vector2D(brick.getPosition().getX(), brick.getPosition().getY()),
+                    brick.getHealth(),
+                    brick.isDestroyed()
+            );
+            brickDataList.add(brickData);
+        }
+        saveData.setBricks(brickDataList);
+
+        // Save game state
+        saveData.setCurrentLevel(scoreManager != null ? scoreManager.getCurrentLevel() : 1);
+        saveData.setScore(scoreManager != null ? scoreManager.getScore() : 0);
+        saveData.setTotalScore(scoreManager != null ? scoreManager.getTotalScore() : 0);
+        saveData.setLives(scoreManager != null ? scoreManager.getLives() : GameConstants.INITIAL_LIVES);
+
+        // Lưu vào file
+        GameDataManager.saveGameSave(saveData);
+        System.out.println("Game saved for user: " + username);
+    }
+
+    /**
+     * Load game từ save file.
+     * Nếu không có save hoặc save không hợp lệ, start game mới từ level 1.
+     */
+    public void loadGameFromSave(String username) {
+        GameSaveData saveData = GameDataManager.loadGameSave();
+
+        // Kiểm tra save data có hợp lệ không
+        if (saveData == null || !saveData.getUsername().equals(username)) {
+            System.out.println("No valid save found for user: " + username + ". Starting new game.");
+            startNewGame();
+            return;
+        }
+
+        System.out.println("Loading saved game for user: " + username);
+
+        // Restore paddle
+        this.paddle = new Paddle(new Vector2D(
+                saveData.getPaddlePosition().getX(),
+                saveData.getPaddlePosition().getY()
+        ));
+
+        // Restore ball (main ball only)
+        Ball restoredBall = new Ball(
+                new Vector2D(saveData.getBallPosition().getX(), saveData.getBallPosition().getY()),
+                saveData.getBallRadius()
+        );
+        restoredBall.setVelocity(new Vector2D(
+                saveData.getBallVelocity().getX(),
+                saveData.getBallVelocity().getY()
+        ));
+
+        // Ball không attached vì đang chơi dở
+        ballAttachedToPaddle = false;
+
+        balls.clear();
+        balls.add(restoredBall);
+        this.mainBall = restoredBall;
+
+        // Restore bricks
+        this.bricks = new ArrayList<>();
+        for (GameSaveData.BrickData brickData : saveData.getBricks()) {
+            Brick brick = createBrickFromSaveData(brickData);
+            if (brick != null) {
+                bricks.add(brick);
+                setupExplosionHandler(brick);
+            }
+        }
+
+        // Restore game state
+        if (scoreManager != null) {
+            scoreManager.setCurrentLevel(saveData.getCurrentLevel());
+            scoreManager.setScore(saveData.getScore());
+            scoreManager.setTotalScore(saveData.getTotalScore());
+            scoreManager.setLives(saveData.getLives());
+        }
+
+        // Update background
+        if (mainController != null) {
+            int level = saveData.getCurrentLevel();
+            Platform.runLater(() -> mainController.updateBackgroundForLevel(level));
+        }
+
+        // Setup managers
+        this.collisionManager = new CollisionManager(balls, paddle, bricks, canvas);
+        setupCollisionCallbacks();
+
+        powerUpManager.setPaddle(paddle);
+        setupPowerUpCallbacks();
+
+        if (inputManager != null) {
+            inputManager.setPaddle(paddle);
+        }
+
+        // Clear effects
+        powerUpManager.clearPowerUps();
+        powerUpManager.clearLaserBeams();
+        shield = null;
+        debrisEffects.clear();
+
+        // Start intro animation
+        introAnimationActive = true;
+        introStartTime = System.currentTimeMillis();
+
+        // Start game
+        this.start();
+    }
+
+    /**
+     * Factory method tạo brick từ save data.
+     */
+    private Brick createBrickFromSaveData(GameSaveData.BrickData brickData) {
+        Vector2D position = brickData.getPosition();
+        Brick brick = null;
+
+        switch (brickData.getBrickType()) {
+            case "NormalBrick":
+                brick = new NormalBrick(position);
+                break;
+            case "WoodBrick":
+                brick = new WoodBrick(position);
+                break;
+            case "IronBrick":
+                brick = new IronBrick(position);
+                break;
+            case "GoldBrick":
+                brick = new GoldBrick(position);
+                break;
+            case "ExplodeBrick":
+                brick = new ExplodeBrick(position);
+                break;
+            case "SecretBrick":
+                brick = new SecretBrick(position);
+                break;
+            case "InsaneBrick":
+                brick = new InsaneBrick(position);
+                break;
+            default:
+                System.err.println("Unknown brick type: " + brickData.getBrickType());
+                return null;
+        }
+
+        // Restore health và destroyed state
+        brick.setHealth(brickData.getHealth());
+        brick.setDestroyed(brickData.isDestroyed());
+
+        return brick;
     }
 }

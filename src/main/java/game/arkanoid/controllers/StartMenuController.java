@@ -1,5 +1,6 @@
 package game.arkanoid.controllers;
 
+import game.arkanoid.player_manager.GameDataManager;
 import game.arkanoid.player_manager.Player;
 import game.arkanoid.managers.SoundManager;
 import javafx.fxml.FXML;
@@ -17,6 +18,8 @@ public class StartMenuController {
 
     @FXML
     private javafx.scene.image.ImageView startImageView;
+    @FXML
+    private javafx.scene.image.ImageView continueImageView;
     @FXML
     private javafx.scene.image.ImageView settingsImageView;
     @FXML
@@ -59,6 +62,11 @@ public class StartMenuController {
                         getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
                 startImageView.setImage(hoverImage);
                 break;
+            case "continueButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/continue c.png").toExternalForm());
+                continueImageView.setImage(hoverImage);
+                break;
             case "settingsButton":
                 hoverImage = new javafx.scene.image.Image(
                         getClass().getResource("/game/arkanoid/images/settings c.png").toExternalForm());
@@ -97,6 +105,11 @@ public class StartMenuController {
                         getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
                 startImageView.setImage(normalImage);
                 break;
+            case "continueButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/continue.png").toExternalForm());
+                continueImageView.setImage(normalImage);
+                break;
             case "settingsButton":
                 normalImage = new javafx.scene.image.Image(
                         getClass().getResource("/game/arkanoid/images/settings.png").toExternalForm());
@@ -131,6 +144,35 @@ public class StartMenuController {
             // truyền player sang MainController
             MainController controller = loader.getController();
             controller.setPlayer(currentPlayer);
+            controller.setLoadFromSave(false); // Start game mới
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Continue game từ save
+    @FXML
+    private void continueGame(ActionEvent event) {
+        try {
+            // Kiểm tra xem có save game không
+            if (!GameDataManager.hasSaveGame()) {
+                // Nếu không có save game, start game mới từ level 1
+                System.out.println("No save game found. Starting new game from level 1.");
+                startGame(event);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/MainView.fxml"));
+            Parent root = loader.load();
+
+            // truyền player sang MainController
+            MainController controller = loader.getController();
+            controller.setPlayer(currentPlayer);
+            controller.setLoadFromSave(true); // Load từ save
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
