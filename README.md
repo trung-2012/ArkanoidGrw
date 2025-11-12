@@ -32,7 +32,7 @@ Dự án thể hiện khả năng áp dụng các nguyên lý OOP, tổ chức c
 + 🏆Tích hợp bảng xếp hạng (Leaderboard) cho phép người chơi xem và so sánh điểm số.  
 + 🗺Màn hình Settings hoàn chỉnh hỗ trợ đổi skin bóng/paddle, xem trước (preview) và hoàn toàn có thể sử dụng khi chuyển sang pause_game.
 + 🌀Hỗ trợ nhiều màn chơi (levels) thông qua hệ thống LevelLoader đọc file .txt và tự cập nhật hình nền theo từng màn.  
-+ Ngoài các loại gạch cơ bản Game còn hỗ trợ loại gạch đặc biệt SecretBrick với khả năng biến hình sau mỗi 10 giây. SecretBrick không chỉ thay đổi ngoại hình mà còn chuyển đổi hoàn toàn hành vi sang loại gạch mới (Normal, Wood, Iron, Gold, Explode, Insane). Cơ chế này tạo ra tính bất ngờ trong gameplay vì sức bền, điểm số và tác động của viên gạch có thể thay đổi liên tục theo thời gian.
++ 👾Ngoài các loại gạch cơ bản Game còn hỗ trợ loại gạch đặc biệt SecretBrick với khả năng biến hình sau mỗi 10 giây. SecretBrick không chỉ thay đổi ngoại hình mà còn chuyển đổi hoàn toàn hành vi sang loại gạch mới (Normal, Wood, Iron, Gold, Explode, Insane). Cơ chế này tạo ra tính bất ngờ trong gameplay vì sức bền, điểm số và tác động của viên gạch có thể thay đổi liên tục theo thời gian.
 
 **Các hiệu ứng**  
 + 🧩Hiệu ứng mảnh vụn rơi khi gạch bị phá hủy. Các mảnh vụn sẽ rơi xuống dưới với trọng lực và độ trong suốt giảm dần.
@@ -41,7 +41,8 @@ Dự án thể hiện khả năng áp dụng các nguyên lý OOP, tổ chức c
 + 🎬Render intro animation khi bắt đầu level. Hiển thị "LEVEL X" với hiệu ứng RGB split glitch và scan line.
 + 🌈Render level clear animation khi hoàn thành level. Hiển thị hiệu ứng burst và fade to white.
 + ⏳Render countdown animation (3, 2, 1, START!) trước khi bắt đầu chơi. Hiển thị số đếm ngược với hiệu ứng RGB split, ring expansion và particles.
-+ 🌠Bóng có trail effect (hiệu ứng vệt đuôi) khi di chuyển.  
++ 🌠Bóng có trail effect (hiệu ứng vệt đuôi) khi di chuyển.
++ 🌀Hiệu ứng loading cho từng level.  
 
 🕹**Cơ chế hoạt động trong game**
 + Điều khiển paddle để đánh bóng
@@ -51,11 +52,11 @@ Dự án thể hiện khả năng áp dụng các nguyên lý OOP, tổ chức c
 + Mỗi cấp độ có map nền khác nhau
 + Thua khi rơi hết số mạng
 
-UML Diagram
+🧩UML Diagram
 ---
-
+![UML Diagram](src/main/resources/game/arkanoid/readme_images/UML.png)  
 Diagram được generate bằng IntelliJ IDEA.  
-Toàn bộ UML được lưu trong thư mục: docs/uml/  
+**🎯 Chức năng**: mô tả toàn bộ cấu trúc class, quan hệ kế thừa, association và dependency giữa các module Controller, Manager, Model, View.  
 
 Design Patterns được sử dụng
 ---
@@ -140,6 +141,7 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 | ![](src/main/resources/game/arkanoid/images/PlayAgain.png) | PlayAgain | Chơi lại |
 | ![](src/main/resources/game/arkanoid/images/backToMain.png) | Back to Menu | Trở về menu chính khi đang chơi |
 | ![](src/main/resources/game/arkanoid/images/resetCurrentLv.png) | PlayAgain | Chơi lại khi đang chơi dở |
+| ![](src/main/resources/game/arkanoid/images/continue.png) | Continue | Tiếp tục chơi |
 
 
 ### 🎁Các Power-up trong game
@@ -171,6 +173,9 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 ### 🔐Login
 ![Login](src/main/resources/game/arkanoid/readme_images/login_demo.png)
 
+### 📝Register  
+![Register](src/main/resources/game/arkanoid/readme_images/dangky_demo.png)  
+
 ### 🏁Start Menu
 ![Start Menu](src/main/resources/game/arkanoid/readme_images/StartMenu_demo.png)
 
@@ -196,16 +201,9 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 
 ![EndGame](src/main/resources/game/arkanoid/readme_images/end_demo.png)
 
----
-
-## 🎬 Video Demo
----
-
-### 📹 Gameplay Video
-
-[![Xem video demo gameplay](https://img.shields.io/badge/▶️_Xem_Video_Demo-red?style=for-the-badge&logo=youtube)](https://drive.google.com/file/d/YOUR_VIDEO_ID/view?usp=sharing)
-
-🔗 **Link trực tiếp**: [https://drive.google.com/file/d/YOUR_VIDEO_ID/view?usp=sharing](https://drive.google.com/file/d/YOUR_VIDEO_ID/view?usp=sharing)
+## 🎥 Gameplay Demo
+[![Watch the video](https://img.youtube.com/vi/drTlYjZBf0U/0.jpg)](https://www.youtube.com/watch?v=drTlYjZBf0U)  
+🎮 *Trải nghiệm gameplay Arkanoid – JavaFX – OOP – UET – VNU với đầy đủ hiệu ứng, power-up và animation!*
 
 **Nội dung video:**
 - ✅ Toàn bộ flow game từ đăng nhập đến gameplay
@@ -214,8 +212,6 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 - ✅ Hiệu ứng đặc biệt: SecretBrick transform, Explosion, Debris
 - ✅ Hệ thống save/load game
 - ✅ Loading screen với level notes
-
----
 
 🚀Hướng phát triển trong tương lai
 ---
