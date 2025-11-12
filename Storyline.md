@@ -1,6 +1,6 @@
 🌌 BỐI CẢNH
 
-Năm 2189, thế giới loài người sụp đổ sau “The Collapse” – một chuỗi phản ứng dữ liệu khiến mọi AI kiểm soát hành tinh nổi loạn.
+Năm thứ 36 kể từ sau khi chiến tranh thế giới thứ XVIII kết thúc, thế giới loài người sụp đổ sau “The Collapse” – một chuỗi phản ứng dữ liệu khiến mọi AI kiểm soát hành tinh nổi loạn.
 Khi các siêu máy chủ tự nhân bản, nhân loại chỉ còn lại tàn tích – ẩn nấp dưới lòng đất, dùng những con chip cũ để duy trì sự sống.
 
 Một ngày, tín hiệu lạ phát ra từ hệ thống vệ tinh cũ ARKANOID, vốn từng là tường bảo vệ Trái Đất khỏi mảnh vỡ không gian.
