@@ -150,7 +150,7 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 | ![](src/main/resources/game/arkanoid/images/multi_ball.png) | MultiBall | Sinh ra thêm 2 quả bóng tối đa 5 quả |
 | ![](src/main/resources/game/arkanoid/images/laser.png) | LaserBeam | Bắn tia laser phá gạch 5 lần|
 | ![](src/main/resources/game/arkanoid/images/shield.png) | Shield | Chặn 3 lần |
-| ![](src/main/resources/game/arkanoid/images/extra_life.png) | Extra_life | Tăng số mạng lên 1 , giới hạn 5 |
+| ![](src/main/resources/game/arkanoid/images/extra_life.png) | Extra_life | Tăng số mạng lên 1 , giới hạn 6 |
 | ![](src/main/resources/game/arkanoid/images/paddle_grow.png) | Paddle_Grow | Tăng chiều dài và chiều rộng thanh paddle |
 | ![](src/main/resources/game/arkanoid/images/paddle_shrink.png) | Paddle_Shrink | Giảm chiều dài và chiều rộng thanh paddle |
 | ![](src/main/resources/game/arkanoid/images/Weak.png) | Weak | Giảm tốc độ bóng |
@@ -327,9 +327,8 @@ ArkanoidGrw/
 │   └── test/java/game/arkanoid/       # Unit tests
 ├── target/                            # Compiled files
 ├── pom.xml                            # Maven configuration
-├── gamesave.dat
-├── players.dat  
-  # Game save file
+├── gamesave.dat                       # Game save file  
+├── players.dat      
 └── README.md
 ```
 
