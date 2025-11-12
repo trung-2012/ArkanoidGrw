@@ -64,6 +64,7 @@ public class MainController implements Initializable {
     private Stage pauseStage;
 
     private boolean isPaused = false;
+    private boolean loadFromSave = false;
 
     public void setPlayer(Player player) {
         this.player = player;
@@ -74,6 +75,10 @@ public class MainController implements Initializable {
 
     public Player getCurrentPlayer() {
         return this.player;
+    }
+
+    public void setLoadFromSave(boolean loadFromSave) {
+        this.loadFromSave = loadFromSave;
     }
 
     @Override
@@ -132,7 +137,11 @@ public class MainController implements Initializable {
                         .subtract(bottomBar.heightProperty()));
 
                 javafx.application.Platform.runLater(() -> {
-                    engine.startNewGame();
+                    if (loadFromSave) {
+                        engine.loadGameFromSave(player.getUsername());
+                    } else {
+                        engine.startNewGame();
+                    }
                     gameCanvas.requestFocus();
                 });
             }
@@ -261,6 +270,12 @@ public class MainController implements Initializable {
             stage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void saveGameBeforeExit() {
+        if (engine != null && player != null) {
+            engine.saveCurrentGame(player.getUsername());
         }
     }
 }

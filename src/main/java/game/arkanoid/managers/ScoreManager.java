@@ -182,4 +182,24 @@ public class ScoreManager {
         this.levelLabelRef = label;
         updateLevelLabel();
     }
+    
+    // Setters để restore game state từ save
+    public void setScore(int score) {
+        this.score = score;
+        updateScoreLabel();
+    }
+    
+    public void setTotalScore(int totalScore) {
+        this.totalScore = totalScore;
+    }
+    
+    public void setLives(int lives) {
+        this.lives = lives;
+        updateLivesLabel();
+    }
+    
+    public void setCurrentLevel(int level) {
+        this.currentLevel = level;
+        updateLevelLabel();
+    }
 }
