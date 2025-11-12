@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="game.arkanoid.controllers.LoadingController">
+
+    <ImageView fitHeight="600" fitWidth="800" preserveRatio="false">
+        <image>
+            <Image url="@../images/loading.png" />
+        </image>
+    </ImageView>
+
+    <Label fx:id="noteLabel" prefWidth="700.0" wrapText="true" alignment="CENTER" style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: normal;" text="*Note: Loading..." translateY="-50.0" StackPane.alignment="BOTTOM_CENTER" />
+
+</StackPane>
