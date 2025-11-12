@@ -137,17 +137,21 @@ public class StartMenuController {
     @FXML
     private void startGame(ActionEvent event) {
         try {
+            // Chuyển sang màn hình Loading
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/game/arkanoid/fxml/MainView.fxml"));
+                    getClass().getResource("/game/arkanoid/fxml/Loading.fxml"));
             Parent root = loader.load();
 
-            // truyền player sang MainController
-            MainController controller = loader.getController();
+            LoadingController controller = loader.getController();
             controller.setPlayer(currentPlayer);
+            controller.setLevel(1); // Start từ level 1
             controller.setLoadFromSave(false); // Start game mới
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
+
+            // Bắt đầu loading (2 giây rồi chuyển sang game)
+            controller.startLoading();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -165,17 +169,25 @@ public class StartMenuController {
                 return;
             }
 
+            // Load save data để lấy level
+            game.arkanoid.player_manager.GameSaveData saveData = GameDataManager.loadGameSave();
+            int savedLevel = (saveData != null) ? saveData.getCurrentLevel() : 1;
+
+            // Chuyển sang màn hình Loading
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/game/arkanoid/fxml/MainView.fxml"));
+                    getClass().getResource("/game/arkanoid/fxml/Loading.fxml"));
             Parent root = loader.load();
 
-            // truyền player sang MainController
-            MainController controller = loader.getController();
+            LoadingController controller = loader.getController();
             controller.setPlayer(currentPlayer);
+            controller.setLevel(savedLevel); // Load level từ save
             controller.setLoadFromSave(true); // Load từ save
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
+
+            // Bắt đầu loading (2 giây rồi chuyển sang game)
+            controller.startLoading();
         } catch (IOException e) {
             e.printStackTrace();
         }

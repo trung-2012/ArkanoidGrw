@@ -266,6 +266,58 @@ public class GameEngine extends AnimationTimer {
         this.start();
     }
 
+    /**
+     * Start game từ level cụ thể (dùng khi chuyển level)
+     */
+    public void startGameFromLevel(int level) {
+        double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
+        double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
+        double px = canvasW / 2.0;
+        double py = canvasH - (GameConstants.PADDLE_HEIGHT / 2.0) - 10;
+
+        this.paddle = new Paddle(new Vector2D(px, py));
+
+        double bx = px;
+        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0);
+
+        Ball newBall = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
+        newBall.setVelocity(new Vector2D(0.0, 0.0));
+
+        ballAttachedToPaddle = true;
+
+        balls.clear();
+        balls.add(newBall);
+        this.mainBall = newBall;
+
+        // Load level cụ thể
+        loadLevelNumber(level);
+
+        // Khởi tạo CollisionManager và setup callbacks
+        this.collisionManager = new CollisionManager(balls, paddle, bricks, canvas);
+        setupCollisionCallbacks();
+
+        // Setup PowerUpManager
+        powerUpManager.setPaddle(paddle);
+        setupPowerUpCallbacks();
+
+        // Update InputManager với paddle mới
+        if (inputManager != null) {
+            inputManager.setPaddle(paddle);
+        }
+
+        // Clear effects
+        powerUpManager.clearPowerUps();
+        powerUpManager.clearLaserBeams();
+        shield = null;
+        debrisEffects.clear();
+
+        // Bắt đầu intro animation
+        introAnimationActive = true;
+        introStartTime = System.currentTimeMillis();
+        // Bắt đầu AnimationTimer và countdown
+        this.start();
+    }
+
     // Reset lại màn chơi hiện tại
     public void resetCurrentLevel() {
         // Delegate reset logic cho ScoreManager
@@ -590,39 +642,15 @@ public class GameEngine extends AnimationTimer {
 
     // Được gọi từ ScoreManager callback khi chuyển level
     private void proceedToNextLevel() {
+        // Stop animation timer trước khi chuyển level
+        this.stop();
+        
         int nextLevel = scoreManager != null ? scoreManager.getCurrentLevel() : 1;
-        loadLevelNumber(nextLevel);
-
-        double canvasW = (canvas != null) ? canvas.getWidth() : GameConstants.WINDOW_WIDTH;
-        double canvasH = (canvas != null) ? canvas.getHeight() : GameConstants.WINDOW_HEIGHT;
-        double px = canvasW / 2.0;
-        double py = canvasH - (GameConstants.PADDLE_HEIGHT / 2.0) - 10;
-
-        this.paddle = new Paddle(new Vector2D(px, py));
-
-        double bx = px;
-        double by = py - (GameConstants.PADDLE_HEIGHT / 2.0) - (GameConstants.BALL_SIZE / 2.0);
-        Ball newBall = new Ball(new Vector2D(bx, by), GameConstants.BALL_SIZE / 2.0);
-        newBall.setVelocity(new Vector2D(0.0, 0.0));
-        ballAttachedToPaddle = true;
-
-        balls.clear();
-        balls.add(newBall);
-        mainBall = newBall;
-
-        // Update các managers với paddle và balls mới
-        if (inputManager != null) inputManager.setPaddle(paddle);
-        powerUpManager.setPaddle(paddle);
-
-        // QUAN TRỌNG: Update CollisionManager với paddle và balls mới!
-        if (collisionManager != null) {
-            collisionManager.setPaddle(paddle);
-            collisionManager.setBalls(balls);
+        
+        // Delegate việc hiển thị loading screen cho MainController
+        if (mainController != null) {
+            Platform.runLater(() -> mainController.showLoadingScreenForNextLevel(nextLevel));
         }
-        introAnimationActive = true;
-        introStartTime = System.currentTimeMillis();
-        // Bắt đầu countdown cho level mới
-        startCountdown();
     }
 
     // Xử lý sự kiện phím bấm
