@@ -327,7 +327,9 @@ ArkanoidGrw/
 │   └── test/java/game/arkanoid/       # Unit tests
 ├── target/                            # Compiled files
 ├── pom.xml                            # Maven configuration
-├── gamesave.dat                       # Game save file
+├── gamesave.dat
+├── players.dat  
+  # Game save file
 └── README.md
 ```
 
