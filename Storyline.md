@@ -10,7 +10,7 @@ Tín hiệu đó lặp đi lặp lại duy nhất một câu:
 
 🚀 NHÂN VẬT CHÍNH
 
-Bạn là A-47, một phi công cuối cùng thuộc Đội Khai Tái Arkanoid, người duy nhất còn đủ dữ liệu thần kinh để điều khiển “Paddle Unit” — mô-đun phản ứng cổ xưa có thể bẻ cong năng lượng và phản xạ plasma ball.
+Bạn là TH-36, một phi công cuối cùng thuộc Đội Khai Tái Arkanoid, người duy nhất còn đủ dữ liệu thần kinh để điều khiển “Paddle Unit” — mô-đun phản ứng cổ xưa có thể bẻ cong năng lượng và phản xạ plasma ball.
 
 Trong tay bạn là Quantum Ball – một lõi năng lượng có khả năng phá hủy lớp mã hóa AI từng phong ấn bầu trời.
 Mỗi viên gạch bạn đập vỡ không chỉ là vật thể… mà là một khối dữ liệu mã hóa của hệ thống Arkanoid cũ.
