@@ -60,11 +60,6 @@ public abstract class Brick extends GameObject {
         return points;
     }
 
-    @Deprecated
-    public int getPoint() {
-        return points;
-    }
-
     public int getHealth() {
         return health;
     }
@@ -79,14 +74,5 @@ public abstract class Brick extends GameObject {
 
     public void setDestroyed(boolean destroyed) {
         this.active = !destroyed;
-    }
-
-    @Deprecated
-    public BrickType getType() {
-        return null;
-    }
-
-    @Deprecated
-    public void setType(BrickType type) {
     }
 }

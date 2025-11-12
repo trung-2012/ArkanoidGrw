@@ -65,6 +65,7 @@ public class MainController implements Initializable {
 
     private boolean isPaused = false;
     private boolean loadFromSave = false;
+    private int targetLevel = 1; // Level cần load (mặc định là 1)
 
     public void setPlayer(Player player) {
         this.player = player;
@@ -79,6 +80,10 @@ public class MainController implements Initializable {
 
     public void setLoadFromSave(boolean loadFromSave) {
         this.loadFromSave = loadFromSave;
+    }
+
+    public void setTargetLevel(int targetLevel) {
+        this.targetLevel = targetLevel;
     }
 
     @Override
@@ -139,7 +144,11 @@ public class MainController implements Initializable {
                 javafx.application.Platform.runLater(() -> {
                     if (loadFromSave) {
                         engine.loadGameFromSave(player.getUsername());
+                    } else if (targetLevel > 1) {
+                        // Load level cụ thể (khi chuyển level)
+                        engine.startGameFromLevel(targetLevel);
                     } else {
+                        // Start game mới từ level 1
                         engine.startNewGame();
                     }
                     gameCanvas.requestFocus();
@@ -276,6 +285,30 @@ public class MainController implements Initializable {
     public void saveGameBeforeExit() {
         if (engine != null && player != null) {
             engine.saveCurrentGame(player.getUsername());
+        }
+    }
+
+    /**
+     * Hiển thị loading screen khi chuyển sang level tiếp theo
+     */
+    public void showLoadingScreenForNextLevel(int nextLevel) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/Loading.fxml"));
+            Parent root = loader.load();
+
+            LoadingController controller = loader.getController();
+            controller.setPlayer(player);
+            controller.setLevel(nextLevel);
+            controller.setLoadFromSave(false); // Chuyển level không phải load từ save
+
+            Stage stage = (Stage) gameCanvas.getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+
+            // Bắt đầu loading (2 giây rồi chuyển sang game)
+            controller.startLoading();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
