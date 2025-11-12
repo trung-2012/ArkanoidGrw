@@ -3,7 +3,6 @@ package game.arkanoid.models;
 import game.arkanoid.powerup.PowerUpType;
 import game.arkanoid.utils.GameConstants;
 import game.arkanoid.utils.Vector2D;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.List;
@@ -128,8 +127,11 @@ public class Ball extends GameObject {
     /** Thời điểm sớm nhất cho phép va chạm shield tiếp theo (tránh spam bounce) */
     public long nextShieldBounceAllowed = 0;
     
-    /** Thời điểm sớm nhất cho phép va chạm brick tiếp theo (tránh double collision khi bóng ở khe 2 brick) */
-    public long nextBrickBounceAllowed = 0;
+    /** Brick vừa va chạm gần nhất (để tránh double bounce với cùng 1 brick) */
+    private Brick lastCollidedBrick = null;
+    
+    /** Thời điểm va chạm với brick gần nhất */
+    private long lastBrickCollisionTime = 0;
 
     /**
      * Constructor khởi tạo Ball với vị trí và bán kính.
@@ -281,12 +283,9 @@ public class Ball extends GameObject {
     }
 
     /**
-     * Va chạm hình chữ nhật với brick (gạch) - Thuật toán Intersection.
-     * Ball được coi là hình vuông (cạnh = đường kính, tâm như cũ).
-     * Sử dụng Rectangle intersection để xác định hướng va chạm thông minh:
-     * - Nếu vùng chồng lấp rộng < cao → Va chạm ngang (trái/phải)
-     * - Nếu vùng chồng lấp cao < rộng → Va chạm dọc (trên/dưới)
-     * Có cooldown 50ms để tránh va chạm double.
+     * Va chạm circle-rectangle với brick (gạch).
+     * Sử dụng thuật toán tìm điểm gần nhất trên rectangle để detect collision chính xác.
+     * Per-brick cooldown để tránh double bounce với cùng 1 brick.
      * 
      * @param brick Brick cần kiểm tra va chạm
      * @return true nếu có va chạm, false nếu không
@@ -295,58 +294,71 @@ public class Ball extends GameObject {
         if (brick == null || brick.getDestroyed())
             return false;
         
-        // Cooldown để tránh va chạm liên tiếp (khi bóng ở khe 2 brick)
+        // Cooldown per-brick: chỉ tránh va chạm lại với CÙNG brick trong 50ms
         long now = System.currentTimeMillis();
-        if (now < nextBrickBounceAllowed)
-            return false;
-
-        // Ball rect: tâm ở position, cạnh = 2*radius (đường kính)
-        double ballLeft = position.getX() - radius;
-        double ballTop = position.getY() - radius;
-        double ballSize = radius * 2;
-        
-        // Brick rect
-        double brickLeft = brick.getPosition().getX();
-        double brickTop = brick.getPosition().getY();
-        double brickWidth = GameConstants.BRICK_WIDTH;
-        double brickHeight = GameConstants.BRICK_HEIGHT;
-        
-        // Tạo Rectangle2D để tính intersection
-        Rectangle2D ballRect = new Rectangle2D(ballLeft, ballTop, ballSize, ballSize);
-        Rectangle2D brickRect = new Rectangle2D(brickLeft, brickTop, brickWidth, brickHeight);
-        
-        // Tính vùng chồng lấp (intersection)
-        Rectangle2D intersection = intersect(ballRect, brickRect);
-        
-        // Không có intersection → không va chạm
-        if (intersection.getWidth() == 0 || intersection.getHeight() == 0) {
+        if (lastCollidedBrick == brick && now - lastBrickCollisionTime < 50) {
             return false;
         }
+
+        // Brick bounds (top-left corner)
+        double brickLeft = brick.getPosition().getX();
+        double brickTop = brick.getPosition().getY();
+        double brickRight = brickLeft + GameConstants.BRICK_WIDTH;
+        double brickBottom = brickTop + GameConstants.BRICK_HEIGHT;
         
-        if (intersection.getWidth() < intersection.getHeight()) {
-            // Vùng chồng lấp hẹp hơn → VA CHẠM NGANG (trái/phải)
-            
-            if (position.getX() < brick.getPosition().getX() + brickWidth / 2) {
-                // Ball ở bên trái brick → Đẩy về trái
-                position.setX(position.getX() - intersection.getWidth() - 1);
-                if (velocity.getX() > 0) reverseVelocityX();
-            } else {
-                // Ball ở bên phải brick → Đẩy về phải
-                position.setX(position.getX() + intersection.getWidth() + 1);
-                if (velocity.getX() < 0) reverseVelocityX();
-            }
-            
+        // Ball center
+        double ballCx = position.getX();
+        double ballCy = position.getY();
+        
+        // Tìm điểm gần nhất trên brick với ball center
+        double nearestX = clamp(ballCx, brickLeft, brickRight);
+        double nearestY = clamp(ballCy, brickTop, brickBottom);
+        
+        // Tính khoảng cách từ ball center đến điểm gần nhất
+        double dx = ballCx - nearestX;
+        double dy = ballCy - nearestY;
+        double distanceSq = dx * dx + dy * dy;
+        
+        // Kiểm tra collision
+        if (distanceSq > radius * radius) {
+            return false; // Không va chạm
+        }
+        
+        // Xử lý va chạm
+        
+        // Xác định hướng va chạm dựa vào vị trí ball so với brick
+        boolean hitFromLeft = ballCx < brickLeft && velocity.getX() > 0;
+        boolean hitFromRight = ballCx > brickRight && velocity.getX() < 0;
+        boolean hitFromTop = ballCy < brickTop && velocity.getY() > 0;
+        boolean hitFromBottom = ballCy > brickBottom && velocity.getY() < 0;
+        
+        // Đẩy bóng ra khỏi brick và reverse velocity
+        if (hitFromLeft) {
+            // Va chạm từ trái → Đẩy về trái
+            position.setX(brickLeft - radius - 1);
+            reverseVelocityX();
+        } else if (hitFromRight) {
+            // Va chạm từ phải → Đẩy về phải
+            position.setX(brickRight + radius + 1);
+            reverseVelocityX();
+        } else if (hitFromTop) {
+            // Va chạm từ trên → Đẩy lên trên
+            position.setY(brickTop - radius - 1);
+            reverseVelocityY();
+        } else if (hitFromBottom) {
+            // Va chạm từ dưới → Đẩy xuống dưới
+            position.setY(brickBottom + radius + 1);
+            reverseVelocityY();
         } else {
-            // Vùng chồng lấp thấp hơn → VA CHẠM DỌC (trên/dưới)
-            
-            if (position.getY() < brick.getPosition().getY() + brickHeight / 2) {
-                // Ball ở phía trên brick → Đẩy lên trên
-                position.setY(position.getY() - intersection.getHeight() - 1);
-                if (velocity.getY() > 0) reverseVelocityY();
+            // Va chạm từ góc → Xác định hướng dựa vào dx, dy
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Va chạm ngang chủ yếu
+                position.setX(ballCx + (dx > 0 ? radius + 1 : -radius - 1));
+                reverseVelocityX();
             } else {
-                // Ball ở phía dưới brick → Đẩy xuống dưới
-                position.setY(position.getY() + intersection.getHeight() + 1);
-                if (velocity.getY() < 0) reverseVelocityY();
+                // Va chạm dọc chủ yếu
+                position.setY(ballCy + (dy > 0 ? radius + 1 : -radius - 1));
+                reverseVelocityY();
             }
         }
         
@@ -356,34 +368,15 @@ public class Ball extends GameObject {
             velocity.setY(velocity.getY() > 0 ? minVerticalSpeed : -minVerticalSpeed);
         }
         
-        // Cooldown 50ms
-        nextBrickBounceAllowed = now + 50;
+        // Cập nhật cooldown per-brick
+        lastCollidedBrick = brick;
+        lastBrickCollisionTime = now;
         
         // Gây sát thương
         brick.takeDamage();
         return true;
     }
     
-    /**
-     * Tính vùng giao nhau giữa 2 rectangle (intersection).
-     * Helper method cho collision detection.
-     * 
-     * @param r1 Rectangle thứ nhất
-     * @param r2 Rectangle thứ hai
-     * @return Rectangle2D đại diện cho vùng giao (width/height = 0 nếu không giao)
-     */
-    private Rectangle2D intersect(Rectangle2D r1, Rectangle2D r2) {
-        double x1 = Math.max(r1.getMinX(), r2.getMinX());
-        double y1 = Math.max(r1.getMinY(), r2.getMinY());
-        double x2 = Math.min(r1.getMaxX(), r2.getMaxX());
-        double y2 = Math.min(r1.getMaxY(), r2.getMaxY());
-        
-        if (x2 >= x1 && y2 >= y1) {
-            return new Rectangle2D(x1, y1, x2 - x1, y2 - y1);
-        }
-        return new Rectangle2D(0, 0, 0, 0); // Không giao nhau
-    }
-
     /**
      * Helper method giới hạn giá trị trong khoảng [min, max].
      * Được sử dụng trong thuật toán collision detection.
