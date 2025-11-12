@@ -30,6 +30,16 @@
                 </graphic>
             </Button>
 
+            <Button fx:id="continueButton" onAction="#continueGame" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
+                <graphic>
+                    <ImageView fx:id="continueImageView" fitHeight="70" fitWidth="210" preserveRatio="false">
+                        <image>
+                            <Image url="@../images/continue.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
             <Button fx:id="settingsButton" onAction="#openSettings" onMouseEntered="#onButtonMouseEntered" onMouseExited="#onButtonMouseExited" prefHeight="70" prefWidth="210" style="-fx-background-color: transparent;" text="">
                 <graphic>
                     <ImageView fx:id="settingsImageView" fitHeight="70" fitWidth="210" preserveRatio="false">

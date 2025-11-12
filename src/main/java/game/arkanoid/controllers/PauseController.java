@@ -114,6 +114,8 @@ public class PauseController {
     @FXML
     private void handleMainMenu(ActionEvent event) {
         if (mainController != null) {
+            // Save game trước khi quay về main menu
+            mainController.saveGameBeforeExit();
             mainController.returnToMenuFromPause();
         }
         pauseStage.close();
