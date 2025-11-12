@@ -3,7 +3,7 @@ Arkanoid Game – Object-Oriented Programming Project
 
 Tác giả  
 ---
-**Nhóm 1** – Lớp **TH OOP INT2204 11 - I2526**  
+**Nhóm: Đội của chúng ta** – Lớp **TH OOP INT2204 11 - I2526**  
 + 👨‍💻 Lê Ngọc Phong – 24021593  
 + 👨‍💻 Phạm Văn Trung – 24021649  
 + 👨‍💻 Nguyễn Văn Tùng – 24021665  
@@ -63,7 +63,6 @@ Design Patterns được sử dụng
 Sử dụng trong:  
 + GameSettings  
 + SoundManager  
-+ PowerUpManager
 
 **Mục đích:**
 Đảm bảo mỗi thành phần quan trọng của game chỉ tồn tại một instance duy nhất, giúp quản lý tài nguyên tập trung, giảm xung đột trạng thái và tránh tạo đối tượng không cần thiết.
@@ -197,6 +196,27 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 
 ![EndGame](src/main/resources/game/arkanoid/readme_images/end_demo.png)
 
+---
+
+## 🎬 Video Demo
+---
+
+### 📹 Gameplay Video
+
+[![Xem video demo gameplay](https://img.shields.io/badge/▶️_Xem_Video_Demo-red?style=for-the-badge&logo=youtube)](https://drive.google.com/file/d/YOUR_VIDEO_ID/view?usp=sharing)
+
+🔗 **Link trực tiếp**: [https://drive.google.com/file/d/YOUR_VIDEO_ID/view?usp=sharing](https://drive.google.com/file/d/YOUR_VIDEO_ID/view?usp=sharing)
+
+**Nội dung video:**
+- ✅ Toàn bộ flow game từ đăng nhập đến gameplay
+- ✅ Demo các tính năng: Settings, Preview, Leaderboard
+- ✅ Gameplay qua 4 levels với các power-up
+- ✅ Hiệu ứng đặc biệt: SecretBrick transform, Explosion, Debris
+- ✅ Hệ thống save/load game
+- ✅ Loading screen với level notes
+
+---
+
 🚀Hướng phát triển trong tương lai
 ---
 **Các tính năng đã lên kế hoạch**  
@@ -225,6 +245,149 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 | **JavaFX** | 17–21 | Xây dựng giao diện người dùng (UI) và đồ họa |
 | **Maven** | 3.9+ | Quản lý dependency và build project |
 | **CSS** | — | Tạo style cho giao diện JavaFX |
+
+---
+
+### 📁 Cấu trúc dự án
+---
+
+```
+ArkanoidGrw/
+├── src/
+│   ├── main/
+│   │   ├── java/game/arkanoid/
+│   │   │   ├── controllers/          # Các controller điều khiển UI (FXML)
+│   │   │   │   ├── GameOverController.java
+│   │   │   │   ├── MainController.java
+│   │   │   │   ├── PauseController.java
+│   │   │   │   ├── PreviewGameController.java
+│   │   │   │   ├── SettingsController.java
+│   │   │   │   ├── StartMenuController.java
+│   │   │   │   └── LoadingController.java
+│   │   │   ├── managers/              # Quản lý logic game
+│   │   │   │   ├── CollisionManager.java
+│   │   │   │   ├── InputManager.java
+│   │   │   │   ├── PowerUpManager.java
+│   │   │   │   ├── RenderManager.java
+│   │   │   │   ├── ScoreManager.java
+│   │   │   │   └── SoundManager.java
+│   │   │   ├── models/                # Các entities của game
+│   │   │   │   ├── Ball.java
+│   │   │   │   ├── Paddle.java
+│   │   │   │   ├── Brick.java (abstract)
+│   │   │   │   ├── NormalBrick.java
+│   │   │   │   ├── WoodBrick.java
+│   │   │   │   ├── IronBrick.java
+│   │   │   │   ├── GoldBrick.java
+│   │   │   │   ├── ExplodeBrick.java
+│   │   │   │   ├── InsaneBrick.java
+│   │   │   │   ├── SecretBrick.java
+│   │   │   │   ├── ExplosionEffect.java
+│   │   │   │   └── DebrisEffect.java
+│   │   │   ├── player_manager/        # Hệ thống player & leaderboard
+│   │   │   │   ├── Player.java
+│   │   │   │   ├── PlayerData.java
+│   │   │   │   ├── GameSaveData.java
+│   │   │   │   ├── GameDataManager.java
+│   │   │   │   ├── LoginController.java
+│   │   │   │   ├── NicknameController.java
+│   │   │   │   └── LeaderboardController.java
+│   │   │   ├── powerup/               # Hệ thống power-up
+│   │   │   │   ├── PowerUp.java
+│   │   │   │   ├── PowerUpType.java
+│   │   │   │   ├── LaserBeam.java
+│   │   │   │   └── Shield.java
+│   │   │   ├── utils/                 # Utilities & constants
+│   │   │   │   ├── GameConstants.java
+│   │   │   │   ├── GameSettings.java
+│   │   │   │   ├── LevelLoader.java
+│   │   │   │   └── Vector2D.java
+│   │   │   └── views/                 # Main view & game engine
+│   │   │       ├── Main.java
+│   │   │       ├── Launcher.java
+│   │   │       └── GameEngine.java
+│   │   └── resources/game/arkanoid/
+│   │       ├── css/                   # Stylesheets
+│   │       │   └── slider-style.css
+│   │       ├── fxml/                  # UI layouts (10 files)
+│   │       │   ├── LoginView.fxml
+│   │       │   ├── Nickname.fxml
+│   │       │   ├── StartMenu.fxml
+│   │       │   ├── MainView.fxml
+│   │       │   ├── PauseView.fxml
+│   │       │   ├── SettingsView.fxml
+│   │       │   ├── PreviewGame.fxml
+│   │       │   ├── Loading.fxml
+│   │       │   ├── GameOver.fxml
+│   │       │   └── LeaderBoard.fxml
+│   │       ├── images/                # Game assets & sprites
+│   │       ├── levels/                # Level configuration files
+│   │       │   ├── level1.txt
+│   │       │   ├── level2.txt
+│   │       │   ├── level3.txt
+│   │       │   └── level4.txt
+│   │       ├── sounds/                # Audio files (17 files)
+│   │       └── readme_images/         # Screenshots cho README
+│   └── test/java/game/arkanoid/       # Unit tests
+├── target/                            # Compiled files
+├── pom.xml                            # Maven configuration
+├── gamesave.dat                       # Game save file
+└── README.md
+```
+
+---
+
+### 📊 Thống kê dự án
+---
+
+| 📌 Metric | 🔢 Số lượng |
+|-----------|-------------|
+| 📝 **Tổng số file Java** | 45 files |
+| 📦 **Tổng số class** | 45+ classes |
+| 🎨 **FXML files** | 10 files |
+| 🎵 **Sound effects** | 17 files |
+| 🗺 **Levels** | 4 màn chơi |
+| 🎁 **Power-ups** | 8 loại (MultiBall, LaserBeam, Shield, ExtraLife, PaddleGrow, PaddleShrink, Weak, Strong) |
+| 🧱 **Brick types** | 7 loại (Normal, Wood, Iron, Gold, Explode, Insane, Secret) |
+| 🎮 **Controllers** | 10 controllers |
+| 🛠 **Managers** | 6 managers |
+| 📱 **Views** | 3 main views |
+
+---
+
+### ⚠️ Hạn chế & Known Issues
+---
+
+**🔧 Các hạn chế hiện tại:**
++ 🎵 **Audio delay**: Âm thanh có thể bị delay nhẹ trên một số máy cấu hình thấp do JavaFX MediaPlayer
++ 🖼 **Performance**: Hiệu ứng particles/debris có thể giảm FPS khi có quá nhiều object cùng lúc (>50 objects)
++ 💾 **Save system**: Chỉ hỗ trợ lưu local vào file `gamesave.dat`, chưa có cloud sync
++ 🌐 **Leaderboard**: Bảng xếp hạng chỉ lưu local, chưa có online ranking/multiplayer
++ 🎮 **Input lag**: Có thể xảy ra input lag nhẹ nếu FPS drop xuống dưới 30
+
+**🔮 Workarounds:**
++ Nếu FPS thấp: Giảm số lượng debris/particles trong `GameConstants`
++ Nếu âm thanh bị lag: Tắt hết
++ Nếu game bị freeze: Restart level bằng nút Reset
+
+---
+
+### 🙏 Tài nguyên & Tham khảo
+---
+
+**📚 Tài liệu kỹ thuật:**
++ [JavaFX Documentation](https://openjfx.io/)
++ [Design Patterns: Elements of Reusable Object-Oriented Software](https://refactoring.guru/design-patterns)
++ [Game Programming Patterns](https://gameprogrammingpatterns.com/)
++ [Chat GPT](https://chatgpt.com/)
+
+**🎨 Assets & Resources:**
++ 🎵 **Sound effects**: Free sound effects từ [Freesound.org](https://freesound.org/) & tự thu âm
++ 🖼 **Graphics**: Tự thiết kế bằng [Gemini](https://gemini.google.com/app), chỉnh sửa và cắt ghép bổ sung từ nhiều nguồn
++ 🎨 **Icons**: [Flaticon](https://www.flaticon.com/) & custom design
++ 🎮 **Game concept**: Dựa trên Arkanoid classic (Taito, 1986)
+
+---
 
 📜License
 ---
