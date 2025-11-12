@@ -1,104 +1,253 @@
-package game.arkanoid;
+ackage game.arkanoid.controllers;
 
-import javafx.animation.AnimationTimer;
+import game.arkanoid.player_manager.GameDataManager;
+import game.arkanoid.player_manager.Player;
+import game.arkanoid.managers.SoundManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.scene.Node;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Label;
 
 import java.io.IOException;
-import java.util.Random;
 
 public class MenuControll {
 
-    @FXML private Canvas starCanvas;
-    @FXML private ImageView ballPreview;
-    @FXML private ImageView paddlePreview;
-
-    private double[] starsX, starsY;
-    private int starCount = 200;
-    private double speed = 0.5;
-
-    // Các skin đang chọn (được cập nhật từ màn hình chọn skin)
-    private static Image selectedBallImage;
-    private static Image selectedPaddleImage;
-
-    // Getter / Setter để truyền giữa scenes
-    public static void setSelectedBallImage(Image img) { selectedBallImage = img; }
-    public static Image getSelectedBallImage() { return selectedBallImage; }
-    public static void setSelectedPaddleImage(Image img) { selectedPaddleImage = img; }
-    public static Image getSelectedPaddleImage() { return selectedPaddleImage; }
+    @FXML
+    private javafx.scene.image.ImageView startImageView;
+    @FXML
+    private javafx.scene.image.ImageView continueImageView;
+    @FXML
+    private javafx.scene.image.ImageView settingsImageView;
+    @FXML
+    private javafx.scene.image.ImageView exitImageView;
+    @FXML
+    private javafx.scene.image.ImageView logoutImageView;
 
     @FXML
-    public void initialize() {
-        // --- Hiệu ứng sao ---
-        GraphicsContext gc = starCanvas.getGraphicsContext2D();
-        Random rand = new Random();
-        starsX = new double[starCount];
-        starsY = new double[starCount];
+    private Label nicknameLabel;
 
-        for (int i = 0; i < starCount; i++) {
-            starsX[i] = rand.nextDouble() * starCanvas.getWidth();
-            starsY[i] = rand.nextDouble() * starCanvas.getHeight();
-        }
+    @FXML
+    private javafx.scene.image.ImageView leaderboardImageView;
 
-        new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                gc.setFill(Color.BLACK);
-                gc.fillRect(0, 0, starCanvas.getWidth(), starCanvas.getHeight());
-                gc.setFill(Color.WHITE);
-                for (int i = 0; i < starCount; i++) {
-                    gc.fillOval(starsX[i], starsY[i], 2, 2);
-                    starsY[i] += speed;
-                    if (starsY[i] > starCanvas.getHeight()) {
-                        starsY[i] = 0;
-                        starsX[i] = rand.nextDouble() * starCanvas.getWidth();
-                    }
-                }
-            }
-        }.start();
+    private Player currentPlayer;
 
-        // --- Hiển thị skin preview nếu đã chọn ---
-        if (selectedBallImage != null) ballPreview.setImage(selectedBallImage);
-        if (selectedPaddleImage != null) paddlePreview.setImage(selectedPaddleImage);
+    @FXML
+    private void initialize() {
+        // Phát nhạc menu
+        SoundManager.getInstance().playBackgroundMusic(
+                "src/main/resources/game/arkanoid/sounds/menu_music.mp3", true);
     }
 
-    // --- Chuyển sang màn hình chọn skin ---
+    public void setPlayer(Player p) {
+        this.currentPlayer = p;
+        if (nicknameLabel != null && p != null) {
+            nicknameLabel.setText("Hi, " + p.getNickname());
+        }
+    }
+
+    // Xử lý sự kiện khi di chuột vào button
     @FXML
-    private void onChooseSkin() {
+    private void onButtonMouseEntered(javafx.scene.input.MouseEvent event) {
+        javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
+        String buttonId = sourceButton.getId();
+        javafx.scene.image.Image hoverImage = null;
+
+        switch (buttonId) {
+            case "startButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/start c.png").toExternalForm());
+                startImageView.setImage(hoverImage);
+                break;
+            case "continueButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/continue c.png").toExternalForm());
+                continueImageView.setImage(hoverImage);
+                break;
+            case "settingsButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/settings c.png").toExternalForm());
+                settingsImageView.setImage(hoverImage);
+                break;
+            case "exitButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/exit c.png").toExternalForm());
+                exitImageView.setImage(hoverImage);
+                break;
+            case "leaderboardButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/leaderboardDemo c.png").toExternalForm()
+                );
+                leaderboardImageView.setImage(hoverImage);
+                break;
+            case "logoutButton":
+                hoverImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/logout c.png").toExternalForm()
+                );
+                logoutImageView.setImage(hoverImage);
+                break;
+        }
+    }
+
+    // Xử lý sự kiện khi di chuột ra khỏi button
+    @FXML
+    private void onButtonMouseExited(javafx.scene.input.MouseEvent event) {
+        javafx.scene.control.Button sourceButton = (javafx.scene.control.Button) event.getSource();
+        String buttonId = sourceButton.getId();
+        javafx.scene.image.Image normalImage = null;
+
+        switch (buttonId) {
+            case "startButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/start.png").toExternalForm());
+                startImageView.setImage(normalImage);
+                break;
+            case "continueButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/continue.png").toExternalForm());
+                continueImageView.setImage(normalImage);
+                break;
+            case "settingsButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/settings.png").toExternalForm());
+                settingsImageView.setImage(normalImage);
+                break;
+            case "exitButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/exit.png").toExternalForm());
+                exitImageView.setImage(normalImage);
+                break;
+            case "leaderboardButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/leaderboardDemo.png").toExternalForm());
+                leaderboardImageView.setImage(normalImage);
+                break;
+            case "logoutButton":
+                normalImage = new javafx.scene.image.Image(
+                        getClass().getResource("/game/arkanoid/images/logout.png").toExternalForm());
+                logoutImageView.setImage(normalImage);
+                break;
+        }
+    }
+
+    // Bắt đầu trò chơi
+    @FXML
+    private void startGame(ActionEvent event) {
         try {
-            Stage stage = (Stage) starCanvas.getScene().getWindow();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/game/arkanoid/SkinSelect.fxml"));
-            Scene scene = new Scene(loader.load());
-            stage.setScene(scene);
+            // Chuyển sang màn hình Loading
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/Loading.fxml"));
+            Parent root = loader.load();
+
+            LoadingController controller = loader.getController();
+            controller.setPlayer(currentPlayer);
+            controller.setLevel(1); // Start từ level 1
+            controller.setLoadFromSave(false); // Start game mới
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+
+            // Bắt đầu loading (2 giây rồi chuyển sang game)
+            controller.startLoading();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // --- Bắt đầu game ---
+    // Continue game từ save
     @FXML
-    private void onStartGame() {
+    private void continueGame(ActionEvent event) {
         try {
-            Stage stage = (Stage) starCanvas.getScene().getWindow();
-            ArkanoidGame game = new ArkanoidGame();
-            game.setBallImage(selectedBallImage);
-            game.setPaddleImage(selectedPaddleImage);
-            game.start(stage);
-        } catch (Exception e) {
+            // Kiểm tra xem có save game không
+            if (!GameDataManager.hasSaveGame()) {
+                // Nếu không có save game, start game mới từ level 1
+                System.out.println("No save game found. Starting new game from level 1.");
+                startGame(event);
+                return;
+            }
+
+            // Load save data để lấy level
+            game.arkanoid.player_manager.GameSaveData saveData = GameDataManager.loadGameSave();
+            int savedLevel = (saveData != null) ? saveData.getCurrentLevel() : 1;
+
+            // Chuyển sang màn hình Loading
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/Loading.fxml"));
+            Parent root = loader.load();
+
+            LoadingController controller = loader.getController();
+            controller.setPlayer(currentPlayer);
+            controller.setLevel(savedLevel); // Load level từ save
+            controller.setLoadFromSave(true); // Load từ save
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+
+            // Bắt đầu loading (2 giây rồi chuyển sang game)
+            controller.startLoading();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // --- Thoát game ---
+    // Mở cửa sổ Cài đặt (Settings)
     @FXML
-    private void onExit() {
+    private void openSettings(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/SettingsView.fxml"));
+            Parent root = loader.load();
+
+            SettingsController settingsController = loader.getController();
+            settingsController.setMainController(null);   //  báo cho Settings biết là mở từ menu
+            settingsController.setPlayer(currentPlayer);  //  truyền Player vào SettingsController
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Thoát khỏi ứng dụng hoàn toàn.
+    @FXML
+    private void exitGame() {
+        System.out.println("Exit game");
         System.exit(0);
+    }
+
+    @FXML
+    private void logout(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/game/arkanoid/fxml/LoginView.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void openLeaderboard(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/game/arkanoid/fxml/Leaderboard.fxml")
+            );
+            Parent root = loader.load();
+
+            // truyền player vào LeaderboardController (nếu cần highlight rank)
+            game.arkanoid.player_manager.LeaderboardController controller = loader.getController();
+            controller.setCurrentPlayer(currentPlayer);
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
