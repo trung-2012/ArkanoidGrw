@@ -3,7 +3,7 @@ Arkanoid Game – Object-Oriented Programming Project
 
 Tác giả  
 ---
-**Nhóm 1** – Lớp **TH OOP INT2204 11 - I2526**  
+**Nhóm: Đội của chúng ta** – Lớp **TH OOP INT2204 11 - I2526**  
 + 👨‍💻 Lê Ngọc Phong – 24021593  
 + 👨‍💻 Phạm Văn Trung – 24021649  
 + 👨‍💻 Nguyễn Văn Tùng – 24021665  
@@ -32,7 +32,7 @@ Dự án thể hiện khả năng áp dụng các nguyên lý OOP, tổ chức c
 + 🏆Tích hợp bảng xếp hạng (Leaderboard) cho phép người chơi xem và so sánh điểm số.  
 + 🗺Màn hình Settings hoàn chỉnh hỗ trợ đổi skin bóng/paddle, xem trước (preview) và hoàn toàn có thể sử dụng khi chuyển sang pause_game.
 + 🌀Hỗ trợ nhiều màn chơi (levels) thông qua hệ thống LevelLoader đọc file .txt và tự cập nhật hình nền theo từng màn.  
-+ Ngoài các loại gạch cơ bản Game còn hỗ trợ loại gạch đặc biệt SecretBrick với khả năng biến hình sau mỗi 10 giây. SecretBrick không chỉ thay đổi ngoại hình mà còn chuyển đổi hoàn toàn hành vi sang loại gạch mới (Normal, Wood, Iron, Gold, Explode, Insane). Cơ chế này tạo ra tính bất ngờ trong gameplay vì sức bền, điểm số và tác động của viên gạch có thể thay đổi liên tục theo thời gian.
++ 👾Ngoài các loại gạch cơ bản Game còn hỗ trợ loại gạch đặc biệt SecretBrick với khả năng biến hình sau mỗi 10 giây. SecretBrick không chỉ thay đổi ngoại hình mà còn chuyển đổi hoàn toàn hành vi sang loại gạch mới (Normal, Wood, Iron, Gold, Explode, Insane). Cơ chế này tạo ra tính bất ngờ trong gameplay vì sức bền, điểm số và tác động của viên gạch có thể thay đổi liên tục theo thời gian.
 
 **Các hiệu ứng**  
 + 🧩Hiệu ứng mảnh vụn rơi khi gạch bị phá hủy. Các mảnh vụn sẽ rơi xuống dưới với trọng lực và độ trong suốt giảm dần.
@@ -41,7 +41,8 @@ Dự án thể hiện khả năng áp dụng các nguyên lý OOP, tổ chức c
 + 🎬Render intro animation khi bắt đầu level. Hiển thị "LEVEL X" với hiệu ứng RGB split glitch và scan line.
 + 🌈Render level clear animation khi hoàn thành level. Hiển thị hiệu ứng burst và fade to white.
 + ⏳Render countdown animation (3, 2, 1, START!) trước khi bắt đầu chơi. Hiển thị số đếm ngược với hiệu ứng RGB split, ring expansion và particles.
-+ 🌠Bóng có trail effect (hiệu ứng vệt đuôi) khi di chuyển.  
++ 🌠Bóng có trail effect (hiệu ứng vệt đuôi) khi di chuyển.
++ 🌀Hiệu ứng loading cho từng level.  
 
 🕹**Cơ chế hoạt động trong game**
 + Điều khiển paddle để đánh bóng
@@ -51,11 +52,11 @@ Dự án thể hiện khả năng áp dụng các nguyên lý OOP, tổ chức c
 + Mỗi cấp độ có map nền khác nhau
 + Thua khi rơi hết số mạng
 
-UML Diagram
+🧩UML Diagram
 ---
-
+![UML Diagram](src/main/resources/game/arkanoid/readme_images/UML.png)  
 Diagram được generate bằng IntelliJ IDEA.  
-Toàn bộ UML được lưu trong thư mục: docs/uml/  
+**🎯 Chức năng**: mô tả toàn bộ cấu trúc class, quan hệ kế thừa, association và dependency giữa các module Controller, Manager, Model, View.  
 
 Design Patterns được sử dụng
 ---
@@ -63,7 +64,6 @@ Design Patterns được sử dụng
 Sử dụng trong:  
 + GameSettings  
 + SoundManager  
-+ PowerUpManager
 
 **Mục đích:**
 Đảm bảo mỗi thành phần quan trọng của game chỉ tồn tại một instance duy nhất, giúp quản lý tài nguyên tập trung, giảm xung đột trạng thái và tránh tạo đối tượng không cần thiết.
@@ -141,6 +141,7 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 | ![](src/main/resources/game/arkanoid/images/PlayAgain.png) | PlayAgain | Chơi lại |
 | ![](src/main/resources/game/arkanoid/images/backToMain.png) | Back to Menu | Trở về menu chính khi đang chơi |
 | ![](src/main/resources/game/arkanoid/images/resetCurrentLv.png) | PlayAgain | Chơi lại khi đang chơi dở |
+| ![](src/main/resources/game/arkanoid/images/continue.png) | Continue | Tiếp tục chơi |
 
 
 ### 🎁Các Power-up trong game
@@ -172,6 +173,9 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 ### 🔐Login
 ![Login](src/main/resources/game/arkanoid/readme_images/login_demo.png)
 
+### 📝Register  
+![Register](src/main/resources/game/arkanoid/readme_images/dangky_demo.png)  
+
 ### 🏁Start Menu
 ![Start Menu](src/main/resources/game/arkanoid/readme_images/StartMenu_demo.png)
 
@@ -196,6 +200,18 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 ### 🏁EndGame
 
 ![EndGame](src/main/resources/game/arkanoid/readme_images/end_demo.png)
+
+## 🎥 Gameplay Demo
+[![Watch the video](https://img.youtube.com/vi/drTlYjZBf0U/0.jpg)](https://www.youtube.com/watch?v=drTlYjZBf0U)  
+🎮 *Trải nghiệm gameplay Arkanoid – JavaFX – OOP – UET – VNU với đầy đủ hiệu ứng, power-up và animation!*
+
+**Nội dung video:**
+- ✅ Toàn bộ flow game từ đăng nhập đến gameplay
+- ✅ Demo các tính năng: Settings, Preview, Leaderboard
+- ✅ Gameplay qua 4 levels với các power-up
+- ✅ Hiệu ứng đặc biệt: SecretBrick transform, Explosion, Debris
+- ✅ Hệ thống save/load game
+- ✅ Loading screen với level notes
 
 🚀Hướng phát triển trong tương lai
 ---
@@ -225,6 +241,149 @@ Chia trách nhiệm đúng nơi, giúp SecretBrick mang hành vi chính xác c�
 | **JavaFX** | 17–21 | Xây dựng giao diện người dùng (UI) và đồ họa |
 | **Maven** | 3.9+ | Quản lý dependency và build project |
 | **CSS** | — | Tạo style cho giao diện JavaFX |
+
+---
+
+### 📁 Cấu trúc dự án
+---
+
+```
+ArkanoidGrw/
+├── src/
+│   ├── main/
+│   │   ├── java/game/arkanoid/
+│   │   │   ├── controllers/          # Các controller điều khiển UI (FXML)
+│   │   │   │   ├── GameOverController.java
+│   │   │   │   ├── MainController.java
+│   │   │   │   ├── PauseController.java
+│   │   │   │   ├── PreviewGameController.java
+│   │   │   │   ├── SettingsController.java
+│   │   │   │   ├── StartMenuController.java
+│   │   │   │   └── LoadingController.java
+│   │   │   ├── managers/              # Quản lý logic game
+│   │   │   │   ├── CollisionManager.java
+│   │   │   │   ├── InputManager.java
+│   │   │   │   ├── PowerUpManager.java
+│   │   │   │   ├── RenderManager.java
+│   │   │   │   ├── ScoreManager.java
+│   │   │   │   └── SoundManager.java
+│   │   │   ├── models/                # Các entities của game
+│   │   │   │   ├── Ball.java
+│   │   │   │   ├── Paddle.java
+│   │   │   │   ├── Brick.java (abstract)
+│   │   │   │   ├── NormalBrick.java
+│   │   │   │   ├── WoodBrick.java
+│   │   │   │   ├── IronBrick.java
+│   │   │   │   ├── GoldBrick.java
+│   │   │   │   ├── ExplodeBrick.java
+│   │   │   │   ├── InsaneBrick.java
+│   │   │   │   ├── SecretBrick.java
+│   │   │   │   ├── ExplosionEffect.java
+│   │   │   │   └── DebrisEffect.java
+│   │   │   ├── player_manager/        # Hệ thống player & leaderboard
+│   │   │   │   ├── Player.java
+│   │   │   │   ├── PlayerData.java
+│   │   │   │   ├── GameSaveData.java
+│   │   │   │   ├── GameDataManager.java
+│   │   │   │   ├── LoginController.java
+│   │   │   │   ├── NicknameController.java
+│   │   │   │   └── LeaderboardController.java
+│   │   │   ├── powerup/               # Hệ thống power-up
+│   │   │   │   ├── PowerUp.java
+│   │   │   │   ├── PowerUpType.java
+│   │   │   │   ├── LaserBeam.java
+│   │   │   │   └── Shield.java
+│   │   │   ├── utils/                 # Utilities & constants
+│   │   │   │   ├── GameConstants.java
+│   │   │   │   ├── GameSettings.java
+│   │   │   │   ├── LevelLoader.java
+│   │   │   │   └── Vector2D.java
+│   │   │   └── views/                 # Main view & game engine
+│   │   │       ├── Main.java
+│   │   │       ├── Launcher.java
+│   │   │       └── GameEngine.java
+│   │   └── resources/game/arkanoid/
+│   │       ├── css/                   # Stylesheets
+│   │       │   └── slider-style.css
+│   │       ├── fxml/                  # UI layouts (10 files)
+│   │       │   ├── LoginView.fxml
+│   │       │   ├── Nickname.fxml
+│   │       │   ├── StartMenu.fxml
+│   │       │   ├── MainView.fxml
+│   │       │   ├── PauseView.fxml
+│   │       │   ├── SettingsView.fxml
+│   │       │   ├── PreviewGame.fxml
+│   │       │   ├── Loading.fxml
+│   │       │   ├── GameOver.fxml
+│   │       │   └── LeaderBoard.fxml
+│   │       ├── images/                # Game assets & sprites
+│   │       ├── levels/                # Level configuration files
+│   │       │   ├── level1.txt
+│   │       │   ├── level2.txt
+│   │       │   ├── level3.txt
+│   │       │   └── level4.txt
+│   │       ├── sounds/                # Audio files (17 files)
+│   │       └── readme_images/         # Screenshots cho README
+│   └── test/java/game/arkanoid/       # Unit tests
+├── target/                            # Compiled files
+├── pom.xml                            # Maven configuration
+├── gamesave.dat                       # Game save file
+└── README.md
+```
+
+---
+
+### 📊 Thống kê dự án
+---
+
+| 📌 Metric | 🔢 Số lượng |
+|-----------|-------------|
+| 📝 **Tổng số file Java** | 45 files |
+| 📦 **Tổng số class** | 45+ classes |
+| 🎨 **FXML files** | 10 files |
+| 🎵 **Sound effects** | 17 files |
+| 🗺 **Levels** | 4 màn chơi |
+| 🎁 **Power-ups** | 8 loại (MultiBall, LaserBeam, Shield, ExtraLife, PaddleGrow, PaddleShrink, Weak, Strong) |
+| 🧱 **Brick types** | 7 loại (Normal, Wood, Iron, Gold, Explode, Insane, Secret) |
+| 🎮 **Controllers** | 10 controllers |
+| 🛠 **Managers** | 6 managers |
+| 📱 **Views** | 3 main views |
+
+---
+
+### ⚠️ Hạn chế & Known Issues
+---
+
+**🔧 Các hạn chế hiện tại:**
++ 🎵 **Audio delay**: Âm thanh có thể bị delay nhẹ trên một số máy cấu hình thấp do JavaFX MediaPlayer
++ 🖼 **Performance**: Hiệu ứng particles/debris có thể giảm FPS khi có quá nhiều object cùng lúc (>50 objects)
++ 💾 **Save system**: Chỉ hỗ trợ lưu local vào file `gamesave.dat`, chưa có cloud sync
++ 🌐 **Leaderboard**: Bảng xếp hạng chỉ lưu local, chưa có online ranking/multiplayer
++ 🎮 **Input lag**: Có thể xảy ra input lag nhẹ nếu FPS drop xuống dưới 30
+
+**🔮 Workarounds:**
++ Nếu FPS thấp: Giảm số lượng debris/particles trong `GameConstants`
++ Nếu âm thanh bị lag: Tắt hết
++ Nếu game bị freeze: Restart level bằng nút Reset
+
+---
+
+### 🙏 Tài nguyên & Tham khảo
+---
+
+**📚 Tài liệu kỹ thuật:**
++ [JavaFX Documentation](https://openjfx.io/)
++ [Design Patterns: Elements of Reusable Object-Oriented Software](https://refactoring.guru/design-patterns)
++ [Game Programming Patterns](https://gameprogrammingpatterns.com/)
++ [Chat GPT](https://chatgpt.com/)
+
+**🎨 Assets & Resources:**
++ 🎵 **Sound effects**: Free sound effects từ [Freesound.org](https://freesound.org/) & tự thu âm
++ 🖼 **Graphics**: Tự thiết kế bằng [Gemini](https://gemini.google.com/app), chỉnh sửa và cắt ghép bổ sung từ nhiều nguồn
++ 🎨 **Icons**: [Flaticon](https://www.flaticon.com/) & custom design
++ 🎮 **Game concept**: Dựa trên Arkanoid classic (Taito, 1986)
+
+---
 
 📜License
 ---
